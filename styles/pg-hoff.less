@@ -1,0 +1,42 @@
+// The ui-variables file is provided by base themes provided by Atom.
+//
+// See https://github.com/atom/atom-dark-ui/blob/master/styles/ui-variables.less
+// for a full listing of what's available.
+@import "ui-variables";
+
+.pg-hoff-results-view {
+    padding: 10px 10px 10px 0px;
+    font-family: 'Menlo';
+    height: 300px;
+    overflow-y: scroll;
+
+    .executing { padding: 10px; }
+    pre { font-family: 'Menlo'; padding: 0px; }
+    div.table {
+        background: #FFF;
+        border: 1px solid #999;
+
+        table {
+            width: 100%;
+            td { white-space:nowrap; vertical-align: top; }
+            tr {
+                white-space:nowrap;
+                th {
+                    font-weight: normal;
+                    background: #efefef;
+                    color: #333;
+                }
+                th,td {
+                    &:last-child {
+                        border-right: none;
+                        width: 100%;
+                    }
+                    border-bottom: 1px solid #e0e0e0;
+                    border-right: 1px solid #e0e0e0;
+                    padding: 6px 6px;
+                }
+            }
+        }
+
+    }
+}
