@@ -15,5 +15,10 @@
   "dependencies": {
     "promise": "^7.1.1",
     "request": "^2.75.0"
+  },
+  "apmInstallSource": {
+    "type": "git",
+    "source": "rikard2/pg-hoff",
+    "sha": "f08f4880b8c59b2b0fd8e5a41adc980965894cbb"
   }
 }
