@@ -1,13 +1,13 @@
 {
   "name": "pg-hoff",
   "main": "./lib/pg-hoff",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "The worlds greatest plugin ever.",
   "keywords": [],
   "activationCommands": {
     "atom-workspace": "pg-hoff:toggle"
   },
-  "repository": "https://github.com/atom/pg-hoff",
+  "repository": "https://github.com/rikard2/pg-hoff",
   "license": "MIT",
   "engines": {
     "atom": ">=1.0.0 <2.0.0"
