@@ -1,7 +1,7 @@
 {
   "name": "pg-hoff",
   "main": "./lib/pg-hoff",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "description": "The worlds greatest plugin ever.",
   "keywords": [],
   "activationCommands": {
