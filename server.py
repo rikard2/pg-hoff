@@ -135,7 +135,7 @@ def result(uuid):
 def lol(pos,query):
     comps = completer.get_completions(
                 Document(text=query, cursor_position=int(pos)), None)
-    return 'hej'#Response(str(json.dumps([c.text for c in comps])), mimetype='text/json')
+    return Response(str(json.dumps([c.text for c in comps])), mimetype='text/json')
 
 
 if __name__ == "__main__":

@@ -1,6 +1,7 @@
 PgHoffView = require './pg-hoff-view'
 request = require('request')
 Promise = require('promise')
+AutocompleteProvider = require('pg-hoff-autocomplete-provider')
 
 PgHoffResultsView = require './pg-hoff-results-view'
 {CompositeDisposable} = require 'atom'
@@ -10,6 +11,7 @@ module.exports = PgHoff =
   modalPanel: null
   subscriptions: null
   resultsView: null
+  provider: null
   config:
       pollInterval:
         type: 'integer',
@@ -19,6 +21,7 @@ module.exports = PgHoff =
         default: 'http://localhost:5000'
 
   activate: (state) ->
+    console.log 'activate'
     @pgHoffView = new PgHoffView(state.pgHoffViewState)
     @modalPanel = atom.workspace.addModalPanel(item: @pgHoffView.getElement(), visible: false)
     @resultsView = new PgHoffResultsView(state.pgHoffViewState)
@@ -29,6 +32,14 @@ module.exports = PgHoff =
 
     # Register command that toggles this view
     @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:toggle': => @toggle()
+
+    unless @provider?
+      AutocompleteProvider = require('./pg-hoff-autocomplete-provider')
+      @provider = new AutocompleteProvider()
+
+  provide: ->
+    console.log 'provice', provide
+    @provider
 
   deactivate: ->
     @modalPanel.destroy()
@@ -45,6 +56,10 @@ module.exports = PgHoff =
     update = @update
     pollResults = @pollResults
     resultsView = @resultsView
+    if (!selectedText = atom.workspace.getActiveTextEditor())
+      atom.notifications.addError('no editor selected')
+      return
+
     selectedText = atom.workspace.getActiveTextEditor().getSelectedText()
     if selectedText
       selectedText = selectedText.trim()

@@ -1,7 +1,7 @@
 {
   "name": "pg-hoff",
   "main": "./lib/pg-hoff",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "The worlds greatest plugin ever.",
   "keywords": [],
   "activationCommands": {
@@ -11,6 +11,13 @@
   "license": "MIT",
   "engines": {
     "atom": ">=1.0.0 <2.0.0"
+  },
+  "providedServices": {
+    "autocomplete.provider": {
+      "versions": {
+        "2.0.0": "provide"
+      }
+    }
   },
   "dependencies": {
     "promise": "^7.1.1",
