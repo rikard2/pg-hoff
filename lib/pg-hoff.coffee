@@ -2,6 +2,7 @@ PgHoffView              = require './pg-hoff-view'
 PgHoffServerRequest     = require './pg-hoff-server-request'
 PgHoffResultsView       = require './pg-hoff-results-view'
 PgHoffListServersView   = require './pg-hoff-list-servers-view'
+PgHoffQuery             = require './pg-hoff-query'
 
 {CompositeDisposable, Disposable} = require 'atom'
 
@@ -10,16 +11,27 @@ module.exports = PgHoff =
     modalPanel: null
     subscriptions: null
     resultsView: null
+    resultsViewPanel: null
     listServersView: null
     listServersViewPanel: null
 
+    runningQueries: []
+# SELECT pg_sleep(1);
+# SELECT * FROM users;
     config:
-        pollInterval:
-            type: 'integer',
-            default: 100
         host:
             type: 'string'
             default: 'http://localhost:5000'
+        pollInterval:
+            type: 'integer',
+            description: 'Poll interval in milliseconds.'
+            minimum: 10
+            maximum: 10000
+            default: 100
+        displayQueryExecutionTime:
+            type: 'boolean'
+            description: 'Display query execution time after the query is finished.'
+            default: true
 
     activate: (state) ->
         console.debug 'Activating the greatest plugin ever...'
@@ -34,24 +46,29 @@ module.exports = PgHoff =
             if (event.keyCode == 27)
                 pgHoff.listServersView.escapeKeyCaptured()
 
-        #@modalPanel = atom.workspace.addModalPanel(item: @pgHoffView.getElement(), visible: false)
         @listServersViewPanel = atom.workspace.addModalPanel(item: @listServersView.getElement(), visible: false)
+        @resultsViewPanel = atom.workspace.addBottomPanel(item: @resultsView.getElement(), visible: false)
 
         @subscriptions = new CompositeDisposable
-        @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:execute-query': => @listServers()
-        #@subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:execute-query': => @executeQuery()
+        @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:connect': => @connect()
+        @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:execute-query': => @executeQuery()
 
     deactivate: ->
-        @modalPanel.destroy()
         @subscriptions.dispose()
         @pgHoffView.destroy()
+        @resultsView.destroy()
+        @listServersView.destroy()
 
     serialize: ->
         pgHoffViewState: @pgHoffView.serialize()
 
-    listServers: ->
+    connect: ->
+        if @listServersViewPanel.isVisible()
+            @listServersViewPanel.hide()
+            return
+
         pgHoff = @
-        @listServersView.select(@listServersViewPanel)
+        @listServersView.connect(@listServersViewPanel)
             .then (server) ->
                 atom.notifications.addSuccess('Connected to ' + server.alias)
             .catch (error) ->
@@ -62,125 +79,62 @@ module.exports = PgHoff =
             .finally ->
                 pgHoff.listServersViewPanel.hide()
 
+    renderResults: (resultsets, pgHoff) ->
+        pgHoff.resultsViewPanel.show();
+        pgHoff.resultsView.update(resultsets)
+
+    keepGoing: (url, complete, pgHoff) ->
+        interval = setInterval( () ->
+            return PgHoffServerRequest.Get(url, false)
+                .then (resultsets) ->
+                    i = 0
+                    for resultset in resultsets
+                        if resultset.error
+                            complete[i] = true
+                            atom.notifications.addError(resultset.error)
+                        else
+                            if resultset.executing
+                                complete[i] = false
+                            else
+                                if complete[i] == false
+                                    complete[i] = true
+                        i++
+
+                    pgHoff.renderResults(resultsets, pgHoff)
+                    if !complete.some( (val) -> return val == false )
+                        clearInterval(interval)
+
+                .catch (err) ->
+                    console.error 'catch', err
+                    clearInterval(interval)
+                    atom.notifications.addError(err)
+        , atom.config.get('pg-hoff.pollInterval'))
+
     executeQuery: ->
-        console.log 'execute query'
-###
-    atom.workspace.addBottomPanel(item: @resultsView.getElement())
-
-    poll = @poll
-    update = @update
-    pollResults = @pollResults
-    resultsView = @resultsView
-    selectedText = atom.workspace.getActiveTextEditor().getSelectedText()
-    if selectedText
-      selectedText = selectedText.trim()
-
-    @query(selectedText)
-      .then( (url) ->
-        return poll(0, url, poll, update, resultsView, pollResults)
-      ).then( () ->
-        console.log 'ALL DONE!!!'
-      )
-      .catch( (error) ->
-        atom.notifications.addError(error)
-        console.log 'catch', error
-      )
-
-  update: (x, resultsView) ->
-    resultsView.update(x)
-
-  pollResults: (url) ->
-    if (!new RegExp('^http(s)?:\/\/').test(url))
-      url = 'http://' + url
-
-    return new Promise((fulfil, reject) ->
-      options =
-        method: 'GET',
-        url: url,
-        headers:
-          'cache-control': 'no-cache',
-          'content-type': 'multipart/form-data;'
-
-      request(options, (error, response, body) ->
-        if error
-          reject(error)
-          atom.notifications.addError('pg-hoff error: ' + error)
-          return
-
-        fulfil(body)
-      )
-    )
-
-  poll: (counter, url, poll, update, resultsView, pollResults, f, r) ->
-    counter = counter + 1
-    interval = atom.config.get('pg-hoff.pollInterval')
-
-    if counter == 100
-      if r
-        r('To many iterations (100)')
-
-      return
-
-    return new Promise((fulfil, reject) ->
-      setTimeout( () ->
-        pollResults(url).then( (res) ->
-          x = JSON.parse(res)[0]
-          if !x
-            reject('No result.')
+        selectedText = atom.workspace.getActiveTextEditor().getSelectedText()
+        pgHoff = @
+        if selectedText.trim().length == 0
+            pgHoff.resultsViewPanel.hide()
             return
-          update(x, resultsView)
-          if x && x.executing
-            # HERE IS WHERE YOU KEEP THE TIMEOUT LOOP GOING!
-            return poll(counter, url, poll, update, resultsView, pollResults, fulfil, reject)
-          else
-            # IF NOT EXECUTING, HERE IS WHERE YOU END THE TIMEOUT LOOP!
-            if f
-              # HOW THE PROMISE NOT RESOLVE HERE???.... WTF
-              f(x)
-            else
-              fulfil(x)
-        ).catch( (err) ->
-          console.log 'error___', err
-          # ERROR, END THE TIMEOUT LOOP
-          if r
-            r(err)
-          else
-            reject(err)
-        )
 
-      , interval)
-    )
+        PgHoffQuery.Execute(selectedText)
+            .then (result) ->
+                complete = []
+                queryStillExecuting = false
+                for resultset in result.resultsets
+                    if resultset.error
+                        complete.push(true)
+                        atom.notifications.addError(resultset.error)
+                    else
+                        if resultset.executing
+                            complete.push(false)
+                            queryStillExecuting = true
+                        else
+                            complete.push(true)
+                if queryStillExecuting
+                    pgHoff.keepGoing(result.url, complete, pgHoff)
 
-  query: (sql) ->
-    return new Promise((fulfil, reject) ->
-      host = atom.config.get('pg-hoff.host')
-      if (new RegExp('/$').test(host))
-        host = host + 'query'
-      else
-        host = host + '/query'
-
-      options =
-        method: 'POST',
-        url: host,
-        headers:
-          'cache-control': 'no-cache',
-          'content-type': 'multipart/form-data;'
-        formData:
-          query: sql
-      request(options, (error, response, body) ->
-        if error
-          reject(error)
-          atom.notifications.addError('pg-hoff error: ' + error)
-          return
-
-        re = new RegExp("[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}$")
-
-        if re.test
-          # Great
-          fulfil(body)
-        else
-          reject(body)
-          atom.notifications.addError('body ' + body + ' is not a valid response')
-      )
-    )
-###
+                pgHoff.renderResults(result.resultsets, pgHoff)
+            .catch (err) ->
+                pgHoff.resultsViewPanel.hide()
+                atom.notifications.addError(err)

@@ -13,7 +13,7 @@ class PgHoffListServersView
         if @reject
             @reject('Escape key captured')
 
-    select: (panel) ->
+    connect: (panel) ->
         listServersView = @
         return PgHoffServerRequest.Get 'listservers'
             .then (servers) ->
@@ -39,12 +39,15 @@ class PgHoffListServersView
                 element.removeChild(element.firstChild)
 
             for server of servers
+                loc = server
                 servers[server].alias = server
                 container = element.appendChild document.createElement('div')
                 container.classList.add 'server'
-
+                container.setAttribute('alias', server)
                 container.onclick = ->
-                    resolve(servers[server])
+                    s = servers[this.getAttribute('alias')]
+                    element.innerHTML = '<div class="connecting">Connecting to ' + s.alias + '...</div>'
+                    resolve(s)
 
                 title = container.appendChild document.createElement('div')
                 title.classList.add 'title'
@@ -52,9 +55,10 @@ class PgHoffListServersView
 
                 url = container.appendChild document.createElement('div')
                 url.classList.add 'url'
-                url.innerHTML = servers[server].url + ' &#10003;'
+                url.innerHTML = servers[server].url
                 if servers[server].connected
                     url.classList.add 'connected'
+                    url.innerHTML = url.innerHTML + ' &#10003;'
         )
 
     serialize: ->

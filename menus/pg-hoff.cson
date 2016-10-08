@@ -1,22 +1,26 @@
 # See https://atom.io/docs/latest/hacking-atom-package-word-count#menus for more details
 'context-menu':
-  'atom-text-editor': [
-    {
-      'label': 'Toggle pg-hoff'
-      'command': 'pg-hoff:execute-query'
-    }
-  ]
-'menu': [
-  {
-    'label': 'Packages'
-    'submenu': [
-      'label': 'pg-hoff'
-      'submenu': [
+    'atom-text-editor': [
         {
-          'label': 'Execute Selected Query'
-          'command': 'pg-hoff:execute-query'
+            'label': 'Execute Query'
+            'command': 'pg-hoff:execute-query'
         }
-      ]
     ]
-  }
-]
+    'menu': [
+        {
+            'label': 'Packages'
+            'submenu': [
+                'label': 'pg-hoff'
+                'submenu': [
+                    {
+                        'label': 'Connect'
+                        'command': 'pg-hoff:connect'
+                    },
+                    {
+                        'label': 'Execute Selected Query'
+                        'command': 'pg-hoff:execute-query'
+                    }
+                ]
+            ]
+        }
+    ]

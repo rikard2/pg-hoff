@@ -5,6 +5,7 @@
 @import "ui-variables";
 
 .pg-hoff-list-servers {
+    .connecting { padding: 5px 10px; font-size: 13px; font-weight: bold; }
     .server {
         padding: 5px 10px;
 
@@ -34,11 +35,28 @@
 .pg-hoff-results-view {
     padding: 10px 10px 10px 0px;
     font-family: 'Menlo';
-    height: 300px;
+    max-height: 300px;
     overflow-y: scroll;
 
     .executing { padding: 10px; }
     pre { font-family: 'Menlo'; padding: 0px; }
+
+    div.toolbar {
+        .tool {
+            float: right;
+            margin-left: 5px;
+
+            &:hover {
+                font-weight: bold;
+                cursor: pointer;
+            }
+        }
+
+        .clear {
+            clear: both;
+        }
+    }
+
     div.table {
         background: #FFF;
         border: 1px solid #999;
@@ -60,7 +78,7 @@
                     }
                     border-bottom: 1px solid #e0e0e0;
                     border-right: 1px solid #e0e0e0;
-                    padding: 6px 6px;
+                    padding: 6px 6px 3px 6px;
                 }
             }
         }
