@@ -14,6 +14,8 @@ class PgHoffQuery
             .Post('query', request, false)
             .then (response) ->
                 re = new RegExp("([a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12})$")
+                if response == 'not_connected'
+                    throw("Connect to a server douchebag (" + atom.keymaps.findKeyBindings(command: 'pg-hoff:connect')[0].keystrokes + ")")
                 if !re.test(response)
                     throw("/query did not generate a valid response")
                 url = response

@@ -16,8 +16,7 @@ module.exports = PgHoff =
     listServersViewPanel: null
 
     runningQueries: []
-# SELECT pg_sleep(1);
-# SELECT * FROM users;
+
     config:
         host:
             type: 'string'
@@ -38,7 +37,7 @@ module.exports = PgHoff =
         @pgHoffView             = new PgHoffView(state.pgHoffViewState)
         @resultsView            = new PgHoffResultsView(state.pgHoffViewState)
         @listServersView        = new PgHoffListServersView(state.pgHoffViewState)
-
+        console.log atom.keymaps.findKeyBindings(command: 'pg-hoff:connect')
         pgHoff = @
 
         editor = atom.workspace.getActiveTextEditor()
