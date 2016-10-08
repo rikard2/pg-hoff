@@ -42,9 +42,6 @@ module.exports = PgHoff =
         @listServersView        = new PgHoffListServersView(state.pgHoffViewState)
 
         editor = atom.workspace.getActiveTextEditor()
-        editorView = atom.views.getView(editor).addEventListener 'keyup', (event) ->
-            if (event.keyCode == 27)
-                pgHoff.listServersView.escapeKeyCaptured()
 
         @listServersViewPanel = atom.workspace.addModalPanel(item: @listServersView.getElement(), visible: false)
         @resultsViewPanel = atom.workspace.addBottomPanel(item: @resultsView.getElement(), visible: false)

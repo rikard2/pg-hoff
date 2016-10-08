@@ -1,8 +1,6 @@
 request = require('request')
 Promise = require('promise')
 Type = require('./pg-hoff-types').Type
-{CompositeDisposable} = require 'atom'
-subscriptions = new CompositeDisposable
 
 class PgHoffResultsView
     constructor: (serializedState) ->
@@ -12,7 +10,6 @@ class PgHoffResultsView
         @element.classList.add('native-key-bindings')
 
     resultsets: []
-
 
     canTypeBeSorted: (typeCode) ->
         t = Type[typeCode]
@@ -57,7 +54,6 @@ class PgHoffResultsView
         th.textContent = text
         th.setAttribute('column_index', columnIndex)
         th.setAttribute('resultset_index', resultsetIndex)
-        subscriptions.add atom.tooltips.add(th, {title: 'Boom'})
         if resultsView.canTypeBeSorted(resultsView.resultsets[resultsetIndex].columns[columnIndex].type_code)
             th.classList.add('sortable')
             if resultsView.resultsets[resultsetIndex].columns[columnIndex].ascending == true
