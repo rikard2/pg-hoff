@@ -1,3 +1,6 @@
+request = require('request')
+Promise = require('promise')
+
 module.exports =
 class PgHoffResultsView
   constructor: (serializedState) ->

@@ -12,7 +12,7 @@ describe "PgHoff", ->
     workspaceElement = atom.views.getView(atom.workspace)
     activationPromise = atom.packages.activatePackage('pg-hoff')
 
-  describe "when the pg-hoff:toggle event is triggered", ->
+  describe "when the pg-hoff:execute-query event is triggered", ->
     it "hides and shows the modal panel", ->
       # Before the activation event the view is not on the DOM, and no panel
       # has been created
@@ -20,7 +20,7 @@ describe "PgHoff", ->
 
       # This is an activation event, triggering it will cause the package to be
       # activated.
-      atom.commands.dispatch workspaceElement, 'pg-hoff:toggle'
+      atom.commands.dispatch workspaceElement, 'pg-hoff:execute-query'
 
       waitsForPromise ->
         activationPromise
@@ -33,7 +33,7 @@ describe "PgHoff", ->
 
         pgHoffPanel = atom.workspace.panelForItem(pgHoffElement)
         expect(pgHoffPanel.isVisible()).toBe true
-        atom.commands.dispatch workspaceElement, 'pg-hoff:toggle'
+        atom.commands.dispatch workspaceElement, 'pg-hoff:execute-query'
         expect(pgHoffPanel.isVisible()).toBe false
 
     it "hides and shows the view", ->
@@ -49,7 +49,7 @@ describe "PgHoff", ->
 
       # This is an activation event, triggering it causes the package to be
       # activated.
-      atom.commands.dispatch workspaceElement, 'pg-hoff:toggle'
+      atom.commands.dispatch workspaceElement, 'pg-hoff:execute-query'
 
       waitsForPromise ->
         activationPromise
@@ -58,5 +58,5 @@ describe "PgHoff", ->
         # Now we can test for view visibility
         pgHoffElement = workspaceElement.querySelector('.pg-hoff')
         expect(pgHoffElement).toBeVisible()
-        atom.commands.dispatch workspaceElement, 'pg-hoff:toggle'
+        atom.commands.dispatch workspaceElement, 'pg-hoff:execute-query'
         expect(pgHoffElement).not.toBeVisible()

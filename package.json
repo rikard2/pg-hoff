@@ -4,9 +4,6 @@
   "version": "0.1.0",
   "description": "The worlds greatest plugin ever.",
   "keywords": [],
-  "activationCommands": {
-    "atom-workspace": "pg-hoff:toggle"
-  },
   "repository": "https://github.com/rikard2/pg-hoff",
   "license": "MIT",
   "engines": {

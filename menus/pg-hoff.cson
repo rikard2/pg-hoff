@@ -3,7 +3,7 @@
   'atom-text-editor': [
     {
       'label': 'Toggle pg-hoff'
-      'command': 'pg-hoff:toggle'
+      'command': 'pg-hoff:execute-query'
     }
   ]
 'menu': [
@@ -13,8 +13,8 @@
       'label': 'pg-hoff'
       'submenu': [
         {
-          'label': 'Toggle'
-          'command': 'pg-hoff:toggle'
+          'label': 'Execute Selected Query'
+          'command': 'pg-hoff:execute-query'
         }
       ]
     ]

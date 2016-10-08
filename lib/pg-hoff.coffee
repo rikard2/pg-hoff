@@ -1,44 +1,70 @@
-PgHoffView = require './pg-hoff-view'
-request = require('request')
-Promise = require('promise')
+PgHoffView              = require './pg-hoff-view'
+PgHoffServerRequest     = require './pg-hoff-server-request'
+PgHoffResultsView       = require './pg-hoff-results-view'
+PgHoffListServersView   = require './pg-hoff-list-servers-view'
 
-PgHoffResultsView = require './pg-hoff-results-view'
-{CompositeDisposable} = require 'atom'
+{CompositeDisposable, Disposable} = require 'atom'
 
 module.exports = PgHoff =
-  pgHoffView: null
-  modalPanel: null
-  subscriptions: null
-  resultsView: null
-  config:
-      pollInterval:
-        type: 'integer',
-        default: 100
-      host:
-        type: 'string'
-        default: 'http://localhost:5000'
+    pgHoffView: null
+    modalPanel: null
+    subscriptions: null
+    resultsView: null
+    listServersView: null
+    listServersViewPanel: null
 
-  activate: (state) ->
-    @pgHoffView = new PgHoffView(state.pgHoffViewState)
-    @modalPanel = atom.workspace.addModalPanel(item: @pgHoffView.getElement(), visible: false)
-    @resultsView = new PgHoffResultsView(state.pgHoffViewState)
-    @runningQueries = []
+    config:
+        pollInterval:
+            type: 'integer',
+            default: 100
+        host:
+            type: 'string'
+            default: 'http://localhost:5000'
 
-    # Events subscribed to in atom's system can be easily cleaned up with a CompositeDisposable
-    @subscriptions = new CompositeDisposable
+    activate: (state) ->
+        console.debug 'Activating the greatest plugin ever...'
+        @pgHoffView             = new PgHoffView(state.pgHoffViewState)
+        @resultsView            = new PgHoffResultsView(state.pgHoffViewState)
+        @listServersView        = new PgHoffListServersView(state.pgHoffViewState)
 
-    # Register command that toggles this view
-    @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:toggle': => @toggle()
+        pgHoff = @
 
-  deactivate: ->
-    @modalPanel.destroy()
-    @subscriptions.dispose()
-    @pgHoffView.destroy()
+        editor = atom.workspace.getActiveTextEditor()
+        editorView = atom.views.getView(editor).addEventListener 'keyup', (event) ->
+            if (event.keyCode == 27)
+                pgHoff.listServersView.escapeKeyCaptured()
 
-  serialize: ->
-    pgHoffViewState: @pgHoffView.serialize()
+        #@modalPanel = atom.workspace.addModalPanel(item: @pgHoffView.getElement(), visible: false)
+        @listServersViewPanel = atom.workspace.addModalPanel(item: @listServersView.getElement(), visible: false)
 
-  toggle: ->
+        @subscriptions = new CompositeDisposable
+        @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:execute-query': => @listServers()
+        #@subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:execute-query': => @executeQuery()
+
+    deactivate: ->
+        @modalPanel.destroy()
+        @subscriptions.dispose()
+        @pgHoffView.destroy()
+
+    serialize: ->
+        pgHoffViewState: @pgHoffView.serialize()
+
+    listServers: ->
+        pgHoff = @
+        @listServersView.select(@listServersViewPanel)
+            .then (server) ->
+                atom.notifications.addSuccess('Connected to ' + server.alias)
+            .catch (error) ->
+                if error == 'Already connected to server.'
+                    atom.notifications.addInfo(error)
+                else
+                    atom.notifications.addError(error)
+            .finally ->
+                pgHoff.listServersViewPanel.hide()
+
+    executeQuery: ->
+        console.log 'execute query'
+###
     atom.workspace.addBottomPanel(item: @resultsView.getElement())
 
     poll = @poll
@@ -59,7 +85,6 @@ module.exports = PgHoff =
         atom.notifications.addError(error)
         console.log 'catch', error
       )
-
 
   update: (x, resultsView) ->
     resultsView.update(x)
@@ -158,3 +183,4 @@ module.exports = PgHoff =
           atom.notifications.addError('body ' + body + ' is not a valid response')
       )
     )
+###

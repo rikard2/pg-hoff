@@ -4,6 +4,33 @@
 // for a full listing of what's available.
 @import "ui-variables";
 
+.pg-hoff-list-servers {
+    .server {
+        padding: 5px 10px;
+
+        .title {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .url {
+            font-size: 12px;
+            color: #999;
+
+            &.connected {
+                color: green;
+            }
+        }
+
+        &:hover {
+            background: rgb(19, 157, 255);
+            cursor: pointer;
+            .title, .url {
+                color: white
+            }
+        }
+    }
+}
 .pg-hoff-results-view {
     padding: 10px 10px 10px 0px;
     font-family: 'Menlo';
