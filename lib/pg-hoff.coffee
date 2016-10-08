@@ -27,18 +27,19 @@ module.exports = PgHoff =
             minimum: 10
             maximum: 10000
             default: 100
+        locale:
+            type: 'string'
+            default: 'sv-SE'
         displayQueryExecutionTime:
             type: 'boolean'
             description: 'Display query execution time after the query is finished.'
             default: true
 
     activate: (state) ->
-        console.debug 'Activating the greatest plugin ever...'
+        console.debug 'Activating the greatest plugin ever..'
         @pgHoffView             = new PgHoffView(state.pgHoffViewState)
         @resultsView            = new PgHoffResultsView(state.pgHoffViewState)
         @listServersView        = new PgHoffListServersView(state.pgHoffViewState)
-        console.log atom.keymaps.findKeyBindings(command: 'pg-hoff:connect')
-        pgHoff = @
 
         editor = atom.workspace.getActiveTextEditor()
         editorView = atom.views.getView(editor).addEventListener 'keyup', (event) ->
@@ -110,7 +111,7 @@ module.exports = PgHoff =
         , atom.config.get('pg-hoff.pollInterval'))
 
     executeQuery: ->
-        selectedText = atom.workspace.getActiveTextEditor().getSelectedText()
+        selectedText = atom.workspace.getActiveTextEditor().getSelectedText().trim()
         pgHoff = @
         if selectedText.trim().length == 0
             pgHoff.resultsViewPanel.hide()

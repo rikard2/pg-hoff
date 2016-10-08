@@ -1,5 +1,8 @@
 request = require('request')
 Promise = require('promise')
+Type = require('./pg-hoff-types').Type
+{CompositeDisposable} = require 'atom'
+subscriptions = new CompositeDisposable
 
 class PgHoffResultsView
     constructor: (serializedState) ->
@@ -10,25 +13,26 @@ class PgHoffResultsView
 
     resultsets: []
 
+
     canTypeBeSorted: (typeCode) ->
-        return typeCode == 1184 || typeCode == 23 || typeCode == 25
+        t = Type[typeCode]
+        if t
+            return t.sortFunction?
+
+        return false
 
     compare: (typeCode, left, right, asc) ->
-        val = 0
-        if typeCode == 1184
-            val = Date.parse(left) - Date.parse(right)
-        else if typeCode == 23
-            val = left - right
-        else if typeCode == 25
-            if left < right
-                val = -1
-            else
-                val = 1
+        type = Type[typeCode]
 
-        if !asc
-            val = val * -1
+        if type.sortFunction?
+            val = type.sortFunction(left, right)
 
-        return val
+            if !asc
+                val = val * -1
+
+            return val
+
+        return 0
 
     sort: (resultset, columnIndex, asc, resultsView) ->
         if resultset.columns[columnIndex].ascending?
@@ -37,10 +41,11 @@ class PgHoffResultsView
             resultset.columns[columnIndex].ascending = true
 
         ascending = resultset.columns[columnIndex].ascending
-
-
         typeCode = resultset.columns[columnIndex].type_code
-        console.log 'trying to sort', typeCode
+        if not Type[typeCode]? || not Type[typeCode].sortFunction?
+            console.log('This type is not sortable', typeCode)
+            return
+
         compare = resultsView.compare
 
         resultset.rows.sort (left, right) ->
@@ -52,6 +57,7 @@ class PgHoffResultsView
         th.textContent = text
         th.setAttribute('column_index', columnIndex)
         th.setAttribute('resultset_index', resultsetIndex)
+        subscriptions.add atom.tooltips.add(th, {title: 'Boom'})
         if resultsView.canTypeBeSorted(resultsView.resultsets[resultsetIndex].columns[columnIndex].type_code)
             th.classList.add('sortable')
             if resultsView.resultsets[resultsetIndex].columns[columnIndex].ascending == true
@@ -59,15 +65,12 @@ class PgHoffResultsView
             else if resultsView.resultsets[resultsetIndex].columns[columnIndex].ascending == false
                 th.textContent = th.textContent + ' -'
 
-            th.onclick = ->
-                console.log resultsView.resultsets[this.getAttribute('resultset_index')], this.getAttribute('column_index'), true
-                resultsView.sort(resultsView.resultsets[this.getAttribute('resultset_index')], this.getAttribute('column_index'), true, resultsView)
-                console.log 'sort by column', this.getAttribute('resultset_index'), this.getAttribute('column_index')
-                resultsView.update(resultsView.resultsets)
+        th.onclick = ->
+            resultsView.sort(resultsView.resultsets[this.getAttribute('resultset_index')], this.getAttribute('column_index'), true, resultsView)
+            resultsView.update(resultsView.resultsets)
         return th
 
     createTable: (x, resultsetIndex) ->
-        #sort(x, 0, true)
         container = document.createElement('div')
         container.classList.add('table')
 
@@ -100,11 +103,9 @@ class PgHoffResultsView
         td = document.createElement('td')
         td.textContent = text
 
-        if (typeCode == 114) # JSON
-            pre = document.createElement('pre')
-            pre.textContent = JSON.stringify(JSON.parse(text), null, '  ')
-            td.textContent = ""
-            td.appendChild(pre)
+        t = Type[typeCode]
+        if t? && t.format
+            td.textContent = t.format(text)
 
         return td
 
