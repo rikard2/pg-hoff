@@ -1,0 +1,16 @@
+{
+    "connections":
+        {
+            "Vagrant":
+                {
+                    "requiresauthkey": "False",
+                    "url": "postgres://vagrant@192.168.13.37/vagrant"
+                },
+            "NotUp":
+                {
+                    "requiresauthkey":
+                    "False",
+                    "url": "postgres://vagrant@192.168.13.38/vagrant"
+                }
+        }
+}
