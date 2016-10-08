@@ -1,12 +1,13 @@
-PgHoffView              = require './pg-hoff-view'
-PgHoffServerRequest     = require './pg-hoff-server-request'
-PgHoffResultsView       = require './pg-hoff-results-view'
-PgHoffListServersView   = require './pg-hoff-list-servers-view'
-PgHoffQuery             = require './pg-hoff-query'
-
+PgHoffView                  = require './pg-hoff-view'
+PgHoffServerRequest         = require './pg-hoff-server-request'
+PgHoffResultsView           = require './pg-hoff-results-view'
+PgHoffListServersView       = require './pg-hoff-list-servers-view'
+PgHoffQuery                 = require './pg-hoff-query'
+PgHoffAutocompleteProvider  = require('./pg-hoff-autocomplete-provider')
 {CompositeDisposable, Disposable} = require 'atom'
 
 module.exports = PgHoff =
+    provider: null
     pgHoffView: null
     modalPanel: null
     subscriptions: null
@@ -46,6 +47,9 @@ module.exports = PgHoff =
         @listServersViewPanel = atom.workspace.addModalPanel(item: @listServersView.getElement(), visible: false)
         @resultsViewPanel = atom.workspace.addBottomPanel(item: @resultsView.getElement(), visible: false)
 
+        unless @provider?
+            @provider = new PgHoffAutocompleteProvider()
+
         @subscriptions = new CompositeDisposable
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:connect': => @connect()
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:execute-query': => @executeQuery()
@@ -58,6 +62,9 @@ module.exports = PgHoff =
 
     serialize: ->
         pgHoffViewState: @pgHoffView.serialize()
+
+    provide: ->
+        @provider
 
     connect: ->
         if @listServersViewPanel.isVisible()

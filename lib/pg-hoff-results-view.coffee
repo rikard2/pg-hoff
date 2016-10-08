@@ -40,7 +40,7 @@ class PgHoffResultsView
         ascending = resultset.columns[columnIndex].ascending
         typeCode = resultset.columns[columnIndex].type_code
         if not Type[typeCode]? || not Type[typeCode].sortFunction?
-            console.log('This type is not sortable', typeCode)
+            console.error('This type is not sortable', typeCode)
             return
 
         compare = resultsView.compare
