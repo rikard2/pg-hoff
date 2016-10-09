@@ -1,2 +1,0 @@
-#!/bin/bash
-~/.pyenv/versions/3.3.6/bin/python3.3 server.py
