@@ -41,7 +41,7 @@ class PgHoffServerRequest
                     try
                         json = JSON.parse(body)
                     catch err then ->
-                        reject(err)
+                        throw('Could not parse JSON')
                         atom.notifications.addError('Could not parse JSON: ' + json)
 
                     fulfil(json)
@@ -79,7 +79,7 @@ class PgHoffServerRequest
                         try
                             json = JSON.parse(body)
                         catch err then ->
-                            reject(err)
+                            throw('Could not parse JSON')
                             atom.notifications.addError('Could not parse JSON: ' + json)
 
                         fulfil(json)
