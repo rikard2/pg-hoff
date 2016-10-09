@@ -1,7 +1,7 @@
 {
   "name": "pg-hoff",
   "main": "./lib/pg-hoff",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "The worlds greatest plugin ever.",
   "keywords": [],
   "repository": "https://github.com/rikard2/pg-hoff",
@@ -23,6 +23,6 @@
   "apmInstallSource": {
     "type": "git",
     "source": "rikard2/pg-hoff",
-    "sha": "757a180d3dd1dd0837e2705a5d73b0282ae067f7"
+    "sha": "4bf0c5093236d03ab0e3de91830dd04bbccd93b9"
   }
 }
