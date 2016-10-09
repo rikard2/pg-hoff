@@ -59,10 +59,9 @@
     }
 
     div.table {
-        background: #FFF;
-        border: 1px solid #999;
-
         table {
+            background: #FFF;
+            border: 1px solid #999;
             width: 100%;
             td { white-space:nowrap; vertical-align: top; }
             tr {
@@ -75,6 +74,11 @@
                     &.sortable:hover {
                         cursor: pointer;
                         font-weight: bold;
+                    }
+                }
+                &:last-child {
+                    td {
+                        border-bottom: 1px solid #999;
                     }
                 }
                 th,td {
