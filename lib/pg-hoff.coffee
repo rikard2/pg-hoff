@@ -53,6 +53,11 @@ module.exports = PgHoff =
             type: 'string'
             default: 'sv-SE'
             order: 7
+        executeAllWhenNothingSelected:
+            type: 'boolean'
+            description: 'Execute all text in editor when no text is selected'
+            default: true,
+            order: 8
 
     activate: (state) ->
         console.debug 'Activating the greatest plugin ever..'
@@ -136,8 +141,11 @@ module.exports = PgHoff =
         selectedText = atom.workspace.getActiveTextEditor().getSelectedText().trim()
         pgHoff = @
         if selectedText.trim().length == 0
-            pgHoff.resultsViewPanel.hide()
-            return
+            if atom.config.get('pg-hoff.executeAllWhenNothingSelected')
+                selectedText = atom.workspace.getActiveTextEditor().getText().trim()
+            else
+                pgHoff.resultsViewPanel.hide()
+                return
 
         PgHoffQuery.Execute(selectedText)
             .then (result) ->

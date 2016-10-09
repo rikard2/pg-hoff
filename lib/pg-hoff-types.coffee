@@ -3,7 +3,7 @@ class PgHoffTypes
         1184:
             name: 'Timestamp'
             format: (value) ->
-                return value #new Date(value).toLocaleString(atom.config.get('pg-hoff.locale'))
+                return new Date(value).toLocaleString(atom.config.get('pg-hoff.locale'))
             compare: (left, right) ->
                 return Date.parse(left) - Date.parse(right)
         23:
