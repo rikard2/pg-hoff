@@ -22,30 +22,37 @@ module.exports = PgHoff =
         host:
             type: 'string'
             default: 'http://localhost:5000'
+            order: 1
         pollInterval:
             type: 'integer',
             description: 'Poll interval in milliseconds.'
             minimum: 10
             maximum: 10000
             default: 100
-        autocompletionEnabled:
-            type: 'boolean'
-            default: true
-        locale:
-            type: 'string'
-            default: 'sv-SE'
+            order: 2
         displayQueryExecutionTime:
             type: 'boolean'
             description: 'Display query execution time after the query is finished.'
             default: true
+            order: 3
+        autocompletionEnabled:
+            type: 'boolean'
+            default: true
+            order: 4
         pascaliseAutocompletions:
             type: 'boolean'
             default: true
             description: 'user_name becomes User_Name'
+            order: 5
         unQuoteFunctionNames:
             type: 'boolean'
             default: true
             description: '"sum"() becomes sum()'
+            order: 6
+        locale:
+            type: 'string'
+            default: 'sv-SE'
+            order: 7
 
     activate: (state) ->
         console.debug 'Activating the greatest plugin ever..'
