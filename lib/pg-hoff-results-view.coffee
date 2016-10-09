@@ -101,7 +101,8 @@ class PgHoffResultsView
 
         t = Type[typeCode]
         if t? && t.format
-            td.textContent = t.format(text)
+            if atom.config.get('pg-hoff.formatColumns')
+                td.textContent = t.format(text)
 
         return td
 

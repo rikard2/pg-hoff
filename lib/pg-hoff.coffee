@@ -58,6 +58,11 @@ module.exports = PgHoff =
             description: 'Execute all text in editor when no text is selected'
             default: true,
             order: 8
+        formatColumns:
+            type: 'boolean'
+            description: 'This can possibly be slow'
+            default: true
+            order: 9
 
     activate: (state) ->
         console.debug 'Activating the greatest plugin ever..'
