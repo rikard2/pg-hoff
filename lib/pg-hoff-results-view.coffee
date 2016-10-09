@@ -3,6 +3,10 @@ Promise = require('promise')
 Type = require('./pg-hoff-types').Type
 
 class PgHoffResultsView
+    # There are only two rules of PgHoffResultsView...
+    # 1. It should update @element on update(resultsets)
+    # 2. Never remove @element from DOM
+
     constructor: (serializedState) ->
         @element = document.createElement('div')
         @element.classList.add('pg-hoff-results-view')
