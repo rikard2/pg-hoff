@@ -9,14 +9,11 @@ PgHoffAutocompleteProvider  = require('./pg-hoff-autocomplete-provider')
 module.exports = PgHoff =
     provider: null
     pgHoffView: null
-    modalPanel: null
     subscriptions: null
     resultsView: null
     resultsViewPanel: null
     listServersView: null
     listServersViewPanel: null
-
-    runningQueries: []
 
     config:
         host:
