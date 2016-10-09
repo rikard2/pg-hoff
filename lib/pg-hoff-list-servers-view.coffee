@@ -9,10 +9,6 @@ class PgHoffListServersView
         @element = document.createElement('div')
         @element.classList.add 'pg-hoff-list-servers'
 
-    escapeKeyCaptured: () ->
-        if @reject
-            @reject('Escape key captured')
-
     connect: (panel) ->
         listServersView = @
         return PgHoffServerRequest.Get 'listservers'
