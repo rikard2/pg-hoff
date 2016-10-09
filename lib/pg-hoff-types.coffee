@@ -6,6 +6,12 @@ class PgHoffTypes
                 return new Date(value).toLocaleString(atom.config.get('pg-hoff.locale'))
             compare: (left, right) ->
                 return Date.parse(left) - Date.parse(right)
+        1114:
+            name: 'Timestamp'
+            format: (value) ->
+                return new Date(value).toLocaleString(atom.config.get('pg-hoff.locale'))
+            compare: (left, right) ->
+                return Date.parse(left) - Date.parse(right)
         23:
             name: 'Integer'
             compare: (left, right) ->
