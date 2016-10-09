@@ -14,15 +14,15 @@ class PgHoffResultsView
     canTypeBeSorted: (typeCode) ->
         t = Type[typeCode]
         if t
-            return t.sortFunction?
+            return t.compare?
 
         return false
 
     compare: (typeCode, left, right, asc) ->
         type = Type[typeCode]
 
-        if type.sortFunction?
-            val = type.sortFunction(left, right)
+        if type.compare?
+            val = type.compare(left, right)
 
             if !asc
                 val = val * -1
@@ -39,7 +39,7 @@ class PgHoffResultsView
 
         ascending = resultset.columns[columnIndex].ascending
         typeCode = resultset.columns[columnIndex].type_code
-        if not Type[typeCode]? || not Type[typeCode].sortFunction?
+        if not Type[typeCode]? || not Type[typeCode].compare?
             console.error('This type is not sortable', typeCode)
             return
 
