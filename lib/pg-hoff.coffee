@@ -41,7 +41,7 @@ module.exports = PgHoff =
         pascaliseAutocompletions:
             type: 'boolean'
             default: true
-            description: 'Replace text in autocompletions that matches ^[a-z] and [_][a-z] with uppercase'
+            description: 'user_name becomes User_Name'
         unQuoteFunctionNames:
             type: 'boolean'
             default: true
