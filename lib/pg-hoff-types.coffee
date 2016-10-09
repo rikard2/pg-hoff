@@ -19,8 +19,21 @@ class PgHoffTypes
                     return 1
                 else
                     return 0
+        1043:
+            name: 'Character Varying'
+            compare: (left, right) ->
+                if left < right
+                    return -1
+                else if left > right
+                    return 1
+                else
+                    return 0
         701:
             name: 'Numeric'
+            compare: (left, right) ->
+                return left - right
+        20:
+            name: 'Bigint'
             compare: (left, right) ->
                 return left - right
         114:
