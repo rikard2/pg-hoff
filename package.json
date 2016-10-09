@@ -1,28 +1,28 @@
 {
-    "name": "pg-hoff",
-    "main": "./lib/pg-hoff",
-    "version": "0.0.7",
-    "description": "The worlds greatest plugin ever.",
-    "keywords": [],
-    "repository": "https://github.com/rikard2/pg-hoff",
-    "license": "MIT",
-    "engines": {
-        "atom": ">=1.0.0 <2.0.0"
-    },
-    "providedServices": {
-        "autocomplete.provider": {
-            "versions": {
-                "2.0.0": "provide"
-            }
-        }
-    },
-    "dependencies": {
-        "promise": "^7.1.1",
-        "request": "^2.75.0"
-    },
-    "apmInstallSource": {
-        "type": "git",
-        "source": "rikard2/pg-hoff",
-        "sha": "f08f4880b8c59b2b0fd8e5a41adc980965894cbb"
+  "name": "pg-hoff",
+  "main": "./lib/pg-hoff",
+  "version": "0.0.8",
+  "description": "The worlds greatest plugin ever.",
+  "keywords": [],
+  "repository": "https://github.com/rikard2/pg-hoff",
+  "license": "MIT",
+  "engines": {
+    "atom": ">=1.0.0 <2.0.0"
+  },
+  "providedServices": {
+    "autocomplete.provider": {
+      "versions": {
+        "2.0.0": "provide"
+      }
     }
+  },
+  "dependencies": {
+    "promise": "^7.1.1",
+    "request": "^2.75.0"
+  },
+  "apmInstallSource": {
+    "type": "git",
+    "source": "rikard2/pg-hoff",
+    "sha": "757a180d3dd1dd0837e2705a5d73b0282ae067f7"
+  }
 }
