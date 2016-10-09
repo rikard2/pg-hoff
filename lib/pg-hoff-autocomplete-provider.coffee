@@ -61,7 +61,12 @@ class PgHoffAutocompleteProvider
                 return suggestions
 
             .catch (err) ->
-                console.log 'catch', err
+                if new RegExp(/ECONNREFUSED/).test(err)
+                    console.error 'Cannot autocomplete because of connection refused.'
+                else if new RegExp(/Cannot read property/).test(err)
+                    console.error 'Cannot autocomplete probably because you are not connected to any servers.'
+                else
+                    console.error 'Cannot autocomplete because', err
 
 #    onDidInsertSuggestion: ({editor, triggerPosition, suggestion}) ->
 #        console.log 'onDidInsertSuggestion'
