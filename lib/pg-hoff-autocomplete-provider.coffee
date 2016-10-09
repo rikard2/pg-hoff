@@ -19,8 +19,6 @@ class PgHoffAutocompleteProvider
         if not atom.config.get('pg-hoff.autocompletionEnabled')
             return []
 
-        suggestions = []
-
         text = atom.workspace.getActiveTextEditor().getText()
         before = options.editor.getTextInBufferRange([[0, 0], options.bufferPosition])
         pos = before.length
