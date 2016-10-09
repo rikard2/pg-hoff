@@ -6,7 +6,19 @@ class PgHoffAutocompleteProvider
     selector: '.source.sql'
     constructor: () ->
 
+    @Pascalize: (text) ->
+        return text
+            .replace /^[a-z]/,      (x) -> return x.toUpperCase()
+            .replace /[_][a-z]/g,   (x) -> return x.toUpperCase()
+
+    @UnQuote: (text) ->
+        return text
+            .replace /"([A-Za-z_]+)"\(\)/, "$1()"
+
     getSuggestions: (options) ->
+        if not atom.config.get('pg-hoff.autocompletionEnabled')
+            return []
+
         suggestions = []
 
         text = atom.workspace.getActiveTextEditor().getText()
@@ -19,12 +31,31 @@ class PgHoffAutocompleteProvider
 
         return PgHoffServerRequest.Post('completions', request)
             .then (response) ->
+                pascalize = atom.config.get('pg-hoff.pascaliseAutocompletions')
+                unQuoteFunctionNames = atom.config.get('pg-hoff.unQuoteFunctionNames')
                 suggestions = response.map (value) ->
+                    type = switch value.type
+                        when 'table'        then 'type'
+                        when 'function'     then 'function'
+                        when 'keyword'      then 'keyword'
+                        when 'schema'       then 'import'
+                        when 'column'       then 'value' else 'variable'
+
+                    iconHTML = value.type.substr(0, 1).toUpperCase()
+
+                    if pascalize
+                        value.displayText = value.text = PgHoffAutocompleteProvider.Pascalize(value.text)
+
+                    if unQuoteFunctionNames
+                        value.displayText = value.text = PgHoffAutocompleteProvider.UnQuote(value.text)
+
                     suggestion =
-                        text: value
-                        displayText: value
-                        rightLabel: 'table'
-                        type: 'class'
+                        text: value.text
+                        displayText: value.text
+                        iconHTML: iconHTML
+                        rightLabel: value.type
+                        #description: 'this would be nice'
+                        type: type
                     return suggestion
 
                 return suggestions

@@ -239,7 +239,7 @@ def completer():
     query = request.form['query']
     comps = completers['Vagrant'].get_completions(
                 Document(text=query, cursor_position=int(pos)), None)
-    return Response(str(json.dumps([c.text for c in comps])), mimetype='text/json')
+    return Response(str(json.dumps([{'text': c.text, 'type': c._display_meta} for c in comps])), mimetype='text/json')
 
 @app.route("/listservers")
 def list_servers():

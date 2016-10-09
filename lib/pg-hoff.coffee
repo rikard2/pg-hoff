@@ -28,6 +28,9 @@ module.exports = PgHoff =
             minimum: 10
             maximum: 10000
             default: 100
+        autocompletionEnabled:
+            type: 'boolean'
+            default: true
         locale:
             type: 'string'
             default: 'sv-SE'
@@ -35,6 +38,14 @@ module.exports = PgHoff =
             type: 'boolean'
             description: 'Display query execution time after the query is finished.'
             default: true
+        pascaliseAutocompletions:
+            type: 'boolean'
+            default: true
+            description: 'Replace text in autocompletions that matches ^[a-z] and [_][a-z] with uppercase'
+        unQuoteFunctionNames:
+            type: 'boolean'
+            default: true
+            description: '"sum"() becomes sum()'
 
     activate: (state) ->
         console.debug 'Activating the greatest plugin ever..'
