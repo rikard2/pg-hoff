@@ -3,11 +3,18 @@
 // See https://github.com/atom/atom-dark-ui/blob/master/styles/ui-variables.less
 // for a full listing of what's available.
 @import "ui-variables";
+@pg-hoff-border-color: @base-border-color;
+
+@pg-hoff-cell-background: @base-background-color;
+@pg-hoff-cell-color: @text-color-highlight;
+@pg-hoff-header-color: @text-color-subtle;
+@pg-hoff-header-background: darken(@base-background-color, 10%);
 
 .pg-hoff-list-servers {
     .connecting { padding: 5px 10px; font-size: 13px; font-weight: bold; }
     .server {
-        padding: 5px 10px;
+        padding: @component-padding/2 @component-padding;
+        color: @text-color-highlight;
 
         .title {
             font-size: 16px;
@@ -15,26 +22,24 @@
         }
 
         .url {
-            font-size: 12px;
-            color: #999;
+            font-size: 14px;
 
             &.connected {
-                color: green;
+                color: @text-color-success;
             }
         }
 
         &:hover {
-            background: rgb(19, 157, 255);
+            background: @background-color-highlight;
             cursor: pointer;
-            .title, .url {
-                color: white
-            }
         }
     }
 }
 .pg-hoff-results-view {
-    padding: 10px 10px 10px 0px;
+    color: @text-color-highlight;
+    padding: @component-padding @component-padding @component-padding 0px;
     font-family: 'Menlo';
+    font-size: @font-size;
     max-height: 300px;
     overflow-y: scroll;
     overflow-y: scroll;
@@ -43,7 +48,7 @@
         pre {
             padding: 10px;
         }
-        border: 1px solid #999;
+        border: 1px solid @pg-hoff-border-color;
     }
     pre { font-family: 'Menlo'; padding: 0px; }
 
@@ -65,16 +70,18 @@
 
     div.table {
         table {
-            background: #FFF;
-            border: 1px solid #999;
+            background: @pg-hoff-cell-background;
+            border: 1px solid @pg-hoff-border-color;
             width: 100%;
+            padding-bottom: @component-padding;
+            padding-right: @component-padding;
             td { white-space:nowrap; vertical-align: top; }
             tr {
                 white-space:nowrap;
                 th {
                     font-weight: normal;
-                    background: #efefef;
-                    color: #333;
+                    background: @pg-hoff-header-background;
+                    color: @pg-hoff-header-color;
 
                     &.sortable:hover {
                         cursor: pointer;
@@ -83,7 +90,7 @@
                 }
                 &:last-child {
                     td {
-                        border-bottom: 1px solid #999;
+                        border-bottom: 1px solid @pg-hoff-border-color;
                     }
                 }
                 th,td {
@@ -91,9 +98,10 @@
                         border-right: none;
                         width: 100%;
                     }
+                    color: @pg-hoff-cell-color;
                     white-space: pre;
-                    border-bottom: 1px solid #e0e0e0;
-                    border-right: 1px solid #e0e0e0;
+                    border-bottom: 1px solid @pg-hoff-border-color;
+                    border-right: 1px solid @pg-hoff-border-color;
                     padding: 6px 6px 3px 6px;
                 }
             }
