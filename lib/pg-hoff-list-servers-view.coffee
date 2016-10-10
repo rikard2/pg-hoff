@@ -27,7 +27,7 @@ class PgHoffListServersView
                 if response.errormessage == 'Already connected to server.'
                     response.already_connected = true
                     return response
-                else
+                else if response.errormessage?
                     throw(response.errormessage)
 
                 return response
