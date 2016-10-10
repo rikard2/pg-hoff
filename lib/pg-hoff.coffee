@@ -157,6 +157,7 @@ module.exports = PgHoff =
                     .then ->
                         pgHoff.executeQuery()
                     .catch (err) ->
+                        console.error 'Connect error', err
                         atom.notifications.addError('Connect error')
     executeQuery: ->
         selectedText = atom.workspace.getActiveTextEditor().getSelectedText().trim()

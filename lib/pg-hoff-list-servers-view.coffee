@@ -52,12 +52,20 @@ class PgHoffListServersView
                 title.classList.add 'title'
                 title.textContent = server
 
-                url = container.appendChild document.createElement('div')
+                urlContainer = container.appendChild document.createElement('div')
+                urlContainer.classList.add 'url-container'
+
+                url = urlContainer.appendChild document.createElement('div')
                 url.classList.add 'url'
                 url.innerHTML = servers[server].url
+
                 if servers[server].connected
-                    url.classList.add 'connected'
-                    url.innerHTML = url.innerHTML + ' &#10003;'
+                    connected = urlContainer.appendChild document.createElement('div')
+                    connected.classList.add 'connected'
+                    connected.innerHTML = 'Connected &#10003;'
+
+                clear = urlContainer.appendChild document.createElement('div')
+                clear.classList.add 'clear'
         )
 
     serialize: ->

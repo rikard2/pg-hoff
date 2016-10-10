@@ -11,6 +11,7 @@
 @pg-hoff-header-background: darken(@base-background-color, 10%);
 
 .pg-hoff-list-servers {
+    .clear { clear: both; }
     .connecting { padding: 5px 10px; font-size: 13px; font-weight: bold; }
     .server {
         padding: @component-padding/2 @component-padding;
@@ -21,11 +22,19 @@
             font-weight: bold;
         }
 
-        .url {
+        .url-container {
             font-size: 14px;
-
-            &.connected {
-                color: @text-color-success;
+            .url {
+                float: left;
+            }
+            .connected {
+                float: right;
+                font-size: 13px;
+                padding: 3px 6px;
+                background: lighten(@background-color-success, 5%);
+                color: #fff;
+                border-radius: 3px;
+                margin-top: -10px;
             }
         }
 
@@ -61,10 +70,6 @@
                 font-weight: bold;
                 cursor: pointer;
             }
-        }
-
-        .clear {
-            clear: both;
         }
     }
 
