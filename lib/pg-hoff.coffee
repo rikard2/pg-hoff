@@ -149,9 +149,15 @@ module.exports = PgHoff =
         if (alias)
             pgHoff.executeQuery()
         else
-            @connect()
-                .then ->
-                    pgHoff.executeQuery()
+            promise = @connect()
+            if not promise?
+                return
+            else
+                promise
+                    .then ->
+                        pgHoff.executeQuery()
+                    .catch (err) ->
+                        atom.notifications.addError('Connect error')
     executeQuery: ->
         selectedText = atom.workspace.getActiveTextEditor().getSelectedText().trim()
         pgHoff = @
