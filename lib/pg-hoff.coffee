@@ -77,7 +77,7 @@ module.exports = PgHoff =
 
         @subscriptions = new CompositeDisposable
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:connect': => @connect()
-        @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:execute-query': => @executeQuery()
+        @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:execute-query': => @executeQueryWithConnect()
 
     deactivate: ->
         @subscriptions.dispose()
@@ -92,19 +92,23 @@ module.exports = PgHoff =
         @provider
 
     connect: ->
+        paneItem = atom.workspace.getActivePaneItem()
+
         if @listServersViewPanel.isVisible()
             @listServersViewPanel.hide()
             return
 
         pgHoff = @
-        @listServersView.connect(@listServersViewPanel)
+        return @listServersView.connect(@listServersViewPanel)
             .then (server) ->
-                atom.notifications.addSuccess('Connected to ' + server.alias)
-            .catch (error) ->
-                if error == 'Already connected to server.'
-                    atom.notifications.addInfo(error)
+                if server.already_connected
+                    atom.notifications.addInfo('Using ' + server.alias)
                 else
-                    atom.notifications.addError(error)
+                    atom.notifications.addSuccess('Connected to ' + server.alias)
+
+                paneItem.alias = server.alias
+            .catch (error) ->
+                atom.notifications.addError(error)
             .finally ->
                 pgHoff.listServersViewPanel.hide()
 
@@ -139,6 +143,15 @@ module.exports = PgHoff =
                     atom.notifications.addError(err)
         , atom.config.get('pg-hoff.pollInterval'))
 
+    executeQueryWithConnect: ->
+        alias = atom.workspace.getActivePaneItem().alias
+        pgHoff = @
+        if (alias)
+            pgHoff.executeQuery()
+        else
+            @connect()
+                .then ->
+                    pgHoff.executeQuery()
     executeQuery: ->
         selectedText = atom.workspace.getActiveTextEditor().getSelectedText().trim()
         pgHoff = @

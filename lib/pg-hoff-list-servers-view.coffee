@@ -24,7 +24,10 @@ class PgHoffListServersView
 
                 return PgHoffServerRequest.Post 'connect', request
             .then (response) ->
-                if response.errormessage
+                if response.errormessage == 'Already connected to server.'
+                    response.already_connected = true
+                    return response
+                else
                     throw(response.errormessage)
 
                 return response
