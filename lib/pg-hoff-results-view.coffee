@@ -73,29 +73,38 @@ class PgHoffResultsView
     createTable: (x, resultsetIndex) ->
         container = document.createElement('div')
         container.classList.add('table')
+        container.classList.add('executing')
 
         if x.executing
             pre = container.appendChild(document.createElement('pre'))
             pre.textContent = 'Executing for ' + x.runtime_seconds + ' seconds...'
             container.classList.add('executing')
+
             return container
+
+        if not x.complete
+            pre = container.appendChild(document.createElement('pre'))
+            pre.textContent = 'Waiting to execute...'
+            container.classList.add('executing')
 
         table = container.appendChild(document.createElement('table'))
 
         # Header columns
-        col_tr = table.appendChild(document.createElement('tr'))
-        i = 0
-        for c in x.columns
-            col_tr.appendChild(@createTh(c.name, resultsetIndex, i))
-            i = i + 1
+        if x.columns?
+            col_tr = table.appendChild(document.createElement('tr'))
+            i = 0
+            for c in x.columns
+                col_tr.appendChild(@createTh(c.name, resultsetIndex, i))
+                i = i + 1
 
         # Rows
-        for r in x.rows
-            row_tr = table.appendChild(document.createElement('tr'))
-            i = 0
-            for c in r
-                row_tr.appendChild(@createTd(c, x.columns[i].type_code))
-                i = i + 1
+        if x.rows?
+            for r in x.rows
+                row_tr = table.appendChild(document.createElement('tr'))
+                i = 0
+                for c in r
+                    row_tr.appendChild(@createTd(c, x.columns[i].type_code))
+                    i = i + 1
 
         return container
 
@@ -160,8 +169,9 @@ class PgHoffResultsView
         i = 0
         for resultset in resultsets
             if atom.config.get('pg-hoff.displayQueryExecutionTime') && !resultset.executing
-                time = @element.appendChild(document.createElement('div'))
-                time.textContent = resultset.runtime_seconds + ' seconds.'
+                if resultset.runtime_seconds?
+                    time = @element.appendChild(document.createElement('div'))
+                    time.textContent = resultset.runtime_seconds + ' seconds.'
 
             @element.appendChild(@createTable(resultset, i))
             i++
