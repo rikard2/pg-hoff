@@ -12,19 +12,18 @@ class PgHoffQuery
 
         url = null
         return PgHoffServerRequest
-            .Post('query', request, false)
+            .Post('query', request)
             .then (response) ->
                 if response.statusCode == 500
                     throw("/query status code 500")
-                re = new RegExp("([a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12})$")
-                if response == 'not_connected'
-                    throw("Connect to a server douchebag (" + atom.keymaps.findKeyBindings(command: 'pg-hoff:connect')[0].keystrokes + ")")
-                if !re.test(response)
-                    console.error('response', response)
-                    throw("/query did not generate a valid response")
-                url = response
+                else if not response.success && response.errormessage
+                    throw(response.errormessage)
+                else if not response.success
+                    throw("Lost connection. Try again!")
+
                 return response
-            .then (url) ->
+            .then (response) ->
+                url = response.Url
                 return PgHoffServerRequest.Get(url, false)
             .then (resultsets) ->
                 return {

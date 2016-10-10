@@ -169,7 +169,7 @@ module.exports = PgHoff =
                 pgHoff.resultsViewPanel.hide()
                 return
 
-        PgHoffQuery.Execute(selectedText)
+        return PgHoffQuery.Execute(selectedText)
             .then (result) ->
                 complete = []
                 queryStillExecuting = false
@@ -188,5 +188,6 @@ module.exports = PgHoff =
 
                 pgHoff.renderResults(result.resultsets, pgHoff)
             .catch (err) ->
+                atom.workspace.getActivePaneItem().alias = null
                 pgHoff.resultsViewPanel.hide()
                 atom.notifications.addError(err)
