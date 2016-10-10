@@ -8,6 +8,7 @@ class PgHoffQuery
     @Execute: (query) ->
         request =
             query: query
+            alias: atom.workspace.getActivePaneItem().alias
 
         url = null
         return PgHoffServerRequest

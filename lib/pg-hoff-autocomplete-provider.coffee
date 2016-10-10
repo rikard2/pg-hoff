@@ -18,6 +18,9 @@ class PgHoffAutocompleteProvider
     getSuggestions: (options) ->
         if not atom.config.get('pg-hoff.autocompletionEnabled')
             return []
+        if not atom.workspace.getActivePaneItem().alias
+            console.debug 'The pane has no alias.'
+            return []
 
         text = atom.workspace.getActiveTextEditor().getText()
         before = options.editor.getTextInBufferRange([[0, 0], options.bufferPosition])
@@ -26,6 +29,7 @@ class PgHoffAutocompleteProvider
         request =
             pos: pos
             query: text
+            alias: atom.workspace.getActivePaneItem().alias
 
         return PgHoffServerRequest.Post('completions', request)
             .then (response) ->
