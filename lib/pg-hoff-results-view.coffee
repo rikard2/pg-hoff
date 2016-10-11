@@ -87,6 +87,11 @@ class PgHoffResultsView
             pre.textContent = 'Waiting to execute...'
             container.classList.add('executing')
 
+        if x.statusmessage?
+            status = container.appendChild(document.createElement('div'))
+            status.classList.add('status-message')
+            status.textContent = "#{x.runtime_seconds} seconds. #{x.statusmessage}"
+
         table = container.appendChild(document.createElement('table'))
 
         # Header columns
@@ -168,11 +173,6 @@ class PgHoffResultsView
 
         i = 0
         for resultset in resultsets
-            if atom.config.get('pg-hoff.displayQueryExecutionTime') && !resultset.executing
-                if resultset.runtime_seconds?
-                    time = @element.appendChild(document.createElement('div'))
-                    time.textContent = resultset.runtime_seconds + ' seconds.'
-
             @element.appendChild(@createTable(resultset, i))
             i++
 
