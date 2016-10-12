@@ -1,14 +1,18 @@
 class PgHoffTypes
     @Type:
         1184:
-            name: 'Timestamp'
+            name: 'Timestamptz'
             format: (value) ->
+                if value == 'None'
+                  return null
                 return new Date(value).toLocaleString(atom.config.get('pg-hoff.locale'))
             compare: (left, right) ->
                 return Date.parse(left) - Date.parse(right)
         1114:
             name: 'Timestamp'
             format: (value) ->
+                if value == 'None'
+                  return null
                 return new Date(value).toLocaleString(atom.config.get('pg-hoff.locale'))
             compare: (left, right) ->
                 return Date.parse(left) - Date.parse(right)
