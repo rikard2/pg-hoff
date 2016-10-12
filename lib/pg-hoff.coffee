@@ -79,18 +79,6 @@ module.exports = PgHoff =
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:connect': => @connect()
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:execute-query': => @executeQueryWithConnect()
 
-    deactivate: ->
-        @subscriptions.dispose()
-        @pgHoffView.destroy()
-        @resultsView.destroy()
-        @listServersView.destroy()
-
-    serialize: ->
-        pgHoffViewState: @pgHoffView.serialize()
-
-    provide: ->
-        @provider
-
     connect: ->
         paneItem = atom.workspace.getActivePaneItem()
 
@@ -98,7 +86,6 @@ module.exports = PgHoff =
             @listServersViewPanel.hide()
             return
 
-        pgHoff = @
         return @listServersView.connect(@listServersViewPanel)
             .then (server) =>
                 if server.already_connected
@@ -112,34 +99,9 @@ module.exports = PgHoff =
             .finally =>
                 @listServersViewPanel.hide()
 
-    renderResults: (resultsets, pgHoff) ->
+    renderResults: (resultsets) ->
         @resultsViewPanel.show();
         @resultsView.update(resultsets)
-
-    keepGoing: (url, complete, pgHoff) ->
-        interval = setInterval( () =>
-            return PgHoffServerRequest.Get(url, false)
-                .then (resultsets) =>
-                    for resultset, i in resultsets
-                        if resultset.error
-                            complete[i] = true
-                            atom.notifications.addError(resultset.error)
-                        else
-                            if resultset.executing
-                                complete[i] = false
-                            else
-                                if complete[i] == false
-                                    complete[i] = true
-
-                    @renderResults(resultsets, pgHoff)
-                    if !complete.some( (val) -> return val == false )
-                        clearInterval(interval)
-
-                .catch (err) =>
-                    console.error 'catch', err
-                    clearInterval(interval)
-                    atom.notifications.addError(err)
-        , atom.config.get('pg-hoff.pollInterval'))
 
     executeQueryWithConnect: ->
         if atom.workspace.getActivePaneItem().alias?
@@ -153,7 +115,6 @@ module.exports = PgHoff =
 
     executeQuery: ->
         selectedText = atom.workspace.getActiveTextEditor().getSelectedText().trim()
-        pgHoff = @
         if selectedText.trim().length == 0
             if atom.config.get('pg-hoff.executeAllWhenNothingSelected')
                 selectedText = atom.workspace.getActiveTextEditor().getText().trim()
@@ -163,23 +124,51 @@ module.exports = PgHoff =
 
         return PgHoffQuery.Execute(selectedText)
             .then (result) =>
-                complete = []
-                queryStillExecuting = false
                 for resultset in result.resultsets
                     if resultset.error
-                        complete.push(true)
                         atom.notifications.addError(resultset.error)
-                    else
-                        if resultset.executing
-                            complete.push(false)
-                            queryStillExecuting = true
-                        else
-                            complete.push(true)
-                if queryStillExecuting
-                    @keepGoing(result.url, complete)
+
+                allCompleted = result.resultsets.every (resultset) -> return resultset.completed or resultset.error or not resultset.executing
+                if not allCompleted
+                    @keepGoing(result.url)
 
                 @renderResults(result.resultsets)
             .catch (err) =>
                 atom.workspace.getActivePaneItem().alias = null
                 @resultsViewPanel.hide()
                 atom.notifications.addError(err)
+
+    keepGoing: (url, complete) ->
+        interval = setInterval( () =>
+            return PgHoffServerRequest.Get(url, false)
+                .then (resultsets) =>
+                    for resultset, i in resultsets
+                        if resultset.error
+                            atom.notifications.addError(resultset.error)
+
+                    count = resultsets.find (resultset) -> resultset.completed or resultset.error or not resultset.executing
+                    if completedCount != count
+                        @renderResults(resultsets)
+                        completedCount = count
+
+                    allCompleted = resultsets.every (resultset) -> resultset.completed or resultset.error or not resultset.executing
+                    if allCompleted
+                        clearInterval(interval)
+
+                .catch (err) =>
+                    console.error 'catch', err
+                    clearInterval(interval)
+                    atom.notifications.addError(err)
+        , atom.config.get('pg-hoff.pollInterval'))
+
+    deactivate: ->
+        @subscriptions.dispose()
+        @pgHoffView.destroy()
+        @resultsView.destroy()
+        @listServersView.destroy()
+
+    serialize: ->
+        pgHoffViewState: @pgHoffView.serialize()
+
+    provide: ->
+        @provider
