@@ -21,15 +21,11 @@ class PgHoffResultsView
     compare: (typeCode, left, right, asc) ->
         return Type[typeCode]?.compare(left, right) * if asc then 1 else -1 ? 0
 
-    sort: (resultset, columnIndex, asc) ->
-        if resultset.columns[columnIndex].ascending?
-            resultset.columns[columnIndex].ascending = !resultset.columns[columnIndex].ascending
-        else
-            resultset.columns[columnIndex].ascending = true
+    sort: (resultset, columnIndex) ->
+        ascending = +resultset.columns[columnIndex].ascending = !resultset.columns[columnIndex].ascending
 
-        ascending = resultset.columns[columnIndex].ascending
         typeCode = resultset.columns[columnIndex].type_code
-        if not Type[typeCode]? || not Type[typeCode].compare?
+        if not Type[typeCode]?.compare?
             console.error('This type is not sortable', typeCode)
             return
 
@@ -39,18 +35,14 @@ class PgHoffResultsView
     createTh: (text, resultsetIndex, columnIndex) ->
         th = document.createElement('th')
         th.textContent = text
-        th.setAttribute('column_index', columnIndex)
-        th.setAttribute('resultset_index', resultsetIndex)
         if @canTypeBeSorted(@resultsets[resultsetIndex].columns[columnIndex].type_code)
             th.classList.add('sortable')
-            if @resultsets[resultsetIndex].columns[columnIndex].ascending == true
-                th.textContent = th.textContent + ' +'
-            else if @resultsets[resultsetIndex].columns[columnIndex].ascending == false
-                th.textContent = th.textContent + ' -'
+            th.textContent += if @resultsets[resultsetIndex].columns[columnIndex].ascending then ' +' else ' -' ? ''
 
         th.onclick = =>
-            @sort(@resultsets[this.getAttribute('resultset_index')], this.getAttribute('column_index'), true)
+            @sort @resultsets[resultsetIndex], columnIndex
             @update(@resultsets)
+
         return th
 
     createTable: (x, resultsetIndex) ->
@@ -95,43 +87,40 @@ class PgHoffResultsView
     createTd: (text, typeCode) ->
         td = document.createElement('td')
         td.textContent = text
-
-        t = Type[typeCode]
-        if t? && t.format
-            if atom.config.get('pg-hoff.formatColumns')
-                td.textContent = t.format(text)
+        td.textContent = Type[typeCode].format(text) if Type[typeCode]?.format and atom.config.get('pg-hoff.formatColumns')
 
         return td
-
-    serialize: ->
 
     update: (resultsets) ->
         @resultsets = resultsets
         while (@element.firstChild)
             @element.removeChild(@element.firstChild)
 
-        toolbar = @element.appendChild(document.createElement('div'))
+        @element.appendChild(@createToolbar())
+        @element.style.display = 'block'
+
+        for resultset, i in resultsets
+            @element.appendChild(@createTable(resultset, i))
+
+    createToolbar: ->
+        toolbar = document.createElement('div')
         toolbar.classList.add('toolbar')
 
         element = @element
-        element.style.display = 'block'
 
-        # CLOSE
         close = toolbar.appendChild(document.createElement('div'))
         close.classList.add('tool')
         close.textContent = 'X'
-        close.onclick = ->
+        close.onclick = =>
             element.style.display = 'none'
 
-        # MAXIMIZE
         maximize = toolbar.appendChild(document.createElement('div'))
         maximize.classList.add('tool')
         maximize.textContent = '+'
-        maximize.onclick = ->
+        maximize.onclick = =>
             element.style['max-height'] = '800px'
             element.style['height'] = '800px'
 
-        # MINIMIZE
         minimize = toolbar.appendChild(document.createElement('div'))
         minimize.classList.add('tool')
         minimize.textContent = '-'
@@ -150,8 +139,9 @@ class PgHoffResultsView
         clear = toolbar.appendChild(document.createElement('div'))
         clear.classList.add('clear')
 
-        for resultset, i in resultsets
-            @element.appendChild(@createTable(resultset, i))
+        return toolbar
+
+    serialize: ->
 
     destroy: ->
         @element.remove()
