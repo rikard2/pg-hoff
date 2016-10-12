@@ -16,26 +16,12 @@ class PgHoffResultsView
     resultsets: []
 
     canTypeBeSorted: (typeCode) ->
-        t = Type[typeCode]
-        if t
-            return t.compare?
-
-        return false
+        return Type[typeCode]?
 
     compare: (typeCode, left, right, asc) ->
-        type = Type[typeCode]
+        return Type[typeCode]?.compare(left, right) * if asc then 1 else -1 ? 0
 
-        if type.compare?
-            val = type.compare(left, right)
-
-            if !asc
-                val = val * -1
-
-            return val
-
-        return 0
-
-    sort: (resultset, columnIndex, asc, resultsView) ->
+    sort: (resultset, columnIndex, asc) ->
         if resultset.columns[columnIndex].ascending?
             resultset.columns[columnIndex].ascending = !resultset.columns[columnIndex].ascending
         else
@@ -47,27 +33,24 @@ class PgHoffResultsView
             console.error('This type is not sortable', typeCode)
             return
 
-        compare = resultsView.compare
-
-        resultset.rows.sort (left, right) ->
-            return compare(typeCode, left[columnIndex], right[columnIndex], ascending)
+        resultset.rows.sort (left, right) =>
+            return @compare(typeCode, left[columnIndex], right[columnIndex], ascending)
 
     createTh: (text, resultsetIndex, columnIndex) ->
-        resultsView = @
         th = document.createElement('th')
         th.textContent = text
         th.setAttribute('column_index', columnIndex)
         th.setAttribute('resultset_index', resultsetIndex)
-        if resultsView.canTypeBeSorted(resultsView.resultsets[resultsetIndex].columns[columnIndex].type_code)
+        if @canTypeBeSorted(@resultsets[resultsetIndex].columns[columnIndex].type_code)
             th.classList.add('sortable')
-            if resultsView.resultsets[resultsetIndex].columns[columnIndex].ascending == true
+            if @resultsets[resultsetIndex].columns[columnIndex].ascending == true
                 th.textContent = th.textContent + ' +'
-            else if resultsView.resultsets[resultsetIndex].columns[columnIndex].ascending == false
+            else if @resultsets[resultsetIndex].columns[columnIndex].ascending == false
                 th.textContent = th.textContent + ' -'
 
-        th.onclick = ->
-            resultsView.sort(resultsView.resultsets[this.getAttribute('resultset_index')], this.getAttribute('column_index'), true, resultsView)
-            resultsView.update(resultsView.resultsets)
+        th.onclick = =>
+            @sort(@resultsets[this.getAttribute('resultset_index')], this.getAttribute('column_index'), true)
+            @update(@resultsets)
         return th
 
     createTable: (x, resultsetIndex) ->
@@ -97,19 +80,15 @@ class PgHoffResultsView
         # Header columns
         if x.columns?
             col_tr = table.appendChild(document.createElement('tr'))
-            i = 0
-            for c in x.columns
+            for c, i in x.columns
                 col_tr.appendChild(@createTh(c.name, resultsetIndex, i))
-                i = i + 1
 
         # Rows
         if x.rows?
             for r in x.rows
                 row_tr = table.appendChild(document.createElement('tr'))
-                i = 0
-                for c in r
+                for c, i in r
                     row_tr.appendChild(@createTd(c, x.columns[i].type_code))
-                    i = i + 1
 
         return container
 
@@ -171,10 +150,8 @@ class PgHoffResultsView
         clear = toolbar.appendChild(document.createElement('div'))
         clear.classList.add('clear')
 
-        i = 0
-        for resultset in resultsets
+        for resultset, i in resultsets
             @element.appendChild(@createTable(resultset, i))
-            i++
 
     destroy: ->
         @element.remove()
