@@ -100,28 +100,27 @@ module.exports = PgHoff =
 
         pgHoff = @
         return @listServersView.connect(@listServersViewPanel)
-            .then (server) ->
+            .then (server) =>
                 if server.already_connected
                     atom.notifications.addInfo('Using ' + server.alias)
                 else
                     atom.notifications.addSuccess('Connected to ' + server.alias)
 
                 paneItem.alias = server.alias
-            .catch (error) ->
+            .catch (error) =>
                 atom.notifications.addError(error)
-            .finally ->
-                pgHoff.listServersViewPanel.hide()
+            .finally =>
+                @listServersViewPanel.hide()
 
     renderResults: (resultsets, pgHoff) ->
-        pgHoff.resultsViewPanel.show();
-        pgHoff.resultsView.update(resultsets)
+        @resultsViewPanel.show();
+        @resultsView.update(resultsets)
 
     keepGoing: (url, complete, pgHoff) ->
-        interval = setInterval( () ->
+        interval = setInterval( () =>
             return PgHoffServerRequest.Get(url, false)
-                .then (resultsets) ->
-                    i = 0
-                    for resultset in resultsets
+                .then (resultsets) =>
+                    for resultset, i in resultsets
                         if resultset.error
                             complete[i] = true
                             atom.notifications.addError(resultset.error)
@@ -131,34 +130,27 @@ module.exports = PgHoff =
                             else
                                 if complete[i] == false
                                     complete[i] = true
-                        i++
 
-                    pgHoff.renderResults(resultsets, pgHoff)
+                    @renderResults(resultsets, pgHoff)
                     if !complete.some( (val) -> return val == false )
                         clearInterval(interval)
 
-                .catch (err) ->
+                .catch (err) =>
                     console.error 'catch', err
                     clearInterval(interval)
                     atom.notifications.addError(err)
         , atom.config.get('pg-hoff.pollInterval'))
 
     executeQueryWithConnect: ->
-        alias = atom.workspace.getActivePaneItem().alias
-        pgHoff = @
-        if (alias)
-            pgHoff.executeQuery()
+        if atom.workspace.getActivePaneItem().alias?
+            @executeQuery()
         else
-            promise = @connect()
-            if not promise?
-                return
-            else
-                promise
-                    .then ->
-                        pgHoff.executeQuery()
-                    .catch (err) ->
-                        console.error 'Connect error', err
-                        atom.notifications.addError('Connect error')
+            return @connect()?.then =>
+                    @executeQuery()
+                .catch (err) ->
+                    console.error 'Connect error', err
+                    atom.notifications.addError('Connect error')
+
     executeQuery: ->
         selectedText = atom.workspace.getActiveTextEditor().getSelectedText().trim()
         pgHoff = @
@@ -166,11 +158,11 @@ module.exports = PgHoff =
             if atom.config.get('pg-hoff.executeAllWhenNothingSelected')
                 selectedText = atom.workspace.getActiveTextEditor().getText().trim()
             else
-                pgHoff.resultsViewPanel.hide()
+                resultsViewPanel.hide()
                 return
 
         return PgHoffQuery.Execute(selectedText)
-            .then (result) ->
+            .then (result) =>
                 complete = []
                 queryStillExecuting = false
                 for resultset in result.resultsets
@@ -184,10 +176,10 @@ module.exports = PgHoff =
                         else
                             complete.push(true)
                 if queryStillExecuting
-                    pgHoff.keepGoing(result.url, complete, pgHoff)
+                    @keepGoing(result.url, complete)
 
-                pgHoff.renderResults(result.resultsets, pgHoff)
-            .catch (err) ->
+                @renderResults(result.resultsets)
+            .catch (err) =>
                 atom.workspace.getActivePaneItem().alias = null
-                pgHoff.resultsViewPanel.hide()
+                @resultsViewPanel.hide()
                 atom.notifications.addError(err)
