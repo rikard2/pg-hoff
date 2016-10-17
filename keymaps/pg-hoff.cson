@@ -9,4 +9,5 @@
 # https://atom.io/docs/latest/behind-atom-keymaps-in-depth
 'atom-workspace':
     'ctrl-z': 'pg-hoff:connect'
+    'f1': 'pg-hoff:goto-declaration'
     'ctrl-<': 'pg-hoff:execute-query'

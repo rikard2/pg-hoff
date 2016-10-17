@@ -3,6 +3,7 @@ PgHoffServerRequest         = require './pg-hoff-server-request'
 PgHoffResultsView           = require './pg-hoff-results-view'
 PgHoffListServersView       = require './pg-hoff-list-servers-view'
 PgHoffQuery                 = require './pg-hoff-query'
+PgHoffGotoDeclaration       = require './pg-hoff-goto-declaration'
 PgHoffAutocompleteProvider  = require('./pg-hoff-autocomplete-provider')
 {CompositeDisposable, Disposable} = require 'atom'
 
@@ -76,8 +77,11 @@ module.exports = PgHoff =
             @provider = new PgHoffAutocompleteProvider()
 
         @subscriptions = new CompositeDisposable
+        @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:goto-declaration': => @gotoDeclaration()
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:connect': => @connect()
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:execute-query': => @executeQueryWithConnect()
+
+    gotoDeclaration: PgHoffGotoDeclaration
 
     connect: ->
         paneItem = atom.workspace.getActivePaneItem()
