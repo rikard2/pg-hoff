@@ -87,7 +87,10 @@ class PgHoffResultsView
     createTd: (text, typeCode) ->
         td = document.createElement('td')
         td.textContent = text
-        td.textContent = Type[typeCode].format(text) if Type[typeCode]?.format and atom.config.get('pg-hoff.formatColumns')
+        try
+            td.textContent = Type[typeCode].format(text) if Type[typeCode]?.format and atom.config.get('pg-hoff.formatColumns')
+        catch err
+            console.error 'Could not format as ' + Type[typeCode].name, text
 
         return td
 
