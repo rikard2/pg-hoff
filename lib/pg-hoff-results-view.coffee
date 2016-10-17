@@ -96,11 +96,32 @@ class PgHoffResultsView
         while (@element.firstChild)
             @element.removeChild(@element.firstChild)
 
+        resizeHandle = @element.appendChild document.createElement('div')
+        resizeHandle.classList.add('resize-handle')
+        resizeHandle.addEventListener 'mousedown', (e) => this.resizeStarted(e)
+
         @element.appendChild(@createToolbar())
         @element.style.display = 'block'
 
         for resultset, i in resultsets
             @element.appendChild(@createTable(resultset, i))
+
+    resizeStarted: (mouseEvent) ->
+        @startY = mouseEvent.pageY
+        @startHeight = @element.clientHeight
+
+        @moveHandler = (mouseEvent) =>
+            deltaY = @startY - mouseEvent.pageY
+            height = @startHeight + deltaY
+            if height >= 100
+                @element.style.height = height + 'px'
+
+        @stopHandler = (mouseEvent) =>
+            document.body.removeEventListener 'mousemove', @moveHandler
+            document.body.removeEventListener 'mouseup', @stopHandler
+
+        document.body.addEventListener 'mousemove', @moveHandler
+        document.body.addEventListener 'mouseup', @stopHandler
 
     createToolbar: ->
         toolbar = document.createElement('div')
@@ -118,7 +139,6 @@ class PgHoffResultsView
         maximize.classList.add('tool')
         maximize.textContent = '+'
         maximize.onclick = =>
-            element.style['max-height'] = '800px'
             element.style['height'] = '800px'
 
         minimize = toolbar.appendChild(document.createElement('div'))
@@ -126,14 +146,12 @@ class PgHoffResultsView
         minimize.textContent = '-'
         minimize.onclick = ->
             element.style['height'] = '150px'
-            element.style['max-height'] = '150px'
 
         # RESTORE
         restore = toolbar.appendChild(document.createElement('div'))
         restore.classList.add('tool')
         restore.textContent = '[]'
         restore.onclick = ->
-            element.style['max-height'] = '300px'
             element.style['height'] = '300px'
 
         clear = toolbar.appendChild(document.createElement('div'))
