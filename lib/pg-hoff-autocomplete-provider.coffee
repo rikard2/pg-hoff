@@ -20,7 +20,10 @@ class PgHoffAutocompleteProvider
             return []
         if not atom.workspace.getActivePaneItem().alias
             console.debug 'The pane has no alias.'
-            return []
+            if alias = atom.config.get('pg-hoff.defaultConnection')
+              atom.workspace.getActivePaneItem().alias = alias
+            else
+              return []
 
         text = atom.workspace.getActiveTextEditor().getText()
         before = options.editor.getTextInBufferRange([[0, 0], options.bufferPosition])
