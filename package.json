@@ -1,7 +1,7 @@
 {
   "name": "pg-hoff",
   "main": "./lib/pg-hoff",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "The worlds greatest plugin ever.",
   "keywords": [],
   "repository": "https://github.com/rikard2/pg-hoff",
