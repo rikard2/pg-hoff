@@ -101,7 +101,7 @@ class PgHoffResultsView
 
         resizeHandle = @element.appendChild document.createElement('div')
         resizeHandle.classList.add('resize-handle')
-        resizeHandle.addEventListener 'mousedown', (e) => this.resizeStarted(e)
+        resizeHandle.addEventListener 'mousedown', (e) => @resizeStarted(e)
 
         @element.appendChild(@createToolbar())
         @element.style.display = 'block'
