@@ -35,7 +35,7 @@ class PgHoffResultsView
     createTh: (text, resultsetIndex, columnIndex) ->
         th = document.createElement('th')
         th.textContent = text
-        if @canTypeBeSorted(@resultsets[resultsetIndex].columns[columnIndex].type_code)
+        if @canTypeBeSorted(@resultsets[resultsetIndex].columns[columnIndex].typeName)
             th.classList.add('sortable')
             th.textContent += if @resultsets[resultsetIndex].columns[columnIndex].ascending then ' +' else ' -' ? ''
 
@@ -80,7 +80,7 @@ class PgHoffResultsView
             for r in x.rows
                 row_tr = table.appendChild(document.createElement('tr'))
                 for c, i in r
-                    row_tr.appendChild(@createTd(c, x.columns[i].type_code))
+                    row_tr.appendChild(@createTd(c, x.columns[i].type))
 
         return container
 
