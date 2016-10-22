@@ -15,22 +15,22 @@ class PgHoffResultsView
 
     resultsets: []
 
-    canTypeBeSorted: (typeCode) ->
-        return Type[typeCode]?
+    canTypeBeSorted: (typeName) ->
+        return Type[typeName]?
 
-    compare: (typeCode, left, right, asc) ->
-        return Type[typeCode]?.compare(left, right) * if asc then 1 else -1 ? 0
+    compare: (typeName, left, right, asc) ->
+        return Type[typeName]?.compare(left, right) * if asc then 1 else -1 ? 0
 
     sort: (resultset, columnIndex) ->
         ascending = +resultset.columns[columnIndex].ascending = !resultset.columns[columnIndex].ascending
 
-        typeCode = resultset.columns[columnIndex].type_code
-        if not Type[typeCode]?.compare?
-            console.error('This type is not sortable', typeCode)
+        typeName = resultset.columns[columnIndex].type
+        if not Type[typeName]?.compare?
+            console.error('This type is not sortable', typeName)
             return
 
         resultset.rows.sort (left, right) =>
-            return @compare(typeCode, left[columnIndex], right[columnIndex], ascending)
+            return @compare(typeName, left[columnIndex], right[columnIndex], ascending)
 
     createTh: (text, resultsetIndex, columnIndex) ->
         th = document.createElement('th')
@@ -84,13 +84,13 @@ class PgHoffResultsView
 
         return container
 
-    createTd: (text, typeCode) ->
+    createTd: (text, typeName) ->
         td = document.createElement('td')
         td.textContent = text
         try
-            td.textContent = Type[typeCode].format(text) if Type[typeCode]?.format and atom.config.get('pg-hoff.formatColumns')
+            td.textContent = Type[typeName].format(text) if Type[typeName]?.format and atom.config.get('pg-hoff.formatColumns')
         catch err
-            console.error 'Could not format as ' + Type[typeCode].name, text
+            console.error 'Could not format as ' + Type[typeName].name, text
 
         return td
 
