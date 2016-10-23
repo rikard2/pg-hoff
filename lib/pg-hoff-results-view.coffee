@@ -84,14 +84,23 @@ class PgHoffResultsView
 
     createTd: (text, typeName) ->
         td = document.createElement('td')
-        td.textContent = text
         try
-            td.textContent = Type[typeName].format(text) if Type[typeName]?.format and atom.config.get('pg-hoff.formatColumns')
-            td.setAttribute 'title', text
+            td.textContent = @cellText(text, typeName)
         catch err
-            console.error 'Could not format as ' + Type[typeName].name, text
-
+            console.error 'Could not format as ' + typeName, text
+        td.setAttribute 'title', text
         return td
+
+    cellText: (data, typeName) ->
+        typeName = typeName.slice(0, -2) if typeName.match /\[\]$/
+        if data?.constructor == Array
+            ct = (e) => if e is null then 'NULL' else @cellText e, typeName
+            elements = (ct e for e in data)
+            '[' + elements.join(', ') + ']'
+        else if Type[typeName]?.format and atom.config.get('pg-hoff.formatColumns')
+            Type[typeName].format(data)
+        else
+            data
 
     update: (resultsets) ->
         @resultsets = resultsets
