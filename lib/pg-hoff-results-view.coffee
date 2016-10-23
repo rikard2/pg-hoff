@@ -16,7 +16,12 @@ class PgHoffResultsView
     resultsets: []
 
     getCompare: (typeName, asc, colIdx) ->
-        defaultCompare = (left, right) -> +(left > right) || - (right > left)
+        defaultCompare = (left, right) ->
+            switch
+                when left is null and right is null then 0
+                when left is null then 1
+                when right is null then -1
+                else +(left > right) || - (right > left)
         compare = Type[typeName]?.compare || defaultCompare
         (left, right) -> compare(left[colIdx], right[colIdx]) * if asc then 1 else -1 ? 0
 
