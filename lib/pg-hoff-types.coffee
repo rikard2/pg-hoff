@@ -1,7 +1,11 @@
 timestamp =
-    format: (value) -> new Date(value).toLocaleString(atom.config.get('pg-hoff.locale'))
+    format: (value) ->
+        if value is null then null
+        else new Date(value).toLocaleString(atom.config.get('pg-hoff.locale'))
 time =
-    format: (value) -> new Date('2000-01-01 ' + value).toLocaleTimeString(atom.config.get('pg-hoff.locale'))
+    format: (value) ->
+        if value is null then null
+        else new Date('2000-01-01 ' + value).toLocaleTimeString(atom.config.get('pg-hoff.locale'))
 class PgHoffTypes
     @Type:
         'timestamp with time zone': timestamp
