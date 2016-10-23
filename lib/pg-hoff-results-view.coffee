@@ -26,9 +26,10 @@ class PgHoffResultsView
         compare = @getCompare(typeName, ascending, columnIndex)
         resultset.rows.sort compare
 
-    createTh: (text, resultsetIndex, columnIndex) ->
+    createTh: (col, resultsetIndex, columnIndex) ->
         th = document.createElement('th')
-        th.textContent = text
+        th.textContent = col.name
+        th.setAttribute 'title', col.type
         th.textContent += if @resultsets[resultsetIndex].columns[columnIndex].ascending then ' +' else ' -' ? ''
 
         th.onclick = =>
@@ -65,7 +66,7 @@ class PgHoffResultsView
         if x.columns?
             col_tr = table.appendChild(document.createElement('tr'))
             for c, i in x.columns
-                col_tr.appendChild(@createTh(c.name, resultsetIndex, i))
+                col_tr.appendChild(@createTh(c, resultsetIndex, i))
 
         # Rows
         if x.rows?
