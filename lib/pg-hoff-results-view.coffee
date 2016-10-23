@@ -15,29 +15,27 @@ class PgHoffResultsView
 
     resultsets: []
 
-    canTypeBeSorted: (typeName) ->
-        return Type[typeName]?
-
-    compare: (typeName, left, right, asc) ->
-        return Type[typeName]?.compare(left, right) * if asc then 1 else -1 ? 0
+    getCompare: (typeName, asc, colIdx) ->
+        defaultCompare = (left, right) ->
+            switch
+                when left is null and right is null then 0
+                when left is null then 1
+                when right is null then -1
+                else +(left > right) || - (right > left)
+        compare = Type[typeName]?.compare || defaultCompare
+        (left, right) -> compare(left[colIdx], right[colIdx]) * if asc then 1 else -1 ? 0
 
     sort: (resultset, columnIndex) ->
         ascending = +resultset.columns[columnIndex].ascending = !resultset.columns[columnIndex].ascending
-
         typeName = resultset.columns[columnIndex].type
-        if not Type[typeName]?.compare?
-            console.error('This type is not sortable', typeName)
-            return
+        compare = @getCompare(typeName, ascending, columnIndex)
+        resultset.rows.sort compare
 
-        resultset.rows.sort (left, right) =>
-            return @compare(typeName, left[columnIndex], right[columnIndex], ascending)
-
-    createTh: (text, resultsetIndex, columnIndex) ->
+    createTh: (col, resultsetIndex, columnIndex) ->
         th = document.createElement('th')
-        th.textContent = text
-        if @canTypeBeSorted(@resultsets[resultsetIndex].columns[columnIndex].typeName)
-            th.classList.add('sortable')
-            th.textContent += if @resultsets[resultsetIndex].columns[columnIndex].ascending then ' +' else ' -' ? ''
+        th.textContent = col.name
+        th.setAttribute 'title', col.type
+        th.textContent += if @resultsets[resultsetIndex].columns[columnIndex].ascending then ' +' else ' -' ? ''
 
         th.onclick = =>
             @sort @resultsets[resultsetIndex], columnIndex
@@ -73,7 +71,7 @@ class PgHoffResultsView
         if x.columns?
             col_tr = table.appendChild(document.createElement('tr'))
             for c, i in x.columns
-                col_tr.appendChild(@createTh(c.name, resultsetIndex, i))
+                col_tr.appendChild(@createTh(c, resultsetIndex, i))
 
         # Rows
         if x.rows?
@@ -86,13 +84,23 @@ class PgHoffResultsView
 
     createTd: (text, typeName) ->
         td = document.createElement('td')
-        td.textContent = text
         try
-            td.textContent = Type[typeName].format(text) if Type[typeName]?.format and atom.config.get('pg-hoff.formatColumns')
+            td.textContent = @cellText(text, typeName)
         catch err
-            console.error 'Could not format as ' + Type[typeName].name, text
-
+            console.error 'Could not format as ' + typeName, text
+        td.setAttribute 'title', text
         return td
+
+    cellText: (data, typeName) ->
+        typeName = typeName.slice(0, -2) if typeName.match /\[\]$/
+        if data?.constructor == Array
+            ct = (e) => if e is null then 'NULL' else @cellText e, typeName
+            elements = (ct e for e in data)
+            '[' + elements.join(', ') + ']'
+        else if Type[typeName]?.format and atom.config.get('pg-hoff.formatColumns')
+            Type[typeName].format(data)
+        else
+            data
 
     update: (resultsets) ->
         @resultsets = resultsets
