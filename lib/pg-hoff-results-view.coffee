@@ -81,6 +81,7 @@ class PgHoffResultsView
         td.textContent = text
         try
             td.textContent = Type[typeName].format(text) if Type[typeName]?.format and atom.config.get('pg-hoff.formatColumns')
+            td.setAttribute 'title', text
         catch err
             console.error 'Could not format as ' + Type[typeName].name, text
 
