@@ -15,29 +15,21 @@ class PgHoffResultsView
 
     resultsets: []
 
-    canTypeBeSorted: (typeName) ->
-        return Type[typeName]?
-
-    compare: (typeName, left, right, asc) ->
-        return Type[typeName]?.compare(left, right) * if asc then 1 else -1 ? 0
+    getCompare: (typeName, asc, colIdx) ->
+        defaultCompare = (left, right) -> +(left > right) || - (right > left)
+        compare = Type[typeName]?.compare || defaultCompare
+        (left, right) -> compare(left[colIdx], right[colIdx]) * if asc then 1 else -1 ? 0
 
     sort: (resultset, columnIndex) ->
         ascending = +resultset.columns[columnIndex].ascending = !resultset.columns[columnIndex].ascending
-
         typeName = resultset.columns[columnIndex].type
-        if not Type[typeName]?.compare?
-            console.error('This type is not sortable', typeName)
-            return
-
-        resultset.rows.sort (left, right) =>
-            return @compare(typeName, left[columnIndex], right[columnIndex], ascending)
+        compare = @getCompare(typeName, ascending, columnIndex)
+        resultset.rows.sort compare
 
     createTh: (text, resultsetIndex, columnIndex) ->
         th = document.createElement('th')
         th.textContent = text
-        if @canTypeBeSorted(@resultsets[resultsetIndex].columns[columnIndex].typeName)
-            th.classList.add('sortable')
-            th.textContent += if @resultsets[resultsetIndex].columns[columnIndex].ascending then ' +' else ' -' ? ''
+        th.textContent += if @resultsets[resultsetIndex].columns[columnIndex].ascending then ' +' else ' -' ? ''
 
         th.onclick = =>
             @sort @resultsets[resultsetIndex], columnIndex
