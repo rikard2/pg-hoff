@@ -31,18 +31,6 @@ class PgHoffResultsView
         compare = @getCompare(typeName, ascending, columnIndex)
         resultset.rows.sort compare
 
-    createTh: (col, resultsetIndex, columnIndex) ->
-        th = document.createElement('th')
-        th.textContent = col.name
-        th.setAttribute 'title', col.type
-        th.textContent += if @resultsets[resultsetIndex].columns[columnIndex].ascending then ' +' else ' -' ? ''
-
-        th.onclick = =>
-            @sort @resultsets[resultsetIndex], columnIndex
-            @update(@resultsets)
-
-        return th
-
     createTable: (x, resultsetIndex) ->
         container = document.createElement('div')
         container.classList.add('table')
@@ -81,6 +69,18 @@ class PgHoffResultsView
                     row_tr.appendChild(@createTd(c, x.columns[i].type))
 
         return container
+
+    createTh: (col, resultsetIndex, columnIndex) ->
+        th = document.createElement('th')
+        th.textContent = col.name
+        th.setAttribute 'title', col.type
+        th.textContent += if @resultsets[resultsetIndex].columns[columnIndex].ascending then ' +' else ' -' ? ''
+
+        th.onclick = =>
+            @sort @resultsets[resultsetIndex], columnIndex
+            @update(@resultsets)
+
+        return th
 
     createTd: (text, typeName) ->
         td = document.createElement('td')
