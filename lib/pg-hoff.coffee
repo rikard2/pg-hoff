@@ -66,6 +66,11 @@ module.exports = PgHoff =
             description: 'Alias of database connection to use for new tabs</br>Leave blank for no automatic connection'
             default: ''
             order: 10
+        nullString:
+            type: 'string'
+            description: 'Representation of null values'
+            default: 'NULL'
+            order: 11
 
     activate: (state) ->
         console.debug 'Activating the greatest plugin ever..'
