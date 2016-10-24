@@ -31,27 +31,42 @@ class PgHoffResultsView
         compare = @getCompare(typeName, ascending, columnIndex)
         resultset.rows.sort compare
 
+    createTabs: (resultsets) ->
+        selectedIndex = 0
+        tabContainer = document.createElement 'div'
+        tabContainer.classList.add 'tab-container'
+
+        tabs = tabContainer.appendChild document.createElement('ul')
+        tabs.classList.add 'tabs'
+
+        area = tabContainer.appendChild document.createElement('div')
+        area.classList.add 'tab-area'
+
+        for resultset, i in resultsets
+            tab = tabs.appendChild @createTab(resultset)
+            if i == selectedIndex
+                tab.classList.add 'active'
+                area.appendChild @createTable(resultset, i)
+
+        clear = tabs.appendChild document.createElement('div')
+        clear.classList.add 'clear'
+
+        return tabContainer
+
+    createTab: (resultset) ->
+        tab = document.createElement 'li'
+        tab.classList.add 'tab'
+        tab.textContent = 'omfg'
+        console.log 'resultset', resultset
+        if resultset.statusmessage?
+            tab.textContent = resultset.statusmessage
+
+        return tab
+
     createTable: (x, resultsetIndex) ->
         container = document.createElement('div')
         container.classList.add('table')
         container.classList.add('executing')
-
-        if x.executing
-            pre = container.appendChild(document.createElement('pre'))
-            pre.textContent = 'Executing for ' + x.runtime_seconds + ' seconds...'
-            container.classList.add('executing')
-
-            return container
-
-        if not x.complete
-            pre = container.appendChild(document.createElement('pre'))
-            pre.textContent = 'Waiting to execute...'
-            container.classList.add('executing')
-
-        if x.statusmessage?
-            status = container.appendChild(document.createElement('div'))
-            status.classList.add('status-message')
-            status.textContent = "#{x.runtime_seconds} seconds. #{x.statusmessage}"
 
         table = container.appendChild(document.createElement('table'))
 
@@ -116,11 +131,9 @@ class PgHoffResultsView
         resizeHandle.classList.add('resize-handle')
         resizeHandle.addEventListener 'mousedown', (e) => @resizeStarted(e)
 
-        @element.appendChild(@createToolbar())
         @element.style.display = 'block'
 
-        for resultset, i in resultsets
-            @element.appendChild(@createTable(resultset, i))
+        @element.appendChild @createTabs(resultsets)
 
     resizeStarted: (mouseEvent) ->
         @startY = mouseEvent.pageY
