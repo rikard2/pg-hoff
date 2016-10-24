@@ -88,6 +88,7 @@ class PgHoffResultsView
             td.className = 'null'
             td.textContent =atom.config.get('pg-hoff.nullString')
         else
+            td.className = typeName + '_' + text if typeName == 'boolean'
             try
                 td.textContent = @cellText(text, typeName)
             catch err
