@@ -84,10 +84,14 @@ class PgHoffResultsView
 
     createTd: (text, typeName) ->
         td = document.createElement('td')
-        try
-            td.textContent = @cellText(text, typeName)
-        catch err
-            console.error 'Could not format as ' + typeName, text
+        if text is null
+            td.className = 'null'
+            td.textContent =atom.config.get('pg-hoff.nullString')
+        else
+            try
+                td.textContent = @cellText(text, typeName)
+            catch err
+                console.error 'Could not format as ' + typeName, text
         td.setAttribute 'title', text
         return td
 

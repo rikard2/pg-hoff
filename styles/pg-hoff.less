@@ -7,6 +7,8 @@
 
 @pg-hoff-cell-background: @base-background-color;
 @pg-hoff-cell-color: @text-color-highlight;
+@pg-hoff-null-background: @pg-hoff-cell-color;
+@pg-hoff-null-color: @pg-hoff-cell-background;
 @pg-hoff-header-color: @text-color-subtle;
 @pg-hoff-header-background: darken(@base-background-color, 10%);
 
@@ -107,6 +109,10 @@
                         border-bottom: 1px solid @pg-hoff-border-color;
                     }
                 }
+                td.null {
+                    background: @pg-hoff-null-background;
+                    color: @pg-hoff-null-color;
+                }
                 th,td {
                     &:last-child {
                         border-right: none;
@@ -117,6 +123,7 @@
                     border-bottom: 1px solid @pg-hoff-border-color;
                     border-right: 1px solid @pg-hoff-border-color;
                     padding: 6px 6px 3px 6px;
+                    height: 27px;
                 }
             }
         }
