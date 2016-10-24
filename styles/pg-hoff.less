@@ -5,6 +5,10 @@
 @import "ui-variables";
 @pg-hoff-border-color: @base-border-color;
 
+@pg-hoff-false-background: lighten(@background-color-error, 25%);
+@pg-hoff-false-color: @text-color-highlight;
+@pg-hoff-true-background: lighten(@background-color-success, 25%);
+@pg-hoff-true-color: @text-color-highlight;
 @pg-hoff-cell-background: @base-background-color;
 @pg-hoff-cell-color: @text-color-highlight;
 @pg-hoff-null-background: @pg-hoff-cell-color;
@@ -112,6 +116,14 @@
                 td.null {
                     background: @pg-hoff-null-background;
                     color: @pg-hoff-null-color;
+                }
+                td.boolean_false {
+                    background: @pg-hoff-false-background;
+                    color: @pg-hoff-false-color;
+                }
+                td.boolean_true {
+                    background: @pg-hoff-true-background;
+                    color: @pg-hoff-true-color;
                 }
                 th,td {
                     &:last-child {
