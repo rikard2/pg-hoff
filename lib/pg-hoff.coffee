@@ -113,9 +113,9 @@ module.exports = PgHoff =
             .finally =>
                 @listServersViewPanel.hide()
 
-    renderResults: (resultsets) ->
+    renderResults: (resultsets, newQuery) ->
         @resultsViewPanel.show();
-        @resultsView.update(resultsets)
+        @resultsView.update(resultsets, newQuery)
 
     executeQueryWithConnect: ->
         if atom.workspace.getActivePaneItem().alias?
@@ -146,7 +146,7 @@ module.exports = PgHoff =
                 if not allCompleted
                     @keepGoing(result.url)
 
-                @renderResults(result.resultsets)
+                @renderResults(result.resultsets, true)
             .catch (err) =>
                 atom.workspace.getActivePaneItem().alias = null
                 @resultsViewPanel.hide()
