@@ -43,6 +43,7 @@ class PgHoffResultsView
 
         area = tabContainer.appendChild document.createElement('div')
         area.classList.add 'tab-area'
+        area.style.height = (@element.clientHeight - 36 - 11) + 'px'
 
         dis = @
         for resultset, i in resultsets
@@ -80,6 +81,9 @@ class PgHoffResultsView
 
         if resultset.statusmessage?
             title.textContent = resultset.statusmessage
+            
+        if resultset.executing
+            title.textContent = 'Executing...'
 
         return tab
 
