@@ -46,18 +46,19 @@ class PgHoffResultsView
 
         dis = @
         for resultset, i in resultsets
-            tab = tabs.appendChild @createTab(resultset)
+            tab = tabs.appendChild @createTab(resultset, i)
             tab.setAttribute 'index', i
             tab.onclick = (e) =>
                 index = parseInt(e.target.getAttribute('index'))
-                @selectTab(index)
+                if e.target.parentElement.classList.contains('tab-bar')
+                    @selectTab(index)
 
         clear = tabs.appendChild document.createElement('div')
         clear.classList.add 'clear'
 
         return tabContainer
 
-    createTab: (resultset) ->
+    createTab: (resultset, tabIndex) ->
         tab = document.createElement 'li'
         tab.classList.add 'tab'
         tab.classList.add 'notices'
@@ -65,8 +66,14 @@ class PgHoffResultsView
         title.classList.add 'title'
 
         attachIcon = tab.appendChild document.createElement('div')
+        attachIcon.setAttribute 'tab-index',
         attachIcon.classList.add 'close-icon'
         attachIcon.classList.add 'pin-icon'
+        attachIcon.onclick = (e) =>
+            if attachIcon.classList.contains('pinned')
+                e.target.classList.remove 'pinned'
+            else
+                e.target.classList.add 'pinned'
 
         closeIcon = tab.appendChild document.createElement('div')
         closeIcon.classList.add 'close-icon'
