@@ -13,6 +13,7 @@ class PgHoffResultsView
         @element.setAttribute('tabindex', -1)
         @element.classList.add('native-key-bindings')
 
+    @selectedResultsetIndex = 0
     resultsets: []
 
     getCompare: (typeName, asc, colIdx) ->
@@ -32,6 +33,7 @@ class PgHoffResultsView
         resultset.rows.sort compare
 
     createTabs: (resultsets) ->
+        console.log 'createTabs', resultsets
         selectedIndex = 0
         tabContainer = document.createElement 'div'
         tabContainer.classList.add 'tab-container'
@@ -41,25 +43,59 @@ class PgHoffResultsView
 
         area = tabContainer.appendChild document.createElement('div')
         area.classList.add 'tab-area'
+        
+        console.log '@selectedResultsetIndex!', PgHoffResultsView.selectedResultsetIndex
 
+        dis = @
         for resultset, i in resultsets
-            tab = tabs.appendChild @createTab(resultset)
-            if i == selectedIndex
+            tab = tabs.appendChild @createTab(resultset, i)
+            console.log 'vs', i, PgHoffResultsView.selectedResultsetIndex, typeof i, typeof PgHoffResultsView.selectedResultsetIndex, PgHoffResultsView.selectedResultsetIndex == i
+            if i == PgHoffResultsView.selectedResultsetIndex
+                console.log 'active', area
                 tab.classList.add 'active'
-                area.appendChild @createTable(resultset, i)
+                tabArea = document.getElementsByClassName('tab-area')[0]
+                z = area.appendChild @createTable(resultset, i)
+                console.log 'append', area, z
+
+            tab.onclick = (e) =>
+                area = document.getElementsByClassName('tab-area')[0]
+                for c in tabs.children
+                    c.classList.remove 'active'
+                e.target.classList.add 'active'
+
+                ix = parseInt(e.target.getAttribute 'resultset-index')
+                if area.children.length > 0
+                    area.removeChild area.firstChild
+
+                x = @createTable(@resultsets[ix], ix)
+                area.appendChild x
+
+                PgHoffResultsView.selectedResultsetIndex = ix
 
         clear = tabs.appendChild document.createElement('div')
         clear.classList.add 'clear'
 
         return tabContainer
 
-    createTab: (resultset) ->
+    createTab: (resultset, resultsetIndex) ->
         tab = document.createElement 'li'
         tab.classList.add 'tab'
-        tab.textContent = 'omfg'
-        console.log 'resultset', resultset
+        tab.textContent = '???'
+        tab.setAttribute 'resultset-index', resultsetIndex
+
+        if resultset.executing?
+            tab.textContent = 'Executing...'
+
         if resultset.statusmessage?
             tab.textContent = resultset.statusmessage
+
+        if resultset.error?
+            tab.textContent = 'Error'
+
+        if resultset.notices?.length > 0
+            badge = tab.appendChild document.createElement('span')
+            badge.classList.add 'notice-badge'
+            badge.textContent = resultset.notices.length;
 
         return tab
 
@@ -68,21 +104,45 @@ class PgHoffResultsView
         container.classList.add('table')
         container.classList.add('executing')
 
+        if x.notices?
+            notices = container.appendChild document.createElement('div')
+            console.log 'notice!!!', x.notices
+            for notice in x.notices
+                console.log 'n', notice
+                n = container.appendChild document.createElement('div')
+                n.classList.add 'notice'
+                n.textContent = notice
+
+        if x.error?
+            error = container.appendChild document.createElement('div')
+            error.textContent = x.error
+            error.classList.add 'error'
+
         table = container.appendChild(document.createElement('table'))
+        tableHtml = '<table>'
 
         # Header columns
         if x.columns?
             col_tr = table.appendChild(document.createElement('tr'))
+            tableHtml += '<tr>'
             for c, i in x.columns
+                tableHtml += '<th>' + c.name + '</th>'
                 col_tr.appendChild(@createTh(c, resultsetIndex, i))
+            tableHtml += '</tr>'
 
         # Rows
         if x.rows?
-            for r in x.rows
+            for r, n in x.rows
+                continue if n > 15
                 row_tr = table.appendChild(document.createElement('tr'))
+                tableHtml += '<tr>'
                 for c, i in r
+                    tableHtml += '<td>' + c + '</td>'
                     row_tr.appendChild(@createTd(c, x.columns[i].type))
+                tableHtml += '</tr>'
 
+        console.log 'tableHtml', tableHtml
+        tableHtml += '</table>'
         return container
 
     createTh: (col, resultsetIndex, columnIndex) ->
@@ -101,7 +161,7 @@ class PgHoffResultsView
         td = document.createElement('td')
         if text is null
             td.className = 'null'
-            td.textContent =atom.config.get('pg-hoff.nullString')
+            td.textContent = atom.config.get('pg-hoff.nullString')
         else
             td.className = typeName + '_' + text if typeName == 'boolean'
             try

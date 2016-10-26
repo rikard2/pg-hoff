@@ -11,8 +11,8 @@
 @pg-hoff-true-color: @text-color-highlight;
 @pg-hoff-cell-background: @base-background-color;
 @pg-hoff-cell-color: @text-color-highlight;
-@pg-hoff-null-background: @pg-hoff-cell-color;
-@pg-hoff-null-color: @pg-hoff-cell-background;
+@pg-hoff-null-background: darken(@base-background-color, 5%);
+@pg-hoff-null-color: @pg-hoff-cell-color;
 @pg-hoff-header-color: @text-color-subtle;
 @pg-hoff-header-background: darken(@base-background-color, 3%);
 
@@ -55,8 +55,8 @@
     padding: @component-padding @component-padding @component-padding 0px;
     font-family: 'Menlo';
     font-size: @font-size;
-    overflow-y: scroll;
-    overflow-y: scroll;
+    overflow: scroll;
+    height: 300px;
     .resize-handle {
         position: absolute;
         width: 100%;
@@ -74,8 +74,35 @@
             padding: 10px;
         }
     }
+    div.error {
+        color: @text-color-error;
+        margin-top: 10px;
+        margin-left: 5px;
+        margin-right: 5px;
+    }
+    div.error {
+        color: @text-color-error;
+        border-left: 2px solid @text-color-error;
+        padding-left: 7px;
+        margin-top: 10px;
+        margin-right: 5px;
+    }
+    div.notice {
+        color: @text-color-warning;
+        border-left: 2px solid @text-color-warning;
+        padding-left: 7px;
+        margin-right: 5px;
+    }
     pre { font-family: 'Menlo'; padding: 0px; }
-
+    span.notice-badge {
+        background: @background-color-warning;
+        float: right;
+        color: #fff;
+        padding: 2px 4px;
+        border-radius: 3px;
+        font-size: 11px;
+        margin-left: 5px;
+    }
     div.toolbar {
         .tool {
             float: right;
@@ -89,6 +116,8 @@
     }
 
     div.tab-container {
+        margin-left: 10px;
+        display: inline-block;
         ul.tabs {
             list-style: none;
             padding: 0px;
@@ -103,6 +132,11 @@
                 min-width: 200px;
                 padding: 9px 12px;
                 float: left;
+                font-size: 12px;
+                &:hover {
+                    cursor: pointer;
+                    font-weight: bold;
+                }
                 &:after {
                     content: '';
                     display: block;
@@ -110,6 +144,8 @@
                 }
 
                 &.active {
+                    cursor: default;
+                    font-weight: normal;
                     background: #fff;
                     border-bottom: 1px solid #fff;
                     border-left: 1px solid #ccc;
@@ -128,6 +164,7 @@
     }
 
     div.table {
+        display: inline-block;
         margin-bottom: 3px;
         table {
             margin-top: 5px;
@@ -140,6 +177,10 @@
             tr {
                 white-space:nowrap;
                 th {
+                    &:hover {
+                        font-weight: bold;
+                    }
+                    cursor: pointer;
                     font-weight: normal;
                     background: @pg-hoff-header-background;
                     color: @pg-hoff-header-color;
