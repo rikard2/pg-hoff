@@ -14,6 +14,8 @@ class PgHoffResultsView
         @element.classList.add('native-key-bindings')
 
     resultsets: []
+    pinnedResultsets: []
+    selectedIndex: 0
 
     getCompare: (typeName, asc, colIdx) ->
         defaultCompare = (left, right) ->
@@ -32,21 +34,23 @@ class PgHoffResultsView
         resultset.rows.sort compare
 
     createTabs: (resultsets) ->
-        selectedIndex = 0
         tabContainer = document.createElement 'div'
         tabContainer.classList.add 'tab-container'
 
         tabs = tabContainer.appendChild document.createElement('ul')
-        tabs.classList.add 'tabs'
+        tabs.classList.add 'tab-bar'
+        tabs.classList.add 'list-inline'
 
         area = tabContainer.appendChild document.createElement('div')
         area.classList.add 'tab-area'
 
+        dis = @
         for resultset, i in resultsets
             tab = tabs.appendChild @createTab(resultset)
-            if i == selectedIndex
-                tab.classList.add 'active'
-                area.appendChild @createTable(resultset, i)
+            tab.setAttribute 'index', i
+            tab.onclick = (e) =>
+                index = parseInt(e.target.getAttribute('index'))
+                @selectTab(index)
 
         clear = tabs.appendChild document.createElement('div')
         clear.classList.add 'clear'
@@ -56,17 +60,48 @@ class PgHoffResultsView
     createTab: (resultset) ->
         tab = document.createElement 'li'
         tab.classList.add 'tab'
-        tab.textContent = 'omfg'
-        console.log 'resultset', resultset
+        tab.classList.add 'notices'
+        title = tab.appendChild document.createElement('div')
+        title.classList.add 'title'
+
+        attachIcon = tab.appendChild document.createElement('div')
+        attachIcon.classList.add 'close-icon'
+        attachIcon.classList.add 'pin-icon'
+
+        closeIcon = tab.appendChild document.createElement('div')
+        closeIcon.classList.add 'close-icon'
+
         if resultset.statusmessage?
-            tab.textContent = resultset.statusmessage
+            title.textContent = resultset.statusmessage
 
         return tab
+
+    selectTab: (index) ->
+        console.log 'selecttab', index
+        resultset = @resultsets[index]
+        @selectedIndex = index
+        area = @element.children[1].children[1]
+        for t, i in @element.children[1].children[0].children
+            t.classList.remove 'active'
+            if i == index
+                t.classList.add 'active'
+
+        if area.children.length > 0
+            area.removeChild area.firstChild
+
+        if resultset
+            area.appendChild @createTable(resultset, index)
 
     createTable: (x, resultsetIndex) ->
         container = document.createElement('div')
         container.classList.add('table')
         container.classList.add('executing')
+
+        if x.notices?.length > 0
+            for n in x.notices
+                notice = container.appendChild document.createElement('div')
+                notice.classList.add 'notice'
+                notice.textContent = n
 
         table = container.appendChild(document.createElement('table'))
 
@@ -134,6 +169,7 @@ class PgHoffResultsView
         @element.style.display = 'block'
 
         @element.appendChild @createTabs(resultsets)
+        @selectTab(@selectedIndex)
 
     resizeStarted: (mouseEvent) ->
         @startY = mouseEvent.pageY
@@ -144,6 +180,9 @@ class PgHoffResultsView
             height = @startHeight + deltaY
             if height >= 100
                 @element.style.height = height + 'px'
+                area = @element.children[1].children[1]
+                if area?
+                    area.style.height = (height - 36 - 11) + 'px'
 
         @stopHandler = (mouseEvent) =>
             document.body.removeEventListener 'mousemove', @moveHandler

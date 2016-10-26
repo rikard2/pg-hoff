@@ -3,6 +3,7 @@
 // See https://github.com/atom/atom-dark-ui/blob/master/styles/ui-variables.less
 // for a full listing of what's available.
 @import "ui-variables";
+@import "octicon-mixins";
 @pg-hoff-border-color: @base-border-color;
 
 @pg-hoff-false-background: lighten(@background-color-error, 25%);
@@ -15,7 +16,6 @@
 @pg-hoff-null-color: @pg-hoff-cell-background;
 @pg-hoff-header-color: @text-color-subtle;
 @pg-hoff-header-background: darken(@base-background-color, 3%);
-
 .pg-hoff-list-servers {
     .clear { clear: both; }
     .connecting { padding: 5px 10px; font-size: 13px; font-weight: bold; }
@@ -51,12 +51,43 @@
     }
 }
 .pg-hoff-results-view {
+    height: 300px;
     color: @text-color-highlight;
     padding: @component-padding @component-padding @component-padding 0px;
     font-family: 'Menlo';
     font-size: @font-size;
-    overflow-y: scroll;
-    overflow-y: scroll;
+    display: inline-block;
+    .tab:hover {
+        cursor: pointer;
+    }
+    .notice {
+        border-left: 2px solid @background-color-warning;
+        padding-left: 5px;
+        padding-top: 2px;
+    }
+    .error {
+        border-left: 2px solid @background-color-error;
+        padding-left: 5px;
+        padding-top: 2px;
+    }
+    .tab {
+        .title {
+            text-align: left !important;
+        }
+        .close-icon {
+            right: 35px !important;
+        }
+        .pin-icon {
+            &.pinned {
+                transform: scale(1) !important;
+                color: @background-color-info;
+            }
+            &::before {
+                content: "\f041" !important;
+            }
+            right: 10px !important;
+        }
+    }
     .resize-handle {
         position: absolute;
         width: 100%;
@@ -89,6 +120,9 @@
     }
 
     div.tab-container {
+        display: inline-block;
+        height: 100%;
+        width: 100%;
         ul.tabs {
             list-style: none;
             padding: 0px;
@@ -119,11 +153,28 @@
             }
         }
 
+        div.tab-area::-webkit-scrollbar-track {
+            background: @tab-background-color-active;
+        }
+        div.tab-area::-webkit-scrollbar-corner {
+            background: @tab-background-color-active;
+        }
+        div.tab-area::-webkit-scrollbar {
+        }
+        div.tab-area::-webkit-scrollbar-thumb {
+            background: @background-color-info;
+        }
         div.tab-area {
-            background: #fff;
-            border-left: 1px solid #ccc;
-            border-bottom: 1px solid #ccc;
-            border-right: 1px solid #ccc;
+            width: 100%;
+            overflow: scroll;
+            display: inline-block;
+            height: 300px - 36px - 11px;
+            background: @tab-background-color-active;
+            border-left: 1px solid @tab-border-color;
+            border-bottom: 1px solid @tab-border-color;
+            border-right: 1px solid @tab-border-color;
+            border-bottom-left-radius: @component-border-radius;
+            border-bottom-right-radius: @component-border-radius;
         }
     }
 
@@ -140,6 +191,10 @@
             tr {
                 white-space:nowrap;
                 th {
+                    &:hover {
+                        cursor: pointer;
+                        font-weight: bold;
+                    }
                     font-weight: normal;
                     background: @pg-hoff-header-background;
                     color: @pg-hoff-header-color;
