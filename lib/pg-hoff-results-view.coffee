@@ -157,7 +157,10 @@ class PgHoffResultsView
         else
             data
 
-    update: (resultsets) ->
+    update: (resultsets, newQuery) ->
+        if newQuery
+            @selectedIndex = 0
+
         @resultsets = resultsets
         while (@element.firstChild)
             @element.removeChild(@element.firstChild)
