@@ -1,4 +1,5 @@
 Promise = require('promise')
+PgHoffDialog = require('./pg-hoff-dialog')
 PgHoffServerRequest     = require './pg-hoff-server-request'
 
 class PgHoffListServersView
@@ -11,16 +12,25 @@ class PgHoffListServersView
 
     connect: (panel) ->
         listServersView = @
+        selectedServer = null
         return PgHoffServerRequest.Get 'listservers'
             .then (servers) ->
                 promise = listServersView.update(servers, listServersView.element)
                 panel.show()
 
                 return promise
-            .then (selectedServer) ->
+            .then (server) ->
+                selectedServer = server
+                requiresAuthKey = selectedServer.requiresauthkey == 'True' || selectedServer.requiresauthkey == '"True"'
+
+                if requiresAuthKey
+                    return PgHoffDialog.PromptPassword('Enter Password')
+                else
+                    return ''
+            .then (password) ->
                 request =
                     alias: selectedServer.alias,
-                    authkey: ''
+                    authkey: password
 
                 return PgHoffServerRequest.Post 'connect', request
             .then (response) ->
