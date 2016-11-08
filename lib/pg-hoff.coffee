@@ -5,6 +5,7 @@ PgHoffListServersView       = require './pg-hoff-list-servers-view'
 PgHoffQuery                 = require './pg-hoff-query'
 PgHoffGotoDeclaration       = require './pg-hoff-goto-declaration'
 PgHoffAutocompleteProvider  = require('./pg-hoff-autocomplete-provider')
+PgHoffDialog                = require('./pg-hoff-dialog')
 {CompositeDisposable, Disposable} = require 'atom'
 
 module.exports = PgHoff =
@@ -39,7 +40,7 @@ module.exports = PgHoff =
             order: 4
         pascaliseAutocompletions:
             type: 'boolean'
-            default: true
+            default: false
             description: 'user_name becomes User_Name'
             order: 5
         unQuoteFunctionNames:
@@ -79,7 +80,6 @@ module.exports = PgHoff =
         @listServersView        = new PgHoffListServersView(state.pgHoffViewState)
 
         editor = atom.workspace.getActiveTextEditor()
-
         @listServersViewPanel = atom.workspace.addModalPanel(item: @listServersView.getElement(), visible: false)
         @resultsViewPanel = atom.workspace.addBottomPanel(item: @resultsView.getElement(), visible: false)
 
@@ -90,8 +90,25 @@ module.exports = PgHoff =
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:goto-declaration': => @gotoDeclaration()
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:connect': => @connect()
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:execute-query': => @executeQueryWithConnect()
+        @subscriptions.add atom.commands.add '.notices', 'pg-hoff:create-dynamic-table': => @createDynamicTable()
 
     gotoDeclaration: PgHoffGotoDeclaration
+
+    createDynamicTable: ->
+        alias = atom.workspace.getActivePaneItem().alias
+        globalName = null
+        PgHoffDialog
+            .Prompt('Enter name')
+            .then (name) ->
+                req =
+                    queryid: window.queryId
+                    name: name
+                globalName = name
+                return PgHoffServerRequest.Post('create_dynamic_table', req)
+            .then (response) ->
+                atom.notifications.addSuccess 'Dynamic query created with name ' + globalName + '.'
+            .catch (err) ->
+                console.debug 'user aborted prompt'
 
     connect: ->
         paneItem = atom.workspace.getActivePaneItem()

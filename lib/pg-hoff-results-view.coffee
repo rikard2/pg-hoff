@@ -95,6 +95,7 @@ class PgHoffResultsView
             t.classList.remove 'active'
             if i == index
                 t.classList.add 'active'
+                window.queryId = resultset.queryid
 
         if area.children.length > 0
             area.removeChild area.firstChild

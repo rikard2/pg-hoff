@@ -6,6 +6,12 @@
             'command': 'pg-hoff:execute-query'
         }
     ]
+    '.notices': [
+        {
+            'label': 'Create dynamic table'
+            'command': 'pg-hoff:create-dynamic-table'
+        }
+    ]
     'menu': [
         {
             'label': 'Packages'
