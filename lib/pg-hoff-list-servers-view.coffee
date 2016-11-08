@@ -22,17 +22,20 @@ class PgHoffListServersView
             .then (server) ->
                 selectedServer = server
                 requiresAuthKey = selectedServer.requiresauthkey == 'True' || selectedServer.requiresauthkey == '"True"'
+                if not server.connected
+                    if requiresAuthKey
+                        return PgHoffDialog.PromptPassword('Enter Password')
 
-                if requiresAuthKey
-                    return PgHoffDialog.PromptPassword('Enter Password')
-                else
-                    return ''
+                return ''
             .then (password) ->
                 request =
                     alias: selectedServer.alias,
                     authkey: password
 
-                return PgHoffServerRequest.Post 'connect', request
+                if not selectedServer.connected
+                    return PgHoffServerRequest.Post 'connect', request
+                else
+                    return { 'alias': selectedServer.alias }
             .then (response) ->
                 if response.errormessage == 'Already connected to server.'
                     response.already_connected = true

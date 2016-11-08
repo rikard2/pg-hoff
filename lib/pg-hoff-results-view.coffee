@@ -88,7 +88,6 @@ class PgHoffResultsView
         return tab
 
     selectTab: (index) ->
-        console.log 'selecttab', index
         resultset = @resultsets[index]
         @selectedIndex = index
         area = @element.children[1].children[1]
