@@ -1,5 +1,6 @@
 request = require('request')
 Promise = require('promise')
+PgHoffTable = require('./pg-hoff-table')
 Type = require('./pg-hoff-types').Type
 
 class PgHoffResultsView
@@ -16,22 +17,11 @@ class PgHoffResultsView
     resultsets: []
     pinnedResultsets: []
     selectedIndex: 0
+    selection: null
 
-    getCompare: (typeName, asc, colIdx) ->
-        defaultCompare = (left, right) ->
-            switch
-                when left is null and right is null then 0
-                when left is null then 1
-                when right is null then -1
-                else +(left > right) || - (right > left)
-        compare = Type[typeName]?.compare || defaultCompare
-        (left, right) -> compare(left[colIdx], right[colIdx]) * if asc then 1 else -1 ? 0
-
-    sort: (resultset, columnIndex) ->
-        ascending = +resultset.columns[columnIndex].ascending = !resultset.columns[columnIndex].ascending
-        typeName = resultset.columns[columnIndex].type
-        compare = @getCompare(typeName, ascending, columnIndex)
-        resultset.rows.sort compare
+    onCopy: () ->
+        if @selection?
+            atom.clipboard.write @selection.map( (z) -> return z.value).join(', ')
 
     createTabs: (resultsets) ->
         tabContainer = document.createElement 'div'
@@ -81,7 +71,7 @@ class PgHoffResultsView
 
         if resultset.statusmessage?
             title.textContent = resultset.statusmessage
-            
+
         if resultset.executing
             title.textContent = 'Executing...'
 
@@ -101,72 +91,14 @@ class PgHoffResultsView
             area.removeChild area.firstChild
 
         if resultset
-            area.appendChild @createTable(resultset, index)
+            table = new PgHoffTable(resultset)
+            table.onSelection = (selection) =>
+                @selection = selection
+            area.appendChild table.getElement()
 
-    createTable: (x, resultsetIndex) ->
-        container = document.createElement('div')
-        container.classList.add('table')
-        container.classList.add('executing')
-
-        if x.notices?.length > 0
-            for n in x.notices
-                notice = container.appendChild document.createElement('div')
-                notice.classList.add 'notice'
-                notice.textContent = n
-
-        table = container.appendChild(document.createElement('table'))
-
-        # Header columns
-        if x.columns?
-            col_tr = table.appendChild(document.createElement('tr'))
-            for c, i in x.columns
-                col_tr.appendChild(@createTh(c, resultsetIndex, i))
-
-        # Rows
-        if x.rows?
-            for r in x.rows
-                row_tr = table.appendChild(document.createElement('tr'))
-                for c, i in r
-                    row_tr.appendChild(@createTd(c, x.columns[i].type))
-
-        return container
-
-    createTh: (col, resultsetIndex, columnIndex) ->
-        th = document.createElement('th')
-        th.textContent = col.name
-        th.setAttribute 'title', col.type
-        th.textContent += if @resultsets[resultsetIndex].columns[columnIndex].ascending then ' +' else ' -' ? ''
-
-        th.onclick = =>
-            @sort @resultsets[resultsetIndex], columnIndex
-            @update(@resultsets)
-
-        return th
-
-    createTd: (text, typeName) ->
-        td = document.createElement('td')
-        if text is null
-            td.className = 'null'
-            td.textContent =atom.config.get('pg-hoff.nullString')
-        else
-            td.className = typeName + '_' + text if typeName == 'boolean'
-            try
-                td.textContent = @cellText(text, typeName)
-            catch err
-                console.error 'Could not format as ' + typeName, text
-        td.setAttribute 'title', text
-        return td
-
-    cellText: (data, typeName) ->
-        typeName = typeName.slice(0, -2) if typeName.match /\[\]$/
-        if data?.constructor == Array
-            ct = (e) => if e is null then 'NULL' else @cellText e, typeName
-            elements = (ct e for e in data)
-            '[' + elements.join(', ') + ']'
-        else if Type[typeName]?.format and atom.config.get('pg-hoff.formatColumns')
-            Type[typeName].format(data)
-        else
-            data
+    @SelectedAreas: []
+    @GetSelectedCells: () ->
+        return PgHoffResultsView.SelectedAreas
 
     update: (resultsets, newQuery) ->
         if newQuery

@@ -23,6 +23,7 @@
         width: 100%;
     }
 }
+
 .pg-hoff-list-servers {
     .clear { clear: both; }
     .connecting { padding: 5px 10px; font-size: 13px; font-weight: bold; }
@@ -58,6 +59,13 @@
     }
 }
 .pg-hoff-results-view {
+    -webkit-user-select: none !important; /* Chrome/Safari/Opera */
+    .selected {
+        background: #658DFF !important;
+        color: #fff !important;
+        border: 2px solid darkblue !important;
+    }
+
     height: 300px;
     color: @text-color-highlight;
     padding: @component-padding @component-padding @component-padding 0px;
