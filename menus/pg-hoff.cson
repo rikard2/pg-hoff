@@ -27,6 +27,10 @@
                         'command': 'pg-hoff:execute-query'
                     },
                     {
+                        'label': 'Stop Query',
+                        'command': 'pg-hoff:stop-query'
+                    },
+                    {
                         'label': 'Go to declaration'
                         'command': 'pg-hoff:goto-declaration'
                     }

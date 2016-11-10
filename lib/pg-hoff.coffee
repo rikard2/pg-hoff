@@ -89,6 +89,7 @@ module.exports = PgHoff =
         @subscriptions = new CompositeDisposable
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:goto-declaration': => @gotoDeclaration()
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:connect': => @connect()
+        @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:stop-query': => @stopQuery()
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:execute-query': => @executeQueryWithConnect()
         @subscriptions.add atom.commands.add 'atom-workspace', 'core:copy': => @copy()
         @subscriptions.add atom.commands.add '.notices', 'pg-hoff:create-dynamic-table': => @createDynamicTable()
@@ -97,6 +98,13 @@ module.exports = PgHoff =
 
     copy: ->
         @resultsView.onCopy();
+    stopQuery: ->
+        alias = atom.workspace.getActivePaneItem().alias
+        if alias?
+            return PgHoffServerRequest
+                .Post('cancel', { alias: alias })
+                .then (response) ->
+                    console.log 'cancel', response, alias
 
     createDynamicTable: ->
         alias = atom.workspace.getActivePaneItem().alias
