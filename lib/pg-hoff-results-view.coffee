@@ -75,9 +75,18 @@ class PgHoffResultsView
                 e.target.classList.remove 'pinned'
             else
                 e.target.classList.add 'pinned'
+        attachIcon.style.display = 'none'
 
         closeIcon = tab.appendChild document.createElement('div')
         closeIcon.classList.add 'close-icon'
+        closeIcon.onclick = (e) =>
+            tab.style.display = 'none'
+            index = parseInt(tab.getAttribute('index')) - 1
+            if index >= 0
+                @selectTab(index)
+            else
+                while (@element.firstChild)
+                    @element.removeChild(@element.firstChild)
 
         if resultset.statusmessage?
             title.textContent = resultset.statusmessage
