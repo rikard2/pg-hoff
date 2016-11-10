@@ -11,3 +11,4 @@
     'ctrl-z': 'pg-hoff:connect'
     'f1': 'pg-hoff:goto-declaration'
     'ctrl-<': 'pg-hoff:execute-query'
+    'ctrl-c': 'pg-hoff:stop-query'
