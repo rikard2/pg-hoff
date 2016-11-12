@@ -1,10 +1,18 @@
 Request = require('request')
 Promise = require('promise')
+PythonCommunication = require('./python-communication')
 
 module.exports =
 class PgHoffServerRequest
     constructor: () ->
     @Get: (path, isRelative) ->
+        console.log 'GET', path
+        if path == 'listservers'
+            return PythonCommunication.Request 'listservers', {}
+                .then (response) ->
+                    console.log 'response', response
+                    return response
+
         if not isRelative?
             isRelative = true
 
@@ -49,6 +57,7 @@ class PgHoffServerRequest
         )
 
     @Post: (path, data, isJson) ->
+        console.log 'POST', path, data
         if not isJson?
             isJson = true
 

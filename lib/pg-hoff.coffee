@@ -6,6 +6,8 @@ PgHoffQuery                 = require './pg-hoff-query'
 PgHoffGotoDeclaration       = require './pg-hoff-goto-declaration'
 PgHoffAutocompleteProvider  = require('./pg-hoff-autocomplete-provider')
 PgHoffDialog                = require('./pg-hoff-dialog')
+PythonCommunication         = require('./python-communication')
+
 {CompositeDisposable, Disposable} = require 'atom'
 
 module.exports = PgHoff =
@@ -96,6 +98,15 @@ module.exports = PgHoff =
     gotoDeclaration: PgHoffGotoDeclaration
 
     stopQuery: ->
+        console.log 'trying to communicate'
+        PythonCommunication.Request 'completions', { a: 123 }
+            .then (response) ->
+                console.log 'question response', response
+            .catch (err) ->
+                console.log 'catch', err
+
+        return
+
         alias = atom.workspace.getActivePaneItem().alias
         if alias?
             return PgHoffServerRequest
