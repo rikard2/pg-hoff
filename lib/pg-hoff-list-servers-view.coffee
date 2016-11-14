@@ -1,6 +1,7 @@
 Promise = require('promise')
 PgHoffDialog = require('./pg-hoff-dialog')
 PgHoffServerRequest     = require './pg-hoff-server-request'
+{maybeStartServer}      = require './pg-hoff-util'
 
 class PgHoffListServersView
     fulfil: null
@@ -13,7 +14,9 @@ class PgHoffListServersView
     connect: (panel) ->
         listServersView = @
         selectedServer = null
-        return PgHoffServerRequest.Get 'listservers'
+        maybeStartServer()
+            .then (servers) ->
+                return PgHoffServerRequest.Get 'listservers'
             .then (servers) ->
                 promise = listServersView.update(servers, listServersView.element)
                 panel.show()
