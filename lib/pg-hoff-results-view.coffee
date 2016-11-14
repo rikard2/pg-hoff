@@ -67,7 +67,6 @@ class PgHoffResultsView
         title.classList.add 'title'
 
         attachIcon = tab.appendChild document.createElement('div')
-        attachIcon.setAttribute 'tab-index',
         attachIcon.classList.add 'close-icon'
         attachIcon.classList.add 'pin-icon'
         attachIcon.onclick = (e) =>
@@ -81,12 +80,11 @@ class PgHoffResultsView
         closeIcon.classList.add 'close-icon'
         closeIcon.onclick = (e) =>
             tab.style.display = 'none'
-            index = parseInt(tab.getAttribute('index')) - 1
-            if index >= 0
-                @selectTab(index)
-            else
-                while (@element.firstChild)
-                    @element.removeChild(@element.firstChild)
+            @closedTabs.add tabIndex
+            if @tabCount() == 0
+                @closeUI()
+            else if tabIndex == @selectedIndex
+                @selectNearestTab(tabIndex)
 
         if resultset.statusmessage?
             title.textContent = resultset.statusmessage
@@ -95,6 +93,27 @@ class PgHoffResultsView
             title.textContent = 'Executing...'
 
         return tab
+
+    tabs: ->
+        Array.from(@element.children[1].children[0].children)
+        .filter((e) -> e.tagName == 'LI')
+
+    selectNearestTab: (index) ->
+        tabs = @tabs()
+        for t, i in tabs
+            if i > index and not @closedTabs.has(i)
+                return @selectTab(i)
+        for i in [tabs.length-1...-1]
+            if not @closedTabs.has(i)
+                return @selectTab(i)
+
+    tabCount: ->
+        @resultsets.length - @closedTabs.size
+
+    closeUI: ->
+        while (@element.firstChild)
+            @element.removeChild(@element.firstChild)
+        @element.style.display = 'none'
 
     selectTab: (index) ->
         resultset = @resultsets[index]
@@ -192,6 +211,7 @@ class PgHoffResultsView
         @element.style.display = 'block'
 
         @element.appendChild @createTabs(resultsets)
+        @closedTabs = new Set()
         @selectTab(@selectedIndex)
 
     resizeStarted: (mouseEvent) ->
