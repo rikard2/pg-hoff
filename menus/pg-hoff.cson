@@ -12,6 +12,12 @@
             'command': 'pg-hoff:create-dynamic-table'
         }
     ]
+    '.table': [
+        {
+            'label': 'Toggle Transpose',
+            'command': 'pg-hoff:toggle-transpose'
+        }
+    ]
     'menu': [
         {
             'label': 'Packages'

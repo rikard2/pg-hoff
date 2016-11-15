@@ -1,6 +1,7 @@
 request = require('request')
 Promise = require('promise')
 Type = require('./pg-hoff-types').Type
+{CompositeDisposable, Disposable} = require 'atom'
 
 class PgHoffResultsView
     # There are only two rules of PgHoffResultsView...
@@ -13,9 +14,20 @@ class PgHoffResultsView
         @element.setAttribute('tabindex', -1)
         @element.classList.add('native-key-bindings')
 
+        @subscriptions = new CompositeDisposable
+        @subscriptions.add atom.commands.add '.table', 'pg-hoff:toggle-transpose': (element) => @toggleTranspose(element)
+
     resultsets: []
     pinnedResultsets: []
     selectedIndex: 0
+
+    toggleTranspose: (event) ->
+        table = event.target.closest(".table")
+        return unless table?
+
+        index = parseInt table.getAttribute('resultset-index')
+        @resultsets[index].transpose = not @resultsets[index].transpose ? false
+        @update(@resultsets)
 
     getCompare: (typeName, asc, colIdx) ->
         defaultCompare = (left, right) ->
@@ -133,13 +145,7 @@ class PgHoffResultsView
 
     createTable: (x, resultsetIndex) ->
         container = document.createElement('div')
-        transposeButton = container.appendChild document.createElement('div')
-        transposeButton.textContent = 'T'
-        transposeButton.style.float = 'right'
-
-        transposeButton.onclick = () =>
-            @resultsets[resultsetIndex].transpose = ( @resultsets[resultsetIndex].transpose || false ) == false
-            @update(@resultsets)
+        container.setAttribute 'resultset-index', resultsetIndex
 
         container.classList.add('table')
         container.classList.add('executing')
