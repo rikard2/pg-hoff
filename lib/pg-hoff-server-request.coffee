@@ -31,9 +31,11 @@ class PgHoffServerRequest
 
             Request(options, (error, response, body) ->
                 if error
+                    console.debug 'Error GET Request', error, response, body
                     reject(error)
                     atom.notifications.addError('HTTP: ' + error)
                 else if response.statusCode != 200
+                    console.debug 'Error GET Request', error, response, body
                     reject('Unexpected status code: ' + response.statusCode)
                     atom.notifications.addError('Unexpected status code: ' + response.statusCode)
                 else
@@ -71,6 +73,7 @@ class PgHoffServerRequest
 
             Request(options, (error, response, body) ->
                 if error
+                    console.debug 'Error POST Request', error, response, body
                     reject(error)
                     atom.notifications.addError('HTTP: ' + error)
                 else
