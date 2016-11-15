@@ -22,9 +22,7 @@ spawnHoffServer = (command, args) ->
     )
         .then (data) ->
             resolved = true
-            if not /Running on/.test(data)
-                throw 'Spawn, wrong output'
-
+            throw 'Spawn, wrong output' unless /Running on/.test(data)
             return data
 
 timeout = (ms) ->
@@ -41,7 +39,7 @@ checkPort = (interval, tries) ->
         .then ->
             tries = tries - 1
             if tries <= 0
-                throw('to many')
+                throw('Could not find open port (5000).')
             return cmd 'lsof -i :5000'
                 .catch (err) ->
                     return checkPort(interval, tries)
