@@ -18,6 +18,12 @@
             'command': 'pg-hoff:toggle-transpose'
         }
     ]
+    '.connected': [
+        {
+            'label': 'Disconnect',
+            'command': 'pg-hoff:disconnect'
+        }
+    ]
     'menu': [
         {
             'label': 'Packages'

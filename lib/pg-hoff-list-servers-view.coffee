@@ -2,6 +2,7 @@ Promise = require('promise')
 PgHoffDialog = require('./pg-hoff-dialog')
 PgHoffServerRequest     = require './pg-hoff-server-request'
 {maybeStartServer}      = require './pg-hoff-util'
+{CompositeDisposable, Disposable} = require 'atom'
 
 class PgHoffListServersView
     fulfil: null
@@ -10,6 +11,9 @@ class PgHoffListServersView
     constructor: (serializedState) ->
         @element = document.createElement('div')
         @element.classList.add 'pg-hoff-list-servers'
+
+        @subscriptions = new CompositeDisposable
+        @subscriptions.add atom.commands.add '.connected', 'pg-hoff:disconnect': (event) => @disconnect(event)
 
     connect: (panel) ->
         listServersView = @
@@ -48,6 +52,14 @@ class PgHoffListServersView
 
                 return response
 
+    disconnect: (event) ->
+        alias = event.target.getAttribute('alias')
+        return PgHoffServerRequest.Post 'disconnect', { alias: alias }
+            .then (servers) ->
+                atom.notifications.addSuccess('Successfully disconnected from ' + alias)
+            .catch (err) ->
+                atom.notifications.addError('Could not disconnect ' + err)
+
     update: (servers, element) ->
         return new Promise( (resolve, reject) ->
             while (element.firstChild)
@@ -78,6 +90,7 @@ class PgHoffListServersView
                 if servers[server].connected
                     connected = urlContainer.appendChild document.createElement('div')
                     connected.classList.add 'connected'
+                    connected.setAttribute 'alias', server
                     connected.innerHTML = 'Connected &#10003;'
 
                 clear = urlContainer.appendChild document.createElement('div')
