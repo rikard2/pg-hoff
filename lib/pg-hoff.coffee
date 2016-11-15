@@ -72,6 +72,11 @@ module.exports = PgHoff =
             description: 'Representation of null values'
             default: 'NULL'
             order: 11
+        startServerAutomatically:
+            type: 'boolean'
+            description: 'Start server automatically'
+            default: true
+            order: 1
 
     activate: (state) ->
         console.debug 'Activating the greatest plugin ever..'
