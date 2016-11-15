@@ -144,6 +144,11 @@ class PgHoffResultsView
         container.classList.add('table')
         container.classList.add('executing')
 
+        if x.error?
+            error = container.appendChild document.createElement('div')
+            error.classList.add 'error'
+            error.textContent = x.error
+
         if x.notices?.length > 0
             for n in x.notices
                 notice = container.appendChild document.createElement('div')
