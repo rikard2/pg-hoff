@@ -194,16 +194,22 @@
     div.table {
         margin-bottom: 3px;
         table {
+            &.transpose {
+                td {
+                    max-width: 500px;
+                    overflow: hidden;
+                }
+            }
             margin-top: 5px;
             background: @pg-hoff-cell-background;
             border: 1px solid @pg-hoff-border-color;
             width: 100%;
             padding-bottom: @component-padding;
             padding-right: @component-padding;
-            td { white-space:nowrap; vertical-align: top; }
+            td.cell { white-space:nowrap; vertical-align: top; }
             tr {
                 white-space:nowrap;
-                th {
+                td.header {
                     &:hover {
                         cursor: pointer;
                         font-weight: bold;
@@ -218,23 +224,23 @@
                     }
                 }
                 &:last-child {
-                    td {
+                    td.cell {
                         border-bottom: 1px solid @pg-hoff-border-color;
                     }
                 }
-                td.null {
+                td.cell.null {
                     background: @pg-hoff-null-background;
                     color: @pg-hoff-null-color;
                 }
-                td.boolean_false {
+                td.cell.boolean_false {
                     background: @pg-hoff-false-background;
                     color: @pg-hoff-false-color;
                 }
-                td.boolean_true {
+                td.cell.boolean_true {
                     background: @pg-hoff-true-background;
                     color: @pg-hoff-true-color;
                 }
-                th,td {
+                td.header,td.cell {
                     &:last-child {
                         border-right: none;
                         width: 100%;

@@ -133,6 +133,14 @@ class PgHoffResultsView
 
     createTable: (x, resultsetIndex) ->
         container = document.createElement('div')
+        transposeButton = container.appendChild document.createElement('div')
+        transposeButton.textContent = 'T'
+        transposeButton.style.float = 'right'
+
+        transposeButton.onclick = () =>
+            @resultsets[resultsetIndex].transpose = ( @resultsets[resultsetIndex].transpose || false ) == false
+            @update(@resultsets)
+
         container.classList.add('table')
         container.classList.add('executing')
 
@@ -143,24 +151,40 @@ class PgHoffResultsView
                 notice.textContent = n
 
         table = container.appendChild(document.createElement('table'))
+        if @resultsets[resultsetIndex].transpose
+            table.classList.add 'transpose'
+            if x.columns?
+                for c, i in x.columns
+                    col_tr = table.appendChild(document.createElement('tr'))
+                    th = @createTh(c, resultsetIndex, i)
+                    col_tr.appendChild(th)
 
-        # Header columns
-        if x.columns?
-            col_tr = table.appendChild(document.createElement('tr'))
-            for c, i in x.columns
-                col_tr.appendChild(@createTh(c, resultsetIndex, i))
+                    # Rows
+                    if x.rows?
+                        for r in x.rows
+                            for rc, ri in r
+                                if ri == i
+                                    td = @createTd(rc, x.columns[ri].type)
+                                    col_tr.appendChild(td)
+        else
+            # Header columns
+            if x.columns?
+                col_tr = table.appendChild(document.createElement('tr'))
+                for c, i in x.columns
+                    col_tr.appendChild(@createTh(c, resultsetIndex, i))
 
-        # Rows
-        if x.rows?
-            for r in x.rows
-                row_tr = table.appendChild(document.createElement('tr'))
-                for c, i in r
-                    row_tr.appendChild(@createTd(c, x.columns[i].type))
+            # Rows
+            if x.rows?
+                for r in x.rows
+                    row_tr = table.appendChild(document.createElement('tr'))
+                    for c, i in r
+                        row_tr.appendChild(@createTd(c, x.columns[i].type))
 
         return container
 
     createTh: (col, resultsetIndex, columnIndex) ->
-        th = document.createElement('th')
+        th = document.createElement('td')
+        th.classList.add 'header'
         th.textContent = col.name
         th.setAttribute 'title', col.type
         th.textContent += if @resultsets[resultsetIndex].columns[columnIndex].ascending then ' +' else ' -' ? ''
@@ -173,11 +197,12 @@ class PgHoffResultsView
 
     createTd: (text, typeName) ->
         td = document.createElement('td')
+        td.classList.add 'cell'
         if text is null
-            td.className = 'null'
+            td.classList.add 'null'
             td.textContent =atom.config.get('pg-hoff.nullString')
         else
-            td.className = typeName + '_' + text if typeName == 'boolean'
+            td.classList.add typeName + '_' + text if typeName == 'boolean'
             try
                 td.textContent = @cellText(text, typeName)
             catch err
