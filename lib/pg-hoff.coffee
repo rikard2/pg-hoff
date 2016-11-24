@@ -48,6 +48,13 @@ module.exports = PgHoff =
             default: true
             description: '"sum"() becomes sum()'
             order: 6
+        maximumCellValueLength:
+            type: 'integer'
+            minimum: 5
+            maximum: 10000
+            default: 40
+            description: 'How long a cell value can be until you have to expand it.'
+            order: 6
         locale:
             type: 'string'
             default: 'sv-SE'

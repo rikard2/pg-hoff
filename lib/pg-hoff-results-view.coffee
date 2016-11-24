@@ -209,13 +209,37 @@ class PgHoffResultsView
     createTd: (text, typeName) ->
         td = document.createElement('td')
         td.classList.add 'cell'
+
         if text is null
             td.classList.add 'null'
-            td.textContent =atom.config.get('pg-hoff.nullString')
+            td.textContent = atom.config.get('pg-hoff.nullString')
         else
             td.classList.add typeName + '_' + text if typeName == 'boolean'
+            maximumCellValueLength = atom.config.get('pg-hoff.maximumCellValueLength')
             try
-                td.textContent = @cellText(text, typeName)
+                longCellText = @cellText(text, typeName)
+                if longCellText.length > maximumCellValueLength
+                    shortCellText = longCellText
+                        .substr(0, maximumCellValueLength)
+                        .replace(/\s+/g, ' ')
+                    td.textContent = shortCellText
+
+                    dots = td.appendChild document.createElement('span')
+                    dots.textContent = '...'
+                    dots.style.cursor = 'pointer'
+                    dots.setAttribute('action', 'expand')
+                    dots.onclick = (e) =>
+                        action = e.target.getAttribute('action')
+                        if action == 'expand'
+                            td.textContent = longCellText
+                            e.target.textContent = '-'
+                        else
+                            td.textContent = shortCellText
+                            e.target.textContent = '...'
+                        e.target.setAttribute('action', if action == 'expand' then 'collapse' else 'expand')
+                        td.appendChild(e.target);
+                else
+                    td.textContent = longCellText
             catch err
                 console.error 'Could not format as ' + typeName, text
         td.setAttribute 'title', text
