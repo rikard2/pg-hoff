@@ -155,6 +155,8 @@ class PgHoffResultsView
             error.classList.add 'error'
             error.textContent = x.error
 
+        runtime = container.appendChild document.createElement('div')
+        runtime.textContent = @resultsets[resultsetIndex].runtime_seconds + ' seconds'
         if x.notices?.length > 0
             for n in x.notices
                 notice = container.appendChild document.createElement('div')
