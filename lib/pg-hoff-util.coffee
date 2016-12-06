@@ -8,7 +8,7 @@ cmd = (c) ->
                 reject(error)
 
             fulfil(stdout)
-        )en recepp
+        )
     )
 
 spawnHoffServer = (command, args) ->
