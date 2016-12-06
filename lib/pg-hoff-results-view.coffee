@@ -16,6 +16,14 @@ class PgHoffResultsView
 
         @subscriptions = new CompositeDisposable
         @subscriptions.add atom.commands.add '.table', 'pg-hoff:toggle-transpose': (element) => @toggleTranspose(element)
+        document.addEventListener('mousemove', (e) =>
+            if (@gripTargetElement)
+                @gripTargetElement.style.width = @gripOffset + e.pageX + 'px';
+        )
+        document.addEventListener('mouseup', (e) =>
+            @gripTargetElement = null;
+            cells = document.getElementsByClassName('cell')
+        )
 
     resultsets: []
     pinnedResultsets: []
@@ -38,6 +46,24 @@ class PgHoffResultsView
                 else +(left > right) || - (right > left)
         compare = Type[typeName]?.compare || defaultCompare
         (left, right) -> compare(left[colIdx], right[colIdx]) * if asc then 1 else -1 ? 0
+
+    gripTargetElement: null
+    gripOffset: 0
+    createGrip: (targetElement) ->
+        grip = targetElement.appendChild(document.createElement('div'))
+        grip.innerHTML = "&nbsp;";
+        grip.style.top = '0';
+        grip.style.right = '0';
+        grip.style.bottom = '0';
+        grip.style.width = '10px';
+        grip.style.position = 'absolute';
+        grip.style.cursor = 'col-resize';
+        grip.addEventListener('mousedown', (e) =>
+            console.log('mousedown');
+            @gripTargetElement = targetElement;
+            console.log('@gripTargetElement', @gripTargetElement);
+            @gripOffset = targetElement.offsetWidth - e.pageX;
+        );
 
     sort: (resultset, columnIndex) ->
         ascending = +resultset.columns[columnIndex].ascending = !resultset.columns[columnIndex].ascending
@@ -100,7 +126,10 @@ class PgHoffResultsView
 
         if resultset.statusmessage?
             title.textContent = resultset.statusmessage
-            
+
+        if resultset.error?
+            title.textContent = 'Error'
+
         if resultset.executing
             title.textContent = 'Executing...'
 
@@ -155,7 +184,8 @@ class PgHoffResultsView
             error.classList.add 'error'
             error.textContent = x.error
 
-        runtime = container.appendChild document.createElement('div')
+        runtime = document.createElement('div')
+        runtime.classList.add 'elapsed'
         runtime.textContent = @resultsets[resultsetIndex].runtime_seconds + ' seconds'
         if x.notices?.length > 0
             for n in x.notices
@@ -193,16 +223,22 @@ class PgHoffResultsView
                     for c, i in r
                         row_tr.appendChild(@createTd(c, x.columns[i].type))
 
+        container.appendChild runtime
+
         return container
 
     createTh: (col, resultsetIndex, columnIndex) ->
         th = document.createElement('td')
         th.classList.add 'header'
-        th.textContent = col.name
-        th.setAttribute 'title', col.type
-        th.textContent += if @resultsets[resultsetIndex].columns[columnIndex].ascending then ' +' else ' -' ? ''
+        nogrip = th.appendChild document.createElement('div')
+        nogrip.style.display = 'inline-block';
+        nogrip.style.width = '100%';
+        nogrip.textContent = col.name
+        nogrip.setAttribute 'title', col.type
+        nogrip.textContent += if @resultsets[resultsetIndex].columns[columnIndex].ascending then ' +' else ' -' ? ''
 
-        th.onclick = =>
+        @createGrip(th)
+        nogrip.onclick = =>
             @sort @resultsets[resultsetIndex], columnIndex
             @update(@resultsets)
 
@@ -235,9 +271,11 @@ class PgHoffResultsView
                         if action == 'expand'
                             td.textContent = longCellText
                             e.target.textContent = '-'
+                            td.style['white-space'] = 'pre'
                         else
                             td.textContent = shortCellText
                             e.target.textContent = '...'
+                            td.style['white-space'] = 'nowrap'
                         e.target.setAttribute('action', if action == 'expand' then 'collapse' else 'expand')
                         td.appendChild(e.target);
                 else
