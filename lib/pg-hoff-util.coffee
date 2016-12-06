@@ -14,7 +14,7 @@ cmd = (c) ->
 spawnHoffServer = (command, args) ->
     resolved = false
     return new Promise((fulfil, reject) ->
-        s = spawn('pghoffserver', [''], { env: process.env, detatched: true })
+        s = spawn('pghoffserver', [''], { env: process.env, detached: true })
 
         s.stdout.on 'data', (data)      -> fulfil(data.toString()) if not resolved
         s.stderr.on 'data', (data)      -> fulfil('stderr ' + data.toString()) if not resolved
