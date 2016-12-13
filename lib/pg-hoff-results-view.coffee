@@ -1,5 +1,6 @@
 request = require('request')
 Promise = require('promise')
+PgHoffResultsSelection = require('./pg-hoff-selection')
 Type = require('./pg-hoff-types').Type
 {CompositeDisposable, Disposable} = require 'atom'
 
@@ -175,6 +176,8 @@ class PgHoffResultsView
     createTable: (x, resultsetIndex) ->
         container = document.createElement('div')
         container.setAttribute 'resultset-index', resultsetIndex
+        console.log 'createTable'
+        selection = new PgHoffResultsSelection
 
         container.classList.add('table')
         container.classList.add('executing')
@@ -218,10 +221,13 @@ class PgHoffResultsView
 
             # Rows
             if x.rows?
-                for r in x.rows
+                for r, ri in x.rows
                     row_tr = table.appendChild(document.createElement('tr'))
                     for c, i in r
-                        row_tr.appendChild(@createTd(c, x.columns[i].type))
+                        td = @createTd(c, x.columns[i].type)
+                        row_tr.appendChild(td)
+                        selectable = { row: ri, column: i, selected: false, element: td }
+                        selection.attachSelectable(selectable)
 
         container.appendChild runtime
 
