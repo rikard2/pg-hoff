@@ -25,10 +25,21 @@ class PgHoffResultsView
             @gripTargetElement = null;
             cells = document.getElementsByClassName('cell')
         )
+        @tabContainer = @createTabContainer()
 
+        resizeHandle = @element.appendChild document.createElement('div')
+        resizeHandle.classList.add('resize-handle')
+        resizeHandle.addEventListener 'mousedown', (e) => @resizeStarted(e)
+
+        @element.style.display = 'block'
+        @reset()
+
+    tabContainer: null
+    tabs: {}
     resultsets: []
     pinnedResultsets: []
     selectedIndex: 0
+    indexMap: {}
 
     toggleTranspose: (event) ->
         table = event.target.closest(".table")
@@ -72,8 +83,8 @@ class PgHoffResultsView
         compare = @getCompare(typeName, ascending, columnIndex)
         resultset.rows.sort compare
 
-    createTabs: (resultsets) ->
-        tabContainer = document.createElement 'div'
+    createTabContainer: () ->
+        tabContainer = @element.appendChild document.createElement 'div'
         tabContainer.classList.add 'tab-container'
 
         tabs = tabContainer.appendChild document.createElement('ul')
@@ -84,19 +95,7 @@ class PgHoffResultsView
         area.classList.add 'tab-area'
         area.style.height = (@element.clientHeight - 36 - 11) + 'px'
 
-        dis = @
-        for resultset, i in resultsets
-            tab = tabs.appendChild @createTab(resultset, i)
-            tab.setAttribute 'index', i
-            tab.onclick = (e) =>
-                index = parseInt(e.target.getAttribute('index'))
-                if e.target.parentElement.classList.contains('tab-bar')
-                    @selectTab(index)
-
-        clear = tabs.appendChild document.createElement('div')
-        clear.classList.add 'clear'
-
-        return tabContainer
+        return tabs
 
     createTab: (resultset, tabIndex) ->
         tab = document.createElement 'li'
@@ -125,15 +124,6 @@ class PgHoffResultsView
             else if tabIndex == @selectedIndex
                 @selectNearestTab(tabIndex)
 
-        if resultset.statusmessage?
-            title.textContent = resultset.statusmessage
-
-        if resultset.error?
-            title.textContent = 'Error'
-
-        if resultset.executing
-            title.textContent = 'Executing...'
-
         return tab
 
     tabs: ->
@@ -158,18 +148,21 @@ class PgHoffResultsView
         @element.style.display = 'none'
 
     selectTab: (index) ->
+        console.log 'OMFG'
+        console.log 'SELECTTAB', @element.children
         resultset = @resultsets[index]
         @selectedIndex = index
-        area = @element.children[1].children[1]
-        for t, i in @element.children[1].children[0].children
+        area = @element.children[0].children[1]
+        for t, i in @element.children[0].children[0].children
             t.classList.remove 'active'
             if i == index
                 t.classList.add 'active'
-                window.queryId = resultset.queryid
+                #window.queryId = resultset.queryid
 
         if area.children.length > 0
             area.removeChild area.firstChild
 
+        console.log 'RESULTSET', resultset
         if resultset
             area.appendChild @createTable(resultset, index)
 
@@ -302,6 +295,41 @@ class PgHoffResultsView
         else
             data
 
+    reset: () ->
+        @closedTabs = new Set()
+        @tabs = {}
+        @resultsets = []
+
+    addTab: (resultset, ix) ->
+        @indexMap[resultset.queryid] = ix
+        tab = @tabContainer.appendChild @createTab(resultset)
+        @tabs[resultset.queryid] = tab
+        console.log 'ADD TAB', @tabs
+        tab.setAttribute 'index', ix
+        tab.onclick = (e) =>
+            index = parseInt(e.target.getAttribute('index'))
+            if e.target.parentElement.classList.contains('tab-bar')
+                @selectTab(index)
+        if ix == 0
+            @selectTab(0)
+
+    setResultset: (resultset) ->
+        index = @indexMap[resultset.queryid]
+        @resultsets[index] = resultset
+        tab = @tabs[resultset.queryid]
+        console.log 'TAB', tab, @tabs, resultset.queryid
+        title = tab.children[0]
+        console.log 'title', title
+
+        if resultset.statusmessage?
+            title.textContent = resultset.statusmessage
+
+        if resultset.error?
+            title.textContent = 'Error'
+
+        if resultset.executing
+            title.textContent = 'Executing...'
+
     update: (resultsets, newQuery) ->
         if newQuery
             @selectedIndex = 0
@@ -309,16 +337,6 @@ class PgHoffResultsView
         @resultsets = resultsets
         while (@element.firstChild)
             @element.removeChild(@element.firstChild)
-
-        resizeHandle = @element.appendChild document.createElement('div')
-        resizeHandle.classList.add('resize-handle')
-        resizeHandle.addEventListener 'mousedown', (e) => @resizeStarted(e)
-
-        @element.style.display = 'block'
-
-        @element.appendChild @createTabs(resultsets)
-        @closedTabs = new Set()
-        @selectTab(@selectedIndex)
 
     resizeStarted: (mouseEvent) ->
         @startY = mouseEvent.pageY

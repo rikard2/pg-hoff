@@ -151,10 +151,6 @@ module.exports = PgHoff =
             .finally =>
                 @listServersViewPanel.hide()
 
-    renderResults: (resultsets, newQuery) ->
-        @resultsViewPanel.show();
-        @resultsView.update(resultsets, newQuery)
-
     executeQueryWithConnect: ->
         if atom.workspace.getActivePaneItem().alias?
             @executeQuery()
@@ -174,17 +170,30 @@ module.exports = PgHoff =
                 resultsViewPanel.hide()
                 return
 
+        resultsets = {}
+        @resultsViewPanel.show();
+        @resultsView.reset()
         return PgHoffQuery.Execute(selectedText)
             .then (result) =>
-                for resultset in result.resultsets
-                    if resultset.error
-                        atom.notifications.addError(resultset.error)
-
-                allCompleted = result.resultsets.every (resultset) -> return resultset.completed or resultset.error or not resultset.executing
-                if not allCompleted
-                    @keepGoing(result.url)
-
-                @renderResults(result.resultsets, true)
+                queryids = result.queryids
+                promises = []
+                indexes = {}
+                first = {}
+                for queryid, index in queryids
+                    indexes[queryid] = index
+                    first[queryid] = true
+                    one = PgHoffQuery.ExecuteOne(queryid, (update) =>
+                        if first[queryid]
+                            @resultsView.addTab(update, indexes[update.queryid])
+                            first[queryid] = false
+                        first = false
+                        @resultsView.setResultset(update)
+                    ).then (resultset) =>
+                        return resultset
+                    promises.push(one)
+                return Promise.all(promises)
+            .then (result) =>
+                console.log 'all done'
             .catch (err) =>
                 atom.workspace.getActivePaneItem().alias = null
                 @resultsViewPanel.hide()

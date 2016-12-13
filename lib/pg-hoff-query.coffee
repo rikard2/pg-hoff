@@ -23,12 +23,41 @@ class PgHoffQuery
 
                 return response
             .then (response) ->
-                url = response.Url
-                return PgHoffServerRequest.Get(url, false)
-            .then (resultsets) ->
                 return {
-                    'url': url
-                    'resultsets': resultsets
+                    'queryids': response.queryids
                 }
+
+    @Timeout = (ms) ->
+        return new Promise((fulfil) ->
+            setTimeout(() ->
+                fulfil()
+            , ms)
+        )
+    @ExecuteOne: (queryid, update) ->
+        url = 'result/' + queryid
+        "localhost:5000/result/7be286e8-c11f-11e6-b4f1-38c986408e3f"
+        console.log 'url', url
+        return PgHoffServerRequest
+            .Get(url)
+            .then (response) ->
+                console.log 'first', response
+                if response.statusCode == 500
+                    throw("/query status code 500")
+
+                return response
+            .then (response) ->
+                console.log 'response', response
+                update(response)
+                if response.complete
+                    return response
+                else
+                    return PgHoffQuery
+                        .Timeout(100)
+                        .then (response) =>
+                            return PgHoffQuery.ExecuteOne(queryid, update)
+                            .then (resultset) =>
+                                return resultset
+                console.error 'WTF, what happens now???'
+                throw 'WTF, why no excecuting?'
 
 module.exports = PgHoffQuery
