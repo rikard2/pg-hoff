@@ -159,7 +159,7 @@ class PgHoffResultsView
         runtime.textContent = @resultsets[resultsetIndex].runtime_seconds + ' seconds'
         if x.notices?.length > 0
             for n in x.notices
-                notice = container.appendChild document.createElement('div')
+                notice = container.appendChild document.createElement('pre')
                 notice.classList.add 'notice'
                 notice.textContent = n
 
