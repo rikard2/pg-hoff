@@ -4,6 +4,10 @@
         {
             'label': 'Execute Query'
             'command': 'pg-hoff:execute-query'
+        },
+        {
+            'label': 'Toggle auto alias'
+            'command': 'pg-hoff:toggle-auto-alias'
         }
     ]
     '.notices': [
