@@ -1,4 +1,5 @@
 {DockPaneView, Toolbar} = require 'atom-bottom-dock'
+TableView = require './hoff-table-view'
 {Emitter, CompositeDisposable} = require 'atom'
 OutputView = require './output-view'
 ControlsView = require './controls-view'
@@ -6,55 +7,82 @@ FileFinderUtil = require '../file-finder-util'
 {$} = require 'space-pen'
 
 class GulpPaneView extends DockPaneView
-  @content: ->
-    @div class: 'gulp-pane', style: 'display:flex;', =>
-      @subview 'toolbar', new Toolbar()
-      @subview 'outputView', new OutputView()
+    @content: ->
+        @div class: 'gulp-pane', style: 'display:flex;', =>
+            @subview 'toolbar', new Toolbar()
+            #@subview 'outputView', new OutputView()
 
-  initialize: ->
-    super()
-    @fileFinderUtil = new FileFinderUtil()
-    @emitter = new Emitter()
-    @subscriptions = new CompositeDisposable()
-    @controlsView = new ControlsView()
+    createRow: ->
+        row =
+            name: 'Jeff'
+            city: 'Stockholm'
+        return row
+    initialize: ->
+        super()
+        @fileFinderUtil = new FileFinderUtil()
+        @emitter = new Emitter()
+        @subscriptions = new CompositeDisposable()
+        @controlsView = new ControlsView()
 
-    @outputView.show()
+        columns = [
+            {id: "name", minWidth: 300, name: "Name", field: "name" }
+            {id: "city", name: "City", field: "city", sortable: true }
+        ]
+        options =
+            enableCellNavigation: false
+            enableColumnReorder: false
+            multiColumnSort: true
+            forceFitColumns: true
+        data = [{name: "Jeff", city: "asdasd"}]
+        @table = new TableView options, data, columns
+        @table.deleteAllRows()
+        @append @table
+        
+        #@table.addRows data
 
-    @toolbar.addLeftTile item: @controlsView, priority: 0
+        @table.onDidClickGridItem (row) =>
+            console.log 'onDidClickGridItem', row
 
-    @subscriptions.add @controlsView.onDidSelectGulpfile @setGulpfile
-    @subscriptions.add @controlsView.onDidClickRefresh @refresh
-    @subscriptions.add @controlsView.onDidClickStop @stop
-    @subscriptions.add @controlsView.onDidClickClear @clear
+        #@table.onDidFinishAttaching =>
+# @render messages: @linter.getMessages(
 
-    @getGulpfiles()
+        #@outputView.show()
 
-  getGulpfiles: ->
-    gulpfiles = []
+        @toolbar.addLeftTile item: @controlsView, priority: 0
 
-    for filePath in @fileFinderUtil.findFiles /^gulpfile\.[babel.js|js|coffee]/i
-      gulpfiles.push
-        path: filePath
-        relativePath: FileFinderUtil.getRelativePath filePath
+        @subscriptions.add @controlsView.onDidSelectGulpfile @setGulpfile
+        @subscriptions.add @controlsView.onDidClickRefresh @refresh
+        @subscriptions.add @controlsView.onDidClickStop @stop
+        @subscriptions.add @controlsView.onDidClickClear @clear
 
-    @controlsView.updateGulpfiles gulpfiles
+        @getGulpfiles()
 
-  setGulpfile: (gulpfile) =>
-    @outputView.refresh gulpfile
+    getGulpfiles: ->
+        gulpfiles = []
 
-  refresh: =>
-    @outputView.refresh()
-    @getGulpfiles()
+        for filePath in @fileFinderUtil.findFiles /^gulpfile\.[babel.js|js|coffee]/i
+            gulpfiles.push
+                path: filePath
+                relativePath: FileFinderUtil.getRelativePath filePath
 
-  stop: =>
-    @outputView.stop()
+        @controlsView.updateGulpfiles gulpfiles
 
-  clear: =>
-    @outputView.clear()
+    setGulpfile: (gulpfile) =>
+        @outputView.refresh gulpfile
 
-  destroy: ->
-    @outputView.destroy()
-    @subscriptions.dispose()
-    @remove()
+    refresh: =>
+        @outputView.refresh()
+        @getGulpfiles()
+
+    stop: =>
+        @outputView.stop()
+
+    clear: =>
+        @outputView.clear()
+
+    destroy: ->
+        @outputView.destroy()
+        @subscriptions.dispose()
+        @remove()
 
 module.exports = GulpPaneView
