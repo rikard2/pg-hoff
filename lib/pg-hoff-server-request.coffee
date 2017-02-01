@@ -62,6 +62,13 @@ class PgHoffServerRequest
             else
                 host = host + '/' + path
 
+            for key, value of data
+                if not value?
+                    data[key] = ''
+                else if typeof value is 'object'
+                    data[key] = JSON.stringify(value)
+
+
             options =
                 method: 'POST',
                 url: host,

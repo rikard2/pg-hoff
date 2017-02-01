@@ -102,10 +102,29 @@ module.exports = PgHoff =
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:goto-declaration': => @gotoDeclaration()
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:connect': => @connect()
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:stop-query': => @stopQuery()
+        @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:toggle-auto-alias': => @toggleAliases()
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:execute-query': => @executeQueryWithConnect()
         @subscriptions.add atom.commands.add '.notices', 'pg-hoff:create-dynamic-table': => @createDynamicTable()
 
     gotoDeclaration: PgHoffGotoDeclaration
+
+    toggleAliases: ->
+        alias = atom.workspace.getActivePaneItem().alias
+        if alias? or true
+            return PgHoffServerRequest
+                .Post('get_settings', { alias: alias })
+                .then (response) ->
+                    response.generate_aliases = !response.generate_aliases
+                    settings = response
+                    return PgHoffServerRequest
+                        .Post('update_settings', { alias: alias,  settings: settings })
+                        .then (response) ->
+                            if response.success
+                                atom.notifications.addSuccess 'Auto alias: ' + if settings.generate_aliases == true then 'ON' else 'OFF'
+                            else
+                                atom.notifications.addError response.errormessage
+                        .catch (err) ->
+                            console.error 'catch', err
 
     stopQuery: ->
         alias = atom.workspace.getActivePaneItem().alias

@@ -24,6 +24,6 @@
   "apmInstallSource": {
     "type": "git",
     "source": "rikard2/pg-hoff",
-    "sha": "737d7047b0df54b0ef80bf6f381addeb67f57a07"
+    "sha": "1ac91077200461f70caeb0adef39439d8fa206bd"
   }
 }
