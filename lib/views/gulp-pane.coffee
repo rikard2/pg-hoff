@@ -7,10 +7,26 @@ FileFinderUtil = require '../file-finder-util'
 {$} = require 'space-pen'
 
 class GulpPaneView extends DockPaneView
+    @table: null
     @content: ->
         @div class: 'gulp-pane', style: 'display:flex;', =>
             @subview 'toolbar', new Toolbar()
             #@subview 'outputView', new OutputView()
+
+    renderResults: (resultsets) ->
+        resultset = resultsets[0]
+        if not resultset.complete
+            return
+        options =
+            enableCellNavigation: false
+            enableColumnReorder: true
+            multiColumnSort: true
+            forceFitColumns: true
+#            syncColumnCellResize: true
+        @table = new TableView options, resultset.rows, resultset.columns
+        @empty()
+        @append @table
+        console.log 'RENDER', resultsets
 
     createRow: ->
         row =
@@ -30,11 +46,13 @@ class GulpPaneView extends DockPaneView
         ]
         options =
             enableCellNavigation: false
-            enableColumnReorder: false
+            enableColumnReorder: true
             multiColumnSort: true
             forceFitColumns: true
-        data = [{name: "Jeff", city: "asdasd"}]
+            syncColumnCellResize: true
+            fullWidthRows: true
         @table = new TableView options, data, columns
+        data = [{name: "Jeff", city: "asdasd"}]
         @table.deleteAllRows()
         @append @table
         

@@ -18,6 +18,7 @@ module.exports = PgHoff =
     resultsViewPanel: null
     listServersView: null
     listServersViewPanel: null
+    resultsPane: null
 
     config:
         host:
@@ -92,7 +93,7 @@ module.exports = PgHoff =
         @pgHoffView             = new PgHoffView(state.pgHoffViewState)
         @resultsView            = new PgHoffResultsView(state.pgHoffViewState)
         @listServersView        = new PgHoffListServersView(state.pgHoffViewState)
-        @gulpPanes = []
+        @hoffPanes = []
 
         editor = atom.workspace.getActiveTextEditor()
         @listServersViewPanel = atom.workspace.addModalPanel(item: @listServersView.getElement(), visible: false)
@@ -153,15 +154,16 @@ module.exports = PgHoff =
     add: (isInitial) ->
         console.log '@bottomDock', @bottomDock
         if @bottomDock
-          newPane = new GulpPaneView()
-          @gulpPanes.push newPane
+            @resultsPane = new GulpPaneView()
+            @hoffPanes.push @resultsPane
 
           config =
-            name: 'Gulp'
-            id: newPane.getId()
-            active: newPane.isActive()
+              name: 'YOLOPANE'
+              id: @resultsPane.getId()
+              active: true #resultsPane.isActive()
+          #resultsPane.
 
-          @bottomDock.addPane newPane, 'Gulp', isInitial
+          @bottomDock.addPane @resultsPane, 'Gulp', isInitial
 
     createDynamicTable: ->
         alias = atom.workspace.getActivePaneItem().alias
@@ -200,8 +202,12 @@ module.exports = PgHoff =
                 @listServersViewPanel.hide()
 
     renderResults: (resultsets, newQuery) ->
-        @resultsViewPanel.show();
-        @resultsView.update(resultsets, newQuery)
+        #@resultsViewPanel.show();
+        #@resultsView.update(resultsets, newQuery)
+        if not @bottomDock.isActive()
+            @bottomDock.toggle()
+            
+        @resultsPane.renderResults(resultsets)
 
     executeQueryWithConnect: ->
         if atom.workspace.getActivePaneItem().alias?
@@ -266,7 +272,7 @@ module.exports = PgHoff =
         @pgHoffView.destroy()
         @resultsView.destroy()
         @listServersView.destroy()
-        @bottomDock.deletePane pane.getId() for pane in @gulpPanes
+        @bottomDock.deletePane pane.getId() for pane in @hoffPanes
 
     serialize: ->
         pgHoffViewState: @pgHoffView.serialize()
