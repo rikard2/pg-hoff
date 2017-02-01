@@ -16,10 +16,24 @@
       }
     }
   },
+  "packageDependencies": {
+    "bottom-dock": "^0.2.0"
+  },
+  "consumedServices": {
+    "bottom-dock": {
+      "versions": {
+        "^0.2.0": "consumeBottomDock"
+      }
+    }
+  },
   "dependencies": {
     "promise": "^7.1.1",
     "postgres-interval": "^1.0.0",
-    "request": "^2.75.0"
+    "jquery": "^3.1.1",
+    "request": "^2.75.0",
+    "atom-bottom-dock": "^0.4.0",
+    "space-pen": "^5.1.1",
+    "ansi-to-html": "^0.3.0"
   },
   "apmInstallSource": {
     "type": "git",

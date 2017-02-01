@@ -7,6 +7,8 @@ PgHoffGotoDeclaration       = require './pg-hoff-goto-declaration'
 PgHoffAutocompleteProvider  = require('./pg-hoff-autocomplete-provider')
 PgHoffDialog                = require('./pg-hoff-dialog')
 {CompositeDisposable, Disposable} = require 'atom'
+{BasicTabButton} = require 'atom-bottom-dock'
+GulpPaneView = require './views/gulp-pane'
 
 module.exports = PgHoff =
     provider: null
@@ -90,6 +92,7 @@ module.exports = PgHoff =
         @pgHoffView             = new PgHoffView(state.pgHoffViewState)
         @resultsView            = new PgHoffResultsView(state.pgHoffViewState)
         @listServersView        = new PgHoffListServersView(state.pgHoffViewState)
+        @gulpPanes = []
 
         editor = atom.workspace.getActiveTextEditor()
         @listServersViewPanel = atom.workspace.addModalPanel(item: @listServersView.getElement(), visible: false)
@@ -105,6 +108,15 @@ module.exports = PgHoff =
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:toggle-auto-alias': => @toggleAliases()
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:execute-query': => @executeQueryWithConnect()
         @subscriptions.add atom.commands.add '.notices', 'pg-hoff:create-dynamic-table': => @createDynamicTable()
+
+        packageFound = atom.packages.getAvailablePackageNames()
+            .indexOf('bottom-dock') != -1
+
+        unless packageFound
+            atom.notifications.addError 'Could not find Bottom-Dock',
+                detail: 'Gulp-Manager: The bottom-dock package is a dependency. \n
+                Learn more about bottom-dock here: https://atom.io/packages/bottom-dock'
+                dismissable: true
 
     gotoDeclaration: PgHoffGotoDeclaration
 
@@ -133,6 +145,23 @@ module.exports = PgHoff =
                 .Post('cancel', { alias: alias })
                 .then (response) ->
                     console.log 'cancel', response, alias
+
+    consumeBottomDock: (@bottomDock) ->
+        console.log 'consume'
+        @add true
+        
+    add: (isInitial) ->
+        console.log '@bottomDock', @bottomDock
+        if @bottomDock
+          newPane = new GulpPaneView()
+          @gulpPanes.push newPane
+
+          config =
+            name: 'Gulp'
+            id: newPane.getId()
+            active: newPane.isActive()
+
+          @bottomDock.addPane newPane, 'Gulp', isInitial
 
     createDynamicTable: ->
         alias = atom.workspace.getActivePaneItem().alias
@@ -237,6 +266,7 @@ module.exports = PgHoff =
         @pgHoffView.destroy()
         @resultsView.destroy()
         @listServersView.destroy()
+        @bottomDock.deletePane pane.getId() for pane in @gulpPanes
 
     serialize: ->
         pgHoffViewState: @pgHoffView.serialize()

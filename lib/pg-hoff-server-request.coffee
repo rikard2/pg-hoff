@@ -90,6 +90,7 @@ class PgHoffServerRequest
                             json = JSON.parse(body)
                         catch err then ->
                             throw('Could not parse JSON')
+                            console.error 'Could not parse JSON';
                             atom.notifications.addError('Could not parse JSON: ' + json)
 
                         fulfil(json)
