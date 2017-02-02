@@ -22,7 +22,6 @@ class GulpPaneView extends DockPaneView
             enableColumnReorder: true
             multiColumnSort: true
             forceFitColumns: true
-#            syncColumnCellResize: true
         @table = new TableView options, resultset.rows, resultset.columns
         @empty()
         @append @table
@@ -48,15 +47,16 @@ class GulpPaneView extends DockPaneView
             enableCellNavigation: false
             enableColumnReorder: true
             multiColumnSort: true
-            forceFitColumns: true
+            forceFitColumns: false
             syncColumnCellResize: true
             fullWidthRows: true
+
         @table = new TableView options, data, columns
         data = [{name: "Jeff", city: "asdasd"}]
         @table.deleteAllRows()
         @append @table
-        
-        #@table.addRows data
+
+        @table.addRows data
 
         @table.onDidClickGridItem (row) =>
             console.log 'onDidClickGridItem', row
@@ -68,29 +68,13 @@ class GulpPaneView extends DockPaneView
 
         @toolbar.addLeftTile item: @controlsView, priority: 0
 
-        @subscriptions.add @controlsView.onDidSelectGulpfile @setGulpfile
         @subscriptions.add @controlsView.onDidClickRefresh @refresh
         @subscriptions.add @controlsView.onDidClickStop @stop
         @subscriptions.add @controlsView.onDidClickClear @clear
 
-        @getGulpfiles()
-
-    getGulpfiles: ->
-        gulpfiles = []
-
-        for filePath in @fileFinderUtil.findFiles /^gulpfile\.[babel.js|js|coffee]/i
-            gulpfiles.push
-                path: filePath
-                relativePath: FileFinderUtil.getRelativePath filePath
-
-        @controlsView.updateGulpfiles gulpfiles
-
-    setGulpfile: (gulpfile) =>
-        @outputView.refresh gulpfile
 
     refresh: =>
         @outputView.refresh()
-        @getGulpfiles()
 
     stop: =>
         @outputView.stop()

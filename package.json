@@ -1,1 +1,43 @@
-SELECT * FROM Orders ORDER BY Datestamp DESC LIMIT 5;
+{
+  "name": "pg-hoff",
+  "main": "./lib/pg-hoff",
+  "version": "0.1.7",
+  "description": "The worlds greatest plugin ever.",
+  "keywords": [],
+  "repository": "https://github.com/rikard2/pg-hoff",
+  "license": "MIT",
+  "engines": {
+    "atom": ">=1.0.0 <2.0.0"
+  },
+  "providedServices": {
+    "autocomplete.provider": {
+      "versions": {
+        "2.0.0": "provide"
+      }
+    }
+  },
+  "packageDependencies": {
+    "bottom-dock": "^0.2.0"
+  },
+  "consumedServices": {
+    "bottom-dock": {
+      "versions": {
+        "^0.2.0": "consumeBottomDock"
+      }
+    }
+  },
+  "dependencies": {
+    "promise": "^7.1.1",
+    "postgres-interval": "^1.0.0",
+    "jquery": "^3.1.1",
+    "request": "^2.75.0",
+    "atom-bottom-dock": "^0.5.2",
+    "space-pen": "^5.1.1",
+    "ansi-to-html": "^0.3.0"
+  },
+  "apmInstallSource": {
+    "type": "git",
+    "source": "rikard2/pg-hoff",
+    "sha": "1ac91077200461f70caeb0adef39439d8fa206bd"
+  }
+}
