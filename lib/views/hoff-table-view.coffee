@@ -5,7 +5,7 @@ SlickGrid = require 'bd-slickgrid/grid'
 
 class HoffTableView extends View
   @content: ->
-    @div style: 'width:100%;height:100%;', ->
+    @div style: 'width: auto !important;height:100%;overflow: auto !important;', ->
 
   initialize: (@options, @data, @columns) ->
     @emitter = new Emitter()
@@ -17,7 +17,7 @@ class HoffTableView extends View
 
   resize: (heightOnly) =>
     @grid.resizeCanvas()
-    @grid.autosizeColumns() unless heightOnly
+    @grid.autosizeColumns() #unless heightOnly
 
   addRows: (newData) ->
     return unless @grid

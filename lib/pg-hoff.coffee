@@ -147,23 +147,26 @@ module.exports = PgHoff =
                 .then (response) ->
                     console.log 'cancel', response, alias
 
-    consumeBottomDock: (@bottomDock) ->
-        console.log 'consume'
-        @add true
-        
     add: (isInitial) ->
-        console.log '@bottomDock', @bottomDock
-        if @bottomDock
-            @resultsPane = new GulpPaneView()
-            @hoffPanes.push @resultsPane
+        return unless @bottomDock
 
-          config =
-              name: 'YOLOPANE'
-              id: @resultsPane.getId()
-              active: true #resultsPane.isActive()
-          #resultsPane.
+        resultsPane = new GulpPaneView()
+        @hoffPanes.push resultsPane
 
-          @bottomDock.addPane @resultsPane, 'Gulp', isInitial
+        config =
+          name: 'YOLOPANE'
+          id: resultsPane.getId()
+          active: true
+
+        @bottomDock.addPane resultsPane, 'Results', isInitial
+
+        @bottomDock.onDidToggle =>
+            resultsPane.resize() if resultsPane.active && @bottomDock.isActive()
+
+    consumeBottomDock: (@bottomDock) ->
+      @subscriptions.add @bottomDock.onDidFinishResizing =>
+        pane.resize() for pane in @hoffPanes
+      @add true
 
     createDynamicTable: ->
         alias = atom.workspace.getActivePaneItem().alias
@@ -206,8 +209,8 @@ module.exports = PgHoff =
         #@resultsView.update(resultsets, newQuery)
         if not @bottomDock.isActive()
             @bottomDock.toggle()
-            
-        @resultsPane.renderResults(resultsets)
+
+        pane.renderResults(resultsets) for pane in @hoffPanes when pane.name = 'Results'
 
     executeQueryWithConnect: ->
         if atom.workspace.getActivePaneItem().alias?

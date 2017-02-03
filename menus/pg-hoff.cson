@@ -16,6 +16,12 @@
             'command': 'pg-hoff:create-dynamic-table'
         }
     ]
+    'atom-text-editor': [
+        {
+            'label': 'Search history'
+            'command': 'pg-hoff:search-history'
+        }
+    ]
     '.table': [
         {
             'label': 'Toggle Transpose',
