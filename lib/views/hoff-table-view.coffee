@@ -5,7 +5,7 @@ SlickGrid = require 'bd-slickgrid/grid'
 
 class HoffTableView extends View
   @content: ->
-    @div style: 'width: auto !important;height:100%;overflow: auto !important;', ->
+    @div style: 'width: 100% !important;height:100%;overflow: auto !important;', ->
 
   initialize: (@options, @data, @columns) ->
     @emitter = new Emitter()
@@ -14,6 +14,7 @@ class HoffTableView extends View
     $(window).resize =>
       clearTimeout(resizeTimeout)
       resizeTimeout = setTimeout(@resize, 100)
+
 
   resize: (heightOnly) =>
     @grid.resizeCanvas()
@@ -25,6 +26,7 @@ class HoffTableView extends View
     @sortData()
     @grid.setData @data
     @grid.invalidateAllRows()
+    @grid.autosizeColumns()
     @grid.render()
 
   deleteAllRows: ->
@@ -56,6 +58,7 @@ class HoffTableView extends View
 
     @grid = new SlickGrid @, @data, @columns, @options
     @resize()
+    @grid.resizeCanvas()
 
     @grid.onSort.subscribe (e, args) =>
       @sortData()

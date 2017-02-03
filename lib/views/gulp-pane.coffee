@@ -10,7 +10,7 @@ window.jQuery = require 'jquery'
 class GulpPaneView extends DockPaneView
     @table: null
     @content: ->
-        @div class: 'gulp-pane', style: 'overflow: auto !important;', =>
+        @div class: 'gulp-pane', style: 'overflow: auto !important; font-family:menlo', =>
             #@subview 'toolbar', new Toolbar()
             #@subview 'outputView', new OutputView()
 
@@ -28,12 +28,15 @@ class GulpPaneView extends DockPaneView
             c["sortable"] = true
             c["rerenderOnResize"] = true
             c["id"] = c["field"]
-            #max = 0
-            #for d in resultset.rows
-            #    if d[c["field"]] != null && d[c["field"]].length > max
-            #        max = d[c["field"]].length
-            #c["maxWidth"] = max * 8
-            #c["minWidth"] = 30
+            c["width"] = 200
+            max = 0
+            for d in resultset.rows
+                #console.log 'hej->', c["field"], d[c["field"]].length, max
+                if d[c["field"]] != null && d[c["field"]].toString().length > max
+                    max = d[c["field"]].toString().length
+                    #console.log 'hej->', c["field"], d[c["field"]].length, max
+            c["width"] = Math.min((Math.max(max * 9, (c["name"].length * 9) + 10)), 250)
+
 
         @table = new TableView options, resultset.rows, resultset.columns
         #@table = new TableView resultset.rows, resultset.columns
