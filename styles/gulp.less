@@ -1,5 +1,11 @@
 @import "ui-variables";
 
+.flashcell{
+    background: #009900;
+    color: #333333;
+    border: 5px solid #FFF;
+}
+
 .gulp-pane {
   height: 100%;
   width: 100%;
@@ -126,6 +132,50 @@
         padding-right: 4px;
       }
     }
+  }
+
+  .cell-move-handle:hover {
+    background: #b6b9bd;
+  }
+
+  .slick-row.selected .cell-move-handle {
+    background: #D5DC8D;
+  }
+
+  .slick-cell, .slick-headerrow-column {
+    font-size: 12px;
+    position: absolute;
+    border: 1px solid transparent;
+    border-right: 1px dotted @base-border-color;
+    border-bottom-color: @base-border-color;
+    overflow: hidden;
+    -o-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+    vertical-align: top !important;
+    z-index: 1;
+    padding: 1px 2px 2px 1px;
+    padding-left: 5px;
+    padding-bottom: 3px;
+    margin: 0;
+    white-space: nowrap;
+    cursor: default;
+    height:20px !important;
+  }
+  .slick-row{
+      color: @text-color !important;
+      background: @button-background-color;
+  }
+  .slick-row:hover, .slick-headerrow:hover{
+      background-color: darken(#00FF00, 30%);
+      color: #00FF00 !important;
+  }
+
+ .slick-cell:hover, .slick-headerrow-column:hover{
+
+  }
+  .slick-header-column{
+    color: @text-color-subtle !important;
+    background-color: @base-background-color;
   }
 
   .output-view {

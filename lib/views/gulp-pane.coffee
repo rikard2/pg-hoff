@@ -24,6 +24,11 @@ class GulpPaneView extends DockPaneView
             multiColumnSort: false
             forceFitColumns: false
             fullWidthRows: false
+            rowHeight:20
+            headerRowHeight: 20
+            multiSelect:true
+            cellFlashingCssClass: "flashcell"
+
         for c in resultset.columns
             c["sortable"] = true
             c["rerenderOnResize"] = true
@@ -35,7 +40,8 @@ class GulpPaneView extends DockPaneView
                 if d[c["field"]] != null && d[c["field"]].toString().length > max
                     max = d[c["field"]].toString().length
                     #console.log 'hej->', c["field"], d[c["field"]].length, max
-            c["width"] = Math.min((Math.max(max * 9, (c["name"].length * 9) + 10)), 250)
+            c["width"] = Math.min((Math.max(max * 9, Math.round((c["name"].length * 8.4) + 12))), 250)
+
 
 
         @table = new TableView options, resultset.rows, resultset.columns
@@ -64,16 +70,6 @@ class GulpPaneView extends DockPaneView
         @append @table
 
         @table.addRows data
-
-        @table.onDidClickGridItem (row) =>
-            console.log 'onDidClickGridItem', row
-
-        #@table.onDidFinishAttaching =>
-# @render messages: @linter.getMessages(
-
-        #@outputView.show()
-
-        #@toolbar.addLeftTile item: @controlsView, priority: 0
 
         @subscriptions.add @controlsView.onDidClickRefresh @refresh
         @subscriptions.add @controlsView.onDidClickStop @stop

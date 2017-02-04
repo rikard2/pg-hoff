@@ -1,9 +1,10 @@
 {View, $} = require 'space-pen'
 window.jQuery = $
 SlickGrid = require 'bd-slickgrid/grid'
-{Emitter} = require 'atom'
+{Emitter, Disposable} = require 'atom'
 
 class HoffTableView extends View
+  columnpick = false
   @content: ->
     @div style: 'width: 100% !important;height:100%;overflow: auto !important;', ->
 
@@ -65,15 +66,13 @@ class HoffTableView extends View
       @grid.invalidate()
       @grid.render()
 
-    @grid.onClick.subscribe (e, args) =>
-      @emitter.emit 'grid:clicked', @data[args.row]
-
-    @emitter.emit 'table:attach:finished'
+    @grid.onDblClick.subscribe (e, args) =>
+        @grid.flashCell(args.row, args.cell, 100)
+        atom.clipboard.write(@data[args.row][@columns[args.cell]["field"]].toString())
 
   onDidFinishAttaching: (callback) =>
     @emitter.on 'table:attach:finished', callback
 
-  onDidClickGridItem: (callback) =>
-    @emitter.on 'grid:clicked', callback
+
 
 module.exports = HoffTableView
