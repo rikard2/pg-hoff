@@ -67,8 +67,12 @@ class HoffTableView extends View
       @grid.render()
 
     @grid.onDblClick.subscribe (e, args) =>
+        @emitter.emit 'doubleclicked'
         @grid.flashCell(args.row, args.cell, 100)
         atom.clipboard.write(@data[args.row][@columns[args.cell]["field"]].toString())
+
+  onDidDoubleClick: (callback) =>
+     @emitter.on 'doubleclicked', callback
 
   onDidFinishAttaching: (callback) =>
     @emitter.on 'table:attach:finished', callback

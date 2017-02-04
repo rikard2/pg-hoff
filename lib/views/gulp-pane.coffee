@@ -71,9 +71,13 @@ class GulpPaneView extends DockPaneView
 
         @table.addRows data
 
+        @subscriptions.add @table.onDidDoubleClick @hej
         @subscriptions.add @controlsView.onDidClickRefresh @refresh
         @subscriptions.add @controlsView.onDidClickStop @stop
         @subscriptions.add @controlsView.onDidClickClear @clear
+
+    hej: ->
+        console.log 'asd'
 
     resize: ->
         @table.resize(true)
