@@ -153,12 +153,17 @@ module.exports = PgHoff =
         resultsPane = new GulpPaneView()
         @hoffPanes.push resultsPane
 
+        resultsPane2 = new GulpPaneView()
+        @hoffPanes.push resultsPane2
+
         config =
           name: 'YOLOPANE'
           id: resultsPane.getId()
           active: true
 
         @bottomDock.addPane resultsPane, 'Results', isInitial
+        @bottomDock.addPane resultsPane2, 'Results2', isInitial
+
 
         @bottomDock.onDidToggle =>
             resultsPane.resize() if resultsPane.active && @bottomDock.isActive()
