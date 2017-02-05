@@ -4,13 +4,14 @@ SlickGrid = require 'bd-slickgrid/grid'
 {Emitter, Disposable} = require 'atom'
 
 class HoffTableView extends View
-  columnpick = false
   @content: ->
     @div style: 'width: 100% !important;height:100%;overflow: auto !important;', ->
 
   initialize: (@options, @data, @columns) ->
     @emitter = new Emitter()
-
+    @columnpick = false
+    @startColumn = {}
+    @selectedColumns = []
     resizeTimeout = null
     $(window).resize =>
       clearTimeout(resizeTimeout)
@@ -67,9 +68,51 @@ class HoffTableView extends View
       @grid.render()
 
     @grid.onDblClick.subscribe (e, args) =>
-        @emitter.emit 'doubleclicked'
-        @grid.flashCell(args.row, args.cell, 100)
-        atom.clipboard.write(@data[args.row][@columns[args.cell]["field"]].toString())
+        @grid.removeCellCssStyles("birthday_highlight")
+        obj1 = {}
+        obj2 = {}
+        obj1[@columns[args.cell]["field"]] = "highlight"
+        obj2[args.row] = obj1
+        @grid.setCellCssStyles("birthday_highlight", obj2)
+        @startColumn["x"] = args.cell
+        @startColumn["y"] = args.row
+        @columnpick = true
+
+    @grid.onClick.subscribe (e, args) =>
+        if @columnpick
+            @columnpick = false
+            @grid.removeCellCssStyles("birthday_highlight")
+            output = []
+            for a in @selectedColumns
+                output.push(@data[a.y][@columns[a.x]["field"]].toString())
+            atom.clipboard.write(output.join(", ").toString())
+        else
+            @grid.flashCell(args.row, args.cell, 200)
+            atom.clipboard.write(@data[args.row][@columns[args.cell]["field"]].toString())
+
+    @grid.onMouseEnter.subscribe (e, args) =>
+        if @columnpick
+            #calculate selected area
+            cell = @grid.getCellFromEvent(e)
+            xFrom = Math.min(@startColumn.x, cell.cell)
+            xTo = Math.max(@startColumn.x, cell.cell)
+            yFrom = Math.min(@startColumn.y, cell.row)
+            yTo = Math.max(@startColumn.y, cell.row)
+            obj1 = {}
+            obj2 = {}
+            @selectedColumns = []
+            for x in [xFrom..xTo]
+                for y in [yFrom..yTo]
+                    #console.log @columns[cell.cell]["field"], x, y
+                    obj1[@columns[x]["field"]] = "highlight"
+                    obj2[y] = obj1
+                    @selectedColumns.push({x: x, y:y})
+            @grid.setCellCssStyles("birthday_highlight", obj2)
+
+
+
+
+
 
   onDidDoubleClick: (callback) =>
      @emitter.on 'doubleclicked', callback

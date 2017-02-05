@@ -45,7 +45,8 @@ class GulpPaneView extends DockPaneView
 
 
         @table = new TableView options, resultset.rows, resultset.columns
-        #@table = new TableView resultset.rows, resultset.columns
+
+        @subscriptions.add @table.onDidDoubleClick @hej
 
         @empty()
         @append @table
@@ -58,29 +59,14 @@ class GulpPaneView extends DockPaneView
         @emitter = new Emitter()
         @subscriptions = new CompositeDisposable()
         @controlsView = new ControlsView()
-        columns = [
-          {id: "regex", name: "Regex", field: "regex", sortable: true }
-          {id: "mesage", name: "Message", field: "message", sortable: true }
-          {id: "path", name: "Path", field: "path", sortable: true }
-          {id: "line", name: "Line", field: "line", sortable: true }
-        ]
-        @table = new TableView [], columns
-        data = [{name: "Jeff", city: "asdasd"}]
-        @table.deleteAllRows()
-        @append @table
 
-        @table.addRows data
-
-        @subscriptions.add @table.onDidDoubleClick @hej
         @subscriptions.add @controlsView.onDidClickRefresh @refresh
         @subscriptions.add @controlsView.onDidClickStop @stop
         @subscriptions.add @controlsView.onDidClickClear @clear
 
-    hej: ->
-        console.log 'asd'
-
-    resize: ->
-        @table.resize(true)
+    hej: (args) ->
+        @table.flashCell(args.row, args.cell, 100)
+        atom.clipboard.write(@data[args.row][@columns[args.cell]["field"]].toString())
 
     refresh: =>
         @outputView.refresh()
