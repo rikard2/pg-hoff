@@ -44,7 +44,7 @@ class GulpPaneView extends DockPaneView
                         #console.log 'hej->', c["field"], d[c["field"]].length, max
                 c["width"] = Math.min((Math.max(max * 9, Math.round((c["name"].length * 8.4) + 12))), 250)
 
-            if resultset.rows.length <= 100
+            if resultset.rows.length <= 100 and resultsets.length > 1
                 height = ''.concat(resultset.rows.length * 20 + 30, 'px')
             else
                 height = '100%'
