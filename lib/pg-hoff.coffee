@@ -8,7 +8,8 @@ PgHoffAutocompleteProvider  = require('./pg-hoff-autocomplete-provider')
 PgHoffDialog                = require('./pg-hoff-dialog')
 {CompositeDisposable, Disposable} = require 'atom'
 {BasicTabButton} = require 'atom-bottom-dock'
-GulpPaneView = require './views/gulp-pane'
+ResultsPaneView = require './views/results-pane'
+OutputPaneView = require './views/output-pane'
 
 module.exports = PgHoff =
     provider: null
@@ -150,16 +151,18 @@ module.exports = PgHoff =
     add: (isInitial) ->
         return unless @bottomDock
 
-        resultsPane = new GulpPaneView()
+        resultsPane = new ResultsPaneView()
+        outputPane = new OutputPaneView()
         @hoffPanes.push resultsPane
+        @hoffPanes.push outputPane
 
         config =
           name: 'YOLOPANE'
           id: resultsPane.getId()
           active: true
 
+        @bottomDock.addPane outputPane, 'Output', isInitial
         @bottomDock.addPane resultsPane, 'Results', isInitial
-
 
         @bottomDock.onDidToggle =>
             resultsPane.resize() if resultsPane.active && @bottomDock.isActive()
@@ -210,8 +213,11 @@ module.exports = PgHoff =
         #@resultsView.update(resultsets, newQuery)
         if not @bottomDock.isActive()
             @bottomDock.toggle()
+        console.log 'renderResults'
 
-        pane.renderResults(resultsets) for pane in @hoffPanes when pane.name = 'Results'
+        pane.render(resultsets) for pane in @hoffPanes when pane.name = 'Results'
+        pane.render(resultsets) for pane in @hoffPanes when pane.name = 'Output'
+
 
     executeQueryWithConnect: ->
         if atom.workspace.getActivePaneItem().alias?
@@ -222,6 +228,7 @@ module.exports = PgHoff =
                 .catch (err) ->
                     console.error 'Connect error', err
                     atom.notifications.addError('Connect error')
+
 
     executeQuery: ->
         selectedText = atom.workspace.getActiveTextEditor().getSelectedText().trim()

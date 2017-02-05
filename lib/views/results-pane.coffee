@@ -7,19 +7,17 @@ FileFinderUtil = require '../file-finder-util'
 {$} = require 'space-pen'
 window.jQuery = require 'jquery'
 
-class GulpPaneView extends DockPaneView
+class ResultsPaneView extends DockPaneView
     @table: null
     @content: ->
         @div class: 'gulp-pane', style: 'overflow: auto !important; font-family:menlo', =>
             #@subview 'toolbar', new Toolbar()
             #@subview 'outputView', new OutputView()
 
-    renderResults: (resultsets) ->
+    render: (resultsets) ->
         @empty()
-        if not resultsets[0].complete
-            return
         for resultset in resultsets
-
+            return unless resultset.complete
             options =
                 enableCellNavigation: false
                 enableColumnReorder: true
@@ -44,14 +42,12 @@ class GulpPaneView extends DockPaneView
                         #console.log 'hej->', c["field"], d[c["field"]].length, max
                 c["width"] = Math.min((Math.max(max * 9, Math.round((c["name"].length * 8.4) + 12))), 250)
 
-            if resultset.rows.length <= 100 and resultsets.length > 1
+            if resultset.rows.length <= 100 && resultsets.length > 1
                 height = ''.concat(resultset.rows.length * 20 + 30, 'px')
             else
                 height = '100%'
 
             table = new TableView options, resultset.rows, resultset.columns , height
-
-            @subscriptions.add table.onDidDoubleClick @hej
 
             @append table
 
@@ -69,9 +65,6 @@ class GulpPaneView extends DockPaneView
         @subscriptions.add @controlsView.onDidClickStop @stop
         @subscriptions.add @controlsView.onDidClickClear @clear
 
-    hej: (args) ->
-        console.log 'asd'
-
     refresh: =>
         @outputView.refresh()
 
@@ -86,4 +79,4 @@ class GulpPaneView extends DockPaneView
         @subscriptions.dispose()
         @remove()
 
-module.exports = GulpPaneView
+module.exports = ResultsPaneView
