@@ -4,8 +4,9 @@ SlickGrid = require 'bd-slickgrid/grid'
 {Emitter, Disposable} = require 'atom'
 
 class HoffTableView extends View
-  @content: ->
-    @div style: 'width: 100% !important;height:100%;overflow: auto !important;', ->
+  @content: (options, data, columns, height) ->
+    console.log 'width: 100% !important;height:'.concat(height, ';overflow: auto !important;')
+    @div style: 'width: 100% !important;height:'.concat(height, ';overflow: auto !important;'), ->
 
   initialize: (@options, @data, @columns) ->
     @emitter = new Emitter()
@@ -16,7 +17,6 @@ class HoffTableView extends View
     $(window).resize =>
       clearTimeout(resizeTimeout)
       resizeTimeout = setTimeout(@resize, 100)
-
 
   resize: (heightOnly) =>
     @grid.resizeCanvas()
@@ -61,6 +61,9 @@ class HoffTableView extends View
     @grid = new SlickGrid @, @data, @columns, @options
     @resize()
     @grid.resizeCanvas()
+
+    @grid.onColumnsReordered.subscribe (e, args) =>
+        @columns = @grid.getColumns()
 
     @grid.onSort.subscribe (e, args) =>
       @sortData()
