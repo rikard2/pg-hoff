@@ -42,8 +42,7 @@ class HoffTableView extends View
     cols = @grid.getSortColumns()
 
     return unless cols.length
-    return unless cols.data
-    
+
     @data.sort (dataRow1, dataRow2) ->
       for i in [0..cols.length-1]
         field = cols[i].columnId
@@ -64,7 +63,7 @@ class HoffTableView extends View
     @grid.resizeCanvas()
 
     @grid.onColumnsReordered.subscribe (e, args) =>
-        @columns = @grid.getColumns()
+        @columns = get
 
     @grid.onSort.subscribe (e, args) =>
       @sortData()

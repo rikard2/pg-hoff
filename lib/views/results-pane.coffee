@@ -17,7 +17,7 @@ class ResultsPaneView extends DockPaneView
     render: (resultsets) ->
         @empty()
         for resultset in resultsets
-            return unless resultset.complete
+            return unless resultset.complete and resultset.columns
             options =
                 enableCellNavigation: false
                 enableColumnReorder: true
@@ -51,9 +51,6 @@ class ResultsPaneView extends DockPaneView
 
             @append table
 
-        console.log 'RENDER', resultsets
-
-
     initialize: ->
         super()
         @fileFinderUtil = new FileFinderUtil()
@@ -75,7 +72,7 @@ class ResultsPaneView extends DockPaneView
         @outputView.clear()
 
     destroy: ->
-        @outputView.destroy()
+        #@outputView.destroy()
         @subscriptions.dispose()
         @remove()
 
