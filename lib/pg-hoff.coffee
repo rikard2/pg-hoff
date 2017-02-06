@@ -151,21 +151,21 @@ module.exports = PgHoff =
     add: (isInitial) ->
         return unless @bottomDock
 
-        resultsPane = new ResultsPaneView()
-        outputPane = new OutputPaneView()
-        @hoffPanes.push resultsPane
-        @hoffPanes.push outputPane
+        @resultsPane = new ResultsPaneView()
+        @outputPane = new OutputPaneView()
+        @hoffPanes.push @resultsPane
+        @hoffPanes.push @outputPane
 
         config =
           name: 'YOLOPANE'
-          id: resultsPane.getId()
+          id: @resultsPane.getId()
           active: true
 
-        @bottomDock.addPane outputPane, 'Output', isInitial
-        @bottomDock.addPane resultsPane, 'Results', isInitial
+        @bottomDock.addPane @outputPane, 'Output', isInitial
+        @bottomDock.addPane @resultsPane, 'Results', isInitial
 
         @bottomDock.onDidToggle =>
-            resultsPane.resize() if resultsPane.active && @bottomDock.isActive()
+            @resultsPane.resize() if @resultsPane.active && @bottomDock.isActive()
 
     consumeBottomDock: (@bottomDock) ->
       @subscriptions.add @bottomDock.onDidFinishResizing =>
@@ -209,15 +209,68 @@ module.exports = PgHoff =
                 @listServersViewPanel.hide()
 
     renderResults: (resultsets, newQuery) ->
-        #@resultsViewPanel.show();
-        #@resultsView.update(resultsets, newQuery)
-        if not @bottomDock.isActive()
+        if newQuery
+            @renderedResults = []
+            if @outputPane
+                @outputPane.clear()
+        if not @renderedResults
+            @renderedResults = []
+
+        allCompleted = true
+        gotResults = false
+        gotOutput = false
+        for resultset in resultsets
+          if !resultset.complete
+            allCompleted = false
+          if resultset.columns
+            gotResults = true
+          if resultset.error or resultset.notices?[0]
+            gotOutput = true
+
+        #recreate panes if previously removed
+        if !@outputPane or !@resultsPane
+            if @resultsPane
+                @removeHoffPane(@resultsPane)
+                @bottomDock.deletePane(@resultsPane.getId())
+                @resultsPane = null
+            if @outputPane
+                @removeHoffPane(@outputPane)
+                @bottomDock.deletePane(@outputPane.getId())
+                @outputPane = null
+            @outputPane = new OutputPaneView()
+            @hoffPanes.push @outputPane
+            @bottomDock.addPane @outputPane, 'Output', true
+            @resultsPane = new ResultsPaneView()
+            @hoffPanes.push @resultsPane
+            @bottomDock.addPane @resultsPane, 'Results', true
+
+        if gotResults
+            @resultsPane.render(resultsets)
+
+        for resultset in resultsets
+          if resultset.queryid in @renderedResults
+              continue
+          if resultset.complete
+            @renderedResults.push(resultset.queryid)
+            @outputPane.render(resultset, newQuery)
+
+        #remove unneeded panes
+        if allCompleted and !gotResults
+            @removeHoffPane(@resultsPane)
+            @bottomDock.deletePane(@resultsPane.getId())
+            @resultsPane = null
+        if allCompleted and !gotOutput
+            @removeHoffPane(@outputPane)
+            @bottomDock.deletePane(@outputPane.getId())
+            @outputPane = null
+
+        if not @bottomDock?.isActive()
             @bottomDock.toggle()
-        console.log 'renderResults'
 
-        pane.render(resultsets) for pane in @hoffPanes when pane.name = 'Results'
-        pane.render(resultsets) for pane in @hoffPanes when pane.name = 'Output'
-
+    removeHoffPane: (pane) ->
+        index = @hoffPanes.indexOf(pane);
+        if index >= 0
+          @hoffPanes.splice( index, 1 );
 
     executeQueryWithConnect: ->
         if atom.workspace.getActivePaneItem().alias?
@@ -262,8 +315,8 @@ module.exports = PgHoff =
                     for resultset, i in resultsets
                         if resultset.error
                             atom.notifications.addError(resultset.error)
-
-                    count = resultsets.find (resultset) -> resultset.completed or resultset.error or not resultset.executing
+                    if resultsets
+                        count = resultsets.find (resultset) -> resultset.completed or resultset.error or not resultset.executing
                     if completedCount != count
                         @renderResults(resultsets)
                         completedCount = count

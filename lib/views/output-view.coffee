@@ -8,19 +8,25 @@ class OutputView extends View
   @content: ->
     @div class: 'output-view', style: 'display:flex;', =>
       @div class: 'content-container', =>
-        @div outlet: 'outputContainer', class: 'task-container'
+        @div outlet: 'outputContainer' #, class: 'task-container'
 
-  initialize: (@resultsets) ->
-      if not @renderedResults
-          @renderedResults = []
-      @outputContainer.empty()
-      for resultset in @resultsets
-        if resultset.complete and !resultset.queryid in @renderedResults
-          @renderedResults.push(resultset.queryid)
-          el = $('<pre>')
-          el.append resultset.queryid
-          @outputContainer.append el
-      console.log @renderedResults
+  initialize: (resultset) ->
+    @outputContainer.empty()
+    @append(resultset)
+
+
+  append: (resultset) ->
+      if resultset.error
+          error = document.createElement('pre')
+          error.classList.add 'error'
+          error.textContent = resultset.error
+          @outputContainer.append error
+      if resultset.notices?.length > 0
+          for n in resultset.notices
+              notice = document.createElement('pre')
+              notice.classList.add 'notice'
+              notice.textContent = n
+              @outputContainer.append notice
 
   clear: ->
     @outputContainer.empty()

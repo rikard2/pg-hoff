@@ -14,9 +14,12 @@ class OutputPaneView extends DockPaneView
             #@subview 'toolbar', new Toolbar()
             #@subview 'outputView', new OutputView()
 
-    render: (resultsets) ->
-        @outputView = new OutputView resultsets
-        @append @outputView
+    render: (resultset) ->
+        if not @outputView
+            @outputView = new OutputView resultset
+            @append @outputView
+        else
+            @outputView.append(resultset)
 
     initialize: ->
         super()
@@ -36,10 +39,10 @@ class OutputPaneView extends DockPaneView
         @outputView.stop()
 
     clear: =>
-        @outputView.clear()
+        if @outputView
+            @outputView.clear()
 
     destroy: ->
-        @outputView.destroy()
         @subscriptions.dispose()
         @remove()
 
