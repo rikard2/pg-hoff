@@ -218,14 +218,17 @@ module.exports = PgHoff =
 
         allCompleted = true
         gotResults = false
-        gotOutput = false
+        gotNotices = false
+        gotError = false
         for resultset in resultsets
           if !resultset.complete
             allCompleted = false
           if resultset.columns
             gotResults = true
-          if resultset.error or resultset.notices?[0]
-            gotOutput = true
+          if resultset.notices?[0]
+            gotNotices = true
+          if resultset.error
+            gotError = true
 
         #recreate panes if previously removed
         if !@outputPane or !@resultsPane
@@ -259,13 +262,18 @@ module.exports = PgHoff =
             @removeHoffPane(@resultsPane)
             @bottomDock.deletePane(@resultsPane.getId())
             @resultsPane = null
-        if allCompleted and !gotOutput
+        if allCompleted and !gotNotices and !gotError
             @removeHoffPane(@outputPane)
             @bottomDock.deletePane(@outputPane.getId())
             @outputPane = null
 
         if not @bottomDock?.isActive()
             @bottomDock.toggle()
+
+        if gotError or (gotResults and resultsets?.length = 1 and resultsets?[0].rows.length < 2)
+            @bottomDock.changePane(@outputPane.getId())
+        else if gotResults
+            @bottomDock.changePane(@resultsPane.getId())
 
     removeHoffPane: (pane) ->
         index = @hoffPanes.indexOf(pane);
