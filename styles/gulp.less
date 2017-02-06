@@ -21,8 +21,8 @@
 }
 .grid-canvas {
     .selected {
-        background: lightblue;
-        color: #fff;
+        background: @tab-background-color;
+        color: @text-color-highlight;
     }
 }
 .gulp-pane {
@@ -185,8 +185,8 @@
       background: @button-background-color;
   }
   .slick-row:hover, .slick-headerrow:hover{
-      background-color: darken(#00FF00, 30%);
-      color: #00FF00 !important;
+      background-color: @background-color-selected;
+      color: @text-color-highlight;
   }
 
  .slick-cell:hover, .slick-headerrow-column:hover{

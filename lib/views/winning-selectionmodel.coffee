@@ -31,8 +31,11 @@ class WinningSelectionModel
             @activeRange = new Slick.Range(cell.row, cell.cell, cell.row, cell.cell)
             @activeRangeComplete = false
         else
-            @activeRange.toRow = cell.row
-            @activeRange.toCell = cell.cell
+            @activeRange.fromRow = Math.min(@activeRange.fromRow, cell.row)
+            @activeRange.toRow = Math.max(@activeRange.toRow, cell.row)
+
+            @activeRange.fromCell = Math.min(@activeRange.fromCell, cell.cell)
+            @activeRange.toCell = Math.max(@activeRange.toCell, cell.cell)
             @activeRangeComplete = true
 
          @onSelectedRangesChanged.notify @ranges.concat( [ @activeRange ] )
