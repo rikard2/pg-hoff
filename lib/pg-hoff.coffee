@@ -220,6 +220,7 @@ module.exports = PgHoff =
         gotResults = false
         gotNotices = false
         gotError = false
+        @bigResults = false
         for resultset in resultsets
           if !resultset.complete
             allCompleted = false
@@ -230,23 +231,6 @@ module.exports = PgHoff =
           if resultset.error
             gotError = true
 
-        #recreate panes if previously removed
-        if !@outputPane or !@resultsPane
-            if @resultsPane
-                @removeHoffPane(@resultsPane)
-                @bottomDock.deletePane(@resultsPane.getId())
-                @resultsPane = null
-            if @outputPane
-                @removeHoffPane(@outputPane)
-                @bottomDock.deletePane(@outputPane.getId())
-                @outputPane = null
-            @outputPane = new OutputPaneView()
-            @hoffPanes.push @outputPane
-            @bottomDock.addPane @outputPane, 'Output', true
-            @resultsPane = new ResultsPaneView()
-            @hoffPanes.push @resultsPane
-            @bottomDock.addPane @resultsPane, 'Results', true
-
         if gotResults
             @resultsPane.render(resultsets)
 
@@ -254,23 +238,15 @@ module.exports = PgHoff =
           if resultset.queryid in @renderedResults
               continue
           if resultset.complete
+            if resultset.rows?.length > 1
+                @bigResults = true
             @renderedResults.push(resultset.queryid)
             @outputPane.render(resultset, newQuery)
-
-        #remove unneeded panes
-        if allCompleted and !gotResults
-            @removeHoffPane(@resultsPane)
-            @bottomDock.deletePane(@resultsPane.getId())
-            @resultsPane = null
-        if allCompleted and !gotNotices and !gotError
-            @removeHoffPane(@outputPane)
-            @bottomDock.deletePane(@outputPane.getId())
-            @outputPane = null
 
         if not @bottomDock?.isActive()
             @bottomDock.toggle()
 
-        if gotError or (gotResults and resultsets?.length = 1 and resultsets?[0].rows.length < 2)
+        if gotError or (gotNotices and gotResults and @renderedResults < 2 and !@bigResults)
             @bottomDock.changePane(@outputPane.getId())
         else if gotResults
             @bottomDock.changePane(@resultsPane.getId())
