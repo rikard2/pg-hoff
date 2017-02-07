@@ -24,6 +24,14 @@ class WinningSelectionModel
         @dragCell = cell
         return unless cell?
 
+        return unless cell?
+        if not (@activeRange and
+        @activeRange.fromRow == @activeRange.toRow and
+        @activeRange.fromCell == @activeRange.toCell and
+        @activeRange.fromRow == cell.row and
+        @activeRange.fromCell == cell.cell)
+            @deSelect = false
+
         unless e.shiftKey or e.metaKey
             @activeRange = null
             @ranges = []
@@ -49,7 +57,23 @@ class WinningSelectionModel
         @activeRange.toCell = Math.max(@startCell.x, x)
 
     handleGridClick: (e, args) =>
-        @onMouseDown(e, args, true)
+        cell = @grid.getCellFromEvent(e)
+        if @activeRange and
+        @activeRange.fromRow == @activeRange.toRow and
+        @activeRange.fromCell == @activeRange.toCell and
+        @activeRange.fromRow == cell.row and
+        @activeRange.fromCell == cell.cell and
+        @deSelect == false
+            @deSelect = true
+            return
+        else if @deSelect == true
+            @deSelect = false
+            @ranges = []
+            @activeRange = null
+            @onSelectedRangesChanged.notify @ranges
+            return
+        else
+            @onMouseDown(e, args, true)
 
     onKeyDown: (e, args) =>
         data = @grid.getData()
