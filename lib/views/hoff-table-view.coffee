@@ -6,7 +6,7 @@ WinningSelectionModel = require './winning-selectionmodel'
 
 class HoffTableView extends View
     @content: (options, data, columns, height) ->
-        console.log 'width: 100% !important;height:'.concat(height, ';overflow: auto !important;')
+        # console.log 'width: 100% !important;height:'.concat(height, ';overflow: auto !important;')
         @div style: 'width: 100% !important;height:'.concat(height, ';overflow: auto !important;'), ->
 
     initialize: (@options, @data, @columns) ->

@@ -36,10 +36,10 @@ class ResultsPaneView extends DockPaneView
             c["width"] = 200
             max = 0
             for d in resultset.rows
-                #console.log 'hej->', c["field"], d[c["field"]].length, max
+                ## console.log 'hej->', c["field"], d[c["field"]].length, max
                 if d[c["field"]] != null && d[c["field"]]?.toString().length > max
                     max = d[c["field"]].toString().length
-                    #console.log 'hej->', c["field"], d[c["field"]].length, max
+                    ## console.log 'hej->', c["field"], d[c["field"]].length, max
             c["width"] = Math.min((Math.max(max * 9, Math.round((c["name"].length * 8.4) + 12))), 250)
 
         if resultset.rows.length <= 100

@@ -14,7 +14,7 @@ class PgHoffQuery
         return PgHoffServerRequest
             .Post('query', request)
             .then (response) ->
-                console.log 'query response', response
+                # console.log 'query response', response
                 if response.statusCode == 500
                     throw("/query status code 500")
                 else if not response.success && response.errormessage

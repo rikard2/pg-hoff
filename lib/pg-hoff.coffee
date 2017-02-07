@@ -146,7 +146,7 @@ module.exports = PgHoff =
             return PgHoffServerRequest
                 .Post('cancel', { alias: alias })
                 .then (response) ->
-                    console.log 'cancel', response, alias
+                    # console.log 'cancel', response, alias
 
     add: (isInitial) ->
         return unless @bottomDock
@@ -276,37 +276,45 @@ module.exports = PgHoff =
                             fulfil()
                         , ms)
                     )
-                getResult = (url) ->
-                    return PgHoffServerRequest.Get(url, true)
-                        .then (result) =>
-                            if not result.complete
-                                return timeout(5)
-                                    .then () ->
-                                        return getResult(url)
-                            else
-                                return result
                 promises = []
                 first = true
                 gotResults = false
                 gotErrors = false
                 gotNotices = false
-                for queryid in response.queryids
-                    promise = getResult('result/' + queryid)
+                getResult = (queryid) =>
+                    if not queryid?
+                        queryid = response.queryids.shift()
+                    url = 'result/' + queryid
+                    return PgHoffServerRequest.Get(url, true)
+                        .then (result) =>
+                            if not result.complete
+                                return timeout(100)
+                                    .then () ->
+                                        return getResult(queryid)
+                            else
+                                return result
+                boom = () =>
+                    return getResult()
                         .then (result) =>
                             if result.columns
                                 gotResults = true
                             if result.notices?[0]
                                 gotNotices = true
                             if result.error
-                                gotError = true
+                                gotErrors = true
                             @renderResults(result, first)
-                            if gotError or (gotNotices and gotResults) # and !@bigResults)
-                                @bottomDock.changePane(@outputPane.getId())
-                            else if gotResults
-                                @bottomDock.changePane(@resultsPane.getId())
                             first = false
-                    promises.push promise
-                return Promise.all(promises)
+
+                            if response.queryids.length > 0
+                                return boom()
+
+                            return result
+                boom()
+                    .then () =>
+                        if gotErrors or (gotNotices and gotResults) # and !@bigResults)
+                            @bottomDock.changePane(@outputPane.getId())
+                        else if gotResults
+                            @bottomDock.changePane(@resultsPane.getId())
             .catch (err) =>
                 atom.workspace.getActivePaneItem().alias = null
                 @resultsViewPanel.hide()

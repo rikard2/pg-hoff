@@ -8,7 +8,6 @@ class WinningSelectionModel
     grid : null
 
     init: (grid) =>
-        console.log grid
         @grid = grid
         @grid.onClick.subscribe(@handleGridClick)
         @grid.onDblClick.subscribe(@onDoubleClick)
@@ -27,7 +26,6 @@ class WinningSelectionModel
             @ranges = []
 
         if e.metaKey and @activeRange
-            console.log 'new range!!!', @activeRange
             @ranges.push @activeRange
             @activeRange = null
 
@@ -81,7 +79,7 @@ class WinningSelectionModel
         #@ranges = []
 
         if e.metaKey and @activeRange
-            console.log 'new range!!!', @activeRange
+            # console.log 'new range!!!', @activeRange
             @ranges.push @activeRange
             @activeRange = null
 
