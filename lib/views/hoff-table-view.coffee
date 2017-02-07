@@ -43,7 +43,6 @@ class HoffTableView extends View
         cols = @grid.getSortColumns()
 
         return unless cols.length
-        return unless cols.data
 
         @data.sort (dataRow1, dataRow2) ->
             for i in [0..cols.length-1]

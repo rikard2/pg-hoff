@@ -11,6 +11,7 @@ class WinningSelectionModel
         @grid.onDblClick.subscribe(@onDoubleClick)
         @grid.onClick.subscribe(@onClick)
         @grid.onMouseEnter.subscribe(@onMouseEnter)
+        @grid.onKeyDown.subscribe(@onKeyDown)
 
     handleGridClick: (e, args) =>
         #console.log 'e', e
@@ -39,6 +40,26 @@ class WinningSelectionModel
             @activeRangeComplete = true
 
          @onSelectedRangesChanged.notify @ranges.concat( [ @activeRange ] )
+
+    onKeyDown: (e, args) =>
+        if e.keyCode == 27
+            @ranges = []
+            @activeRange = null
+            @onSelectedRangesChanged.notify @ranges
+        if (e.metaKey or e.ctrlKey) and e.keyCode == 67
+            selectedColumns = []
+            output = []
+            data = @grid.getData()
+            columns = @grid.getColumns()
+            for range in @ranges.concat( [ @activeRange ] )
+                for x in [range.fromCell..range.toCell]
+                    for y in [range.fromRow..range.toRow]
+                        selectedColumns.push({x: x, y:y})
+            for cell in selectedColumns
+                output.push(data[cell.y][columns[cell.x]["field"]].toString())
+            atom.clipboard.write(output.join(", ").toString())
+            #atom.clipboard.write(@data[args.row][@columns[args.cell]["field"]].toString())
+
 
     onDoubleClick: (e, args) =>
 
