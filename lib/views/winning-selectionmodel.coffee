@@ -148,6 +148,7 @@ class WinningSelectionModel
             @ranges.push @activeRange
             @activeRange = null
 
+        return unless @dragCell?
         @activeRange = new Slick.Range(@dragCell.row, @dragCell.cell, @dragCell.row, @dragCell.cell)
 
         @activeRange.fromRow = Math.min(@activeRange.fromRow, cell.row)
