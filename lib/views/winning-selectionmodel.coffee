@@ -46,10 +46,17 @@ class WinningSelectionModel
         @onMouseDown(e, args)
 
     onKeyDown: (e, args) =>
+        data = @grid.getData()
+        columns = @grid.getColumns()
         if e.keyCode == 27
             @ranges = []
             @activeRange = null
             @onSelectedRangesChanged.notify @ranges
+        if e.keyCode == 65 and e.metaKey and data.length > 0
+            @ranges = []
+            @activeRange = new Slick.Range 0, 0, data.length - 1, columns.length - 1
+            console.log @activeRange, data.length, data[0]
+            @onSelectedRangesChanged.notify [ @activeRange ]
         if (e.metaKey or e.ctrlKey) and e.keyCode == 67
             selectedColumns = []
             output = []
@@ -60,7 +67,7 @@ class WinningSelectionModel
                     for y in [range.fromRow..range.toRow]
                         selectedColumns.push({x: x, y:y})
             for cell in selectedColumns
-                output.push(data[cell.y][columns[cell.x]["field"]].toString())
+                output.push(data[cell.y][columns[cell.x]["field"]]?.toString())
             atom.clipboard.write(output.join(", ").toString())
             #atom.clipboard.write(@data[args.row][@columns[args.cell]["field"]].toString())
 
