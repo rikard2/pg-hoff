@@ -9,13 +9,13 @@ class WinningSelectionModel
     init: (@grid) =>
         @grid.onClick.subscribe(@handleGridClick)
         @grid.onDblClick.subscribe(@onDoubleClick)
-        @grid.onClick.subscribe(@onClick)
         @grid.onMouseEnter.subscribe(@onMouseEnter)
         @grid.onKeyDown.subscribe(@onKeyDown)
+        @grid.onMouseDown.subscribe(@onMouseDown)
 
-    handleGridClick: (e, args) =>
-        #console.log 'e', e
+    onMouseDown: (e, args) =>
         cell = @grid.getCellFromEvent(e)
+        @dragCell = cell
         return unless cell?
 
         unless e.shiftKey or e.metaKey
@@ -27,19 +27,21 @@ class WinningSelectionModel
             @ranges.push @activeRange
             @activeRange = null
 
-
         unless @activeRange?
             @activeRange = new Slick.Range(cell.row, cell.cell, cell.row, cell.cell)
             @activeRangeComplete = false
         else
             @activeRange.fromRow = Math.min(@activeRange.fromRow, cell.row)
-            @activeRange.toRow = Math.max(@activeRange.toRow, cell.row)
+            @activeRange.toRow = Math.max(@activeRange.fromRow, cell.row)
 
             @activeRange.fromCell = Math.min(@activeRange.fromCell, cell.cell)
-            @activeRange.toCell = Math.max(@activeRange.toCell, cell.cell)
+            @activeRange.toCell = Math.max(@activeRange.fromCell, cell.cell)
             @activeRangeComplete = true
 
          @onSelectedRangesChanged.notify @ranges.concat( [ @activeRange ] )
+
+    handleGridClick: (e, args) =>
+        @onMouseDown(e, args)
 
     onKeyDown: (e, args) =>
         if e.keyCode == 27
@@ -66,6 +68,29 @@ class WinningSelectionModel
     onClick: (e, args) =>
 
     onMouseEnter: (e, args) =>
+        return unless e.buttons == 1 and e.button == 0
+
+        cell = @grid.getCellFromEvent(e)
+        return unless cell?
+
+        @activeRange = null
+        #@ranges = []
+
+        if e.metaKey and @activeRange
+            console.log 'new range!!!', @activeRange
+            @ranges.push @activeRange
+            @activeRange = null
+
+        @activeRange = new Slick.Range(@dragCell.row, @dragCell.cell, @dragCell.row, @dragCell.cell)
+
+        @activeRange.fromRow = Math.min(@activeRange.fromRow, cell.row)
+        @activeRange.toRow = Math.max(@activeRange.toRow, cell.row)
+
+        @activeRange.fromCell = Math.min(@activeRange.fromCell, cell.cell)
+        @activeRange.toCell = Math.max(@activeRange.toCell, cell.cell)
+        @activeRangeComplete = true
+
+        @onSelectedRangesChanged.notify @ranges.concat( [ @activeRange ] )
 
     destroy: =>
 
