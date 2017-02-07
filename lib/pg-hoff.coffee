@@ -208,48 +208,16 @@ module.exports = PgHoff =
             .finally =>
                 @listServersViewPanel.hide()
 
-    renderResults: (resultsets, newQuery) ->
-        if newQuery
-            @renderedResults = []
-            if @outputPane
-                @outputPane.clear()
-        if not @renderedResults
-            @renderedResults = []
+    renderResults: (resultset, newQuery) ->
+        if not resultset.complete?
+            throw 'WTF!? Resultset not complete'
 
-        allCompleted = true
-        gotResults = false
-        gotNotices = false
-        gotError = false
-        @bigResults = false
-        for resultset in resultsets
-          if !resultset.complete
-            allCompleted = false
-          if resultset.columns
-            gotResults = true
-          if resultset.notices?[0]
-            gotNotices = true
-          if resultset.error
-            gotError = true
+        @resultsPane.render(resultset)
 
-        if gotResults
-            @resultsPane.render(resultsets)
+        if resultset.rows?.length > 1
+            @bigResults = true
 
-        for resultset in resultsets
-          if resultset.queryid in @renderedResults
-              continue
-          if resultset.complete
-            if resultset.rows?.length > 1
-                @bigResults = true
-            @renderedResults.push(resultset.queryid)
-            @outputPane.render(resultset, newQuery)
-
-        if not @bottomDock?.isActive()
-            @bottomDock.toggle()
-
-        if gotError or (gotNotices and gotResults and @renderedResults < 2 and !@bigResults)
-            @bottomDock.changePane(@outputPane.getId())
-        else if gotResults
-            @bottomDock.changePane(@resultsPane.getId())
+        @outputPane.render(resultset, newQuery)
 
     removeHoffPane: (pane) ->
         index = @hoffPanes.indexOf(pane);
@@ -267,8 +235,19 @@ module.exports = PgHoff =
                     atom.notifications.addError('Connect error')
 
 
-    executeQuery: ->
-        selectedText = atom.workspace.getActiveTextEditor().getSelectedText().trim()
+    executeQuery: (selectedText, alias) ->
+        @resultsPane.reset()
+        if @outputPane
+            @outputPane.clear()
+
+        if not @bottomDock?.isActive()
+            @bottomDock.toggle()
+
+        if not selectedText?
+            selectedText = atom.workspace.getActiveTextEditor().getSelectedText().trim()
+        if not alias?
+            alias = atom.workspace.getActivePaneItem().alias
+
         if selectedText.trim().length == 0
             if atom.config.get('pg-hoff.executeAllWhenNothingSelected')
                 selectedText = atom.workspace.getActiveTextEditor().getText().trim()
@@ -276,45 +255,62 @@ module.exports = PgHoff =
                 resultsViewPanel.hide()
                 return
 
-        return PgHoffQuery.Execute(selectedText)
-            .then (result) =>
-                for resultset in result.resultsets
-                    if resultset.error
-                        atom.notifications.addError(resultset.error)
+        request =
+            query: selectedText
+            alias: alias
 
-                allCompleted = result.resultsets.every (resultset) -> return resultset.completed or resultset.error or not resultset.executing
-                if not allCompleted
-                    @keepGoing(result.url)
+        return PgHoffServerRequest.Post('query', request)
+            .then (response) ->
+                if response.statusCode == 500
+                    throw("/query status code 500")
+                else if not response.success && response.errormessage
+                    throw(response.errormessage)
+                else if not response.success
+                    throw("Lost connection. Try again!")
 
-                @renderResults(result.resultsets, true)
+                return response
+            .then (response) =>
+                timeout = (ms) ->
+                    return new Promise((fulfil) ->
+                        setTimeout(() ->
+                            fulfil()
+                        , ms)
+                    )
+                getResult = (url) ->
+                    return PgHoffServerRequest.Get(url, true)
+                        .then (result) =>
+                            if not result.complete
+                                return timeout(100)
+                                    .then () ->
+                                        return getResult(url)
+                            else
+                                return result
+                promises = []
+                first = true
+                gotResults = false
+                gotErrors = false
+                gotNotices = false
+                for queryid in response.queryids
+                    promise = getResult('result/' + queryid)
+                        .then (result) =>
+                            if result.columns
+                                gotResults = true
+                            if result.notices?[0]
+                                gotNotices = true
+                            if result.error
+                                gotError = true
+                            @renderResults(result, first)
+                            if gotError or (gotNotices and gotResults) # and !@bigResults)
+                                @bottomDock.changePane(@outputPane.getId())
+                            else if gotResults
+                                @bottomDock.changePane(@resultsPane.getId())
+                            first = false
+                    promises.push promise
+                return Promise.all(promises)
             .catch (err) =>
                 atom.workspace.getActivePaneItem().alias = null
                 @resultsViewPanel.hide()
                 atom.notifications.addError(err)
-
-    keepGoing: (url, complete) ->
-        interval = setInterval( () =>
-            return PgHoffServerRequest.Get(url, false)
-                .then (resultsets) =>
-                    for resultset, i in resultsets
-                        if resultset.error
-                            atom.notifications.addError(resultset.error)
-                    if resultsets
-                        count = resultsets.find (resultset) -> resultset.completed or resultset.error or not resultset.executing
-                    if completedCount != count
-                        @renderResults(resultsets)
-                        completedCount = count
-
-                    allCompleted = resultsets.every (resultset) -> resultset.completed or resultset.error or not resultset.executing
-                    if allCompleted
-                        clearInterval(interval)
-
-                .catch (err) =>
-                    console.error 'catch', err
-                    clearInterval(interval)
-                    atom.notifications.addError(err)
-        , atom.config.get('pg-hoff.pollInterval'))
-
     deactivate: ->
         @subscriptions.dispose()
         @pgHoffView.destroy()

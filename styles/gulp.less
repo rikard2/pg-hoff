@@ -19,6 +19,16 @@
 .bottom-dock-header{
     height: 1px;
 }
+.output-view {
+    .content-container {
+        padding: 10px;
+    }
+}
+.bottom-dock-header {
+    span.title {
+        display: none;
+    }
+}
 .grid-canvas {
     .selected {
         background: @tab-background-color;
@@ -172,13 +182,13 @@
     text-overflow: ellipsis;
     vertical-align: top !important;
     z-index: 1;
-    padding: 1px 2px 2px 1px;
+    padding: 6px 3px;
     padding-left: 5px;
     padding-bottom: 3px;
     margin: 0;
     white-space: nowrap;
     cursor: default;
-    height:20px !important;
+    height:30px !important;
   }
   .slick-row{
       color: @text-color !important;
