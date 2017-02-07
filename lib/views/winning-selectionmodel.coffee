@@ -1,17 +1,21 @@
 SlickGrid = require 'bd-slickgrid/grid'
 
 class WinningSelectionModel
-    onSelectedRangesChanged: new Slick.Event
+    onSelectedRangesChanged: null
     activeRange: null
     activeRangeComplete: false
     ranges: []
+    grid : null
 
-    init: (@grid) =>
+    init: (grid) =>
+        console.log grid
+        @grid = grid
         @grid.onClick.subscribe(@handleGridClick)
         @grid.onDblClick.subscribe(@onDoubleClick)
         @grid.onMouseEnter.subscribe(@onMouseEnter)
         @grid.onKeyDown.subscribe(@onKeyDown)
         @grid.onMouseDown.subscribe(@onMouseDown)
+        @onSelectedRangesChanged = new Slick.Event
 
     onMouseDown: (e, args) =>
         cell = @grid.getCellFromEvent(e)

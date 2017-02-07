@@ -60,8 +60,8 @@ class HoffTableView extends View
         @columns = @columns ? []
 
         @grid = new SlickGrid @, @data, @columns, @options
-        selectionModel = new WinningSelectionModel
-        @grid.setSelectionModel(selectionModel)
+        @selectionModel = new WinningSelectionModel @grid
+        @grid.setSelectionModel(@selectionModel)
         @resize()
         @grid.resizeCanvas()
 

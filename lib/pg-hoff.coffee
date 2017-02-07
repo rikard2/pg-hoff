@@ -280,7 +280,7 @@ module.exports = PgHoff =
                     return PgHoffServerRequest.Get(url, true)
                         .then (result) =>
                             if not result.complete
-                                return timeout(100)
+                                return timeout(5)
                                     .then () ->
                                         return getResult(url)
                             else
