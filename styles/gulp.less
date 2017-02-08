@@ -15,7 +15,14 @@
     color: #333333;
     border: 5px solid #FFF;
 }
-.highlight{ background: darken(#FFFF00, 20%) !important; color: #FFFF00 !important }
+.copyFlash {
+    animation: fadeinout 500ms linear forwards;
+}
+@keyframes fadeinout {
+  0% { background: #005500; opacity: 1; }
+  100% { opacity: 1; }
+  50% { opacity: 1; }
+}
 .bottom-dock-header{
     height: 1px;
 }

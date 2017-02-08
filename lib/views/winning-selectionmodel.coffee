@@ -76,6 +76,7 @@ class WinningSelectionModel
             @onMouseDown(e, args, true)
 
     onKeyDown: (e, args) =>
+        @grid.removeCellCssStyles("copy_Flash")
         data = @grid.getData()
         columns = @grid.getColumns()
         if @lastCell? and ( [ 37, 38, 39, 40 ].indexOf e.keyCode ) >= 0
@@ -124,10 +125,14 @@ class WinningSelectionModel
                 for x in [range.fromCell..range.toCell]
                     for y in [range.fromRow..range.toRow]
                         selectedColumns.push({x: x, y:y})
+            obj1 = {}
+            obj2 = {}
             for cell in selectedColumns
                 output.push(data[cell.y][columns[cell.x]["field"]]?.toString())
+                obj1[columns[cell.x]["field"]] = "copyFlash"
+                obj2[cell.y] = obj1
             atom.clipboard.write(output.join(", ").toString())
-            #atom.clipboard.write(@data[args.row][@columns[args.cell]["field"]].toString())
+            @grid.setCellCssStyles("copy_Flash", obj2)
 
 
     onDoubleClick: (e, args) =>
