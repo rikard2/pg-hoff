@@ -44,6 +44,8 @@ class ResultsPaneView extends DockPaneView
             fullWidthRows: false
             rowHeight:30
             headerRowHeight: 30
+            asyncPostRenderDelay: 500
+            syncColumnCellResize: true
             multiSelect:true
             cellFlashingCssClass: "flashcell"
 

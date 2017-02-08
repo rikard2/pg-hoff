@@ -16,6 +16,11 @@ class OutputView extends View
 
 
   append: (resultset) ->
+      if resultset.statusmessage?.length > 0
+          notice = document.createElement('pre')
+          notice.classList.add 'statusmessage'
+          notice.textContent = resultset.statusmessage
+          @outputContainer.append notice
       if resultset.error
           error = document.createElement('pre')
           error.classList.add 'error'

@@ -22,6 +22,7 @@ class HoffTableView extends View
     resize: (heightOnly) =>
         @grid.resizeCanvas()
         @grid.autosizeColumns() #unless heightOnly
+        @grid.resizeCanvas()
 
     addRows: (newData) ->
         return unless @grid
@@ -63,8 +64,24 @@ class HoffTableView extends View
         @selectionModel = new WinningSelectionModel @grid
         @grid.setSelectionModel(@selectionModel)
         @resize()
-        @grid.resizeCanvas()
-
+        setTimeout( () =>
+            @resize()
+        , 50)
+        setTimeout( () =>
+            @resize()
+        , 100)
+        setTimeout( () =>
+            @resize()
+        , 250)
+        setTimeout( () =>
+            @resize()
+        , 500)
+        setTimeout( () =>
+            @resize()
+        , 1000)
+        setTimeout( () =>
+            @resize()
+        , 3000)
         @grid.onColumnsReordered.subscribe (e, args) =>
                 @columns = @grid.getColumns()
 
@@ -74,6 +91,7 @@ class HoffTableView extends View
             @grid.render()
 
     onDidFinishAttaching: (callback) =>
+        @grid.autosizeColumns()
         @emitter.on 'table:attach:finished', callback
 
 
