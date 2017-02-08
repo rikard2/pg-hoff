@@ -16,6 +16,8 @@ class WinningSelectionModel
         @grid.onMouseEnter.subscribe(@onMouseEnter)
         @grid.onKeyDown.subscribe(@onKeyDown)
         @grid.onMouseDown.subscribe(@onMouseDown)
+        @grid.onAnimationEnd.subscribe(@onAnimationEnd)
+
         @onSelectedRangesChanged = new Slick.Event
 
     onMouseDown: (e, args, local) =>
@@ -76,7 +78,6 @@ class WinningSelectionModel
             @onMouseDown(e, args, true)
 
     onKeyDown: (e, args) =>
-        @grid.removeCellCssStyles("copy_Flash")
         data = @grid.getData()
         columns = @grid.getColumns()
         if @lastCell? and ( [ 37, 38, 39, 40 ].indexOf e.keyCode ) >= 0
@@ -134,6 +135,8 @@ class WinningSelectionModel
             atom.clipboard.write(output.join(", ").toString())
             @grid.setCellCssStyles("copy_Flash", obj2)
 
+    onAnimationEnd: (e, args) =>
+        @grid.removeCellCssStyles("copy_Flash")
 
     onDoubleClick: (e, args) =>
 
