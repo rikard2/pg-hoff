@@ -6,6 +6,7 @@ PgHoffQuery                 = require './pg-hoff-query'
 PgHoffGotoDeclaration       = require './pg-hoff-goto-declaration'
 PgHoffAutocompleteProvider  = require('./pg-hoff-autocomplete-provider')
 PgHoffDialog                = require('./pg-hoff-dialog')
+PgHoffStatus                = require('./pg-hoff-status')
 {CompositeDisposable, Disposable} = require 'atom'
 {BasicTabButton} = require 'atom-bottom-dock'
 ResultsPaneView = require './views/results-pane'
@@ -122,8 +123,33 @@ module.exports = PgHoff =
 
     gotoDeclaration: PgHoffGotoDeclaration
 
+    onDidChangeActivePane: () ->
+        console.log 'onDidChangeActivePane'
+    consumeStatusBar: (statusBar) ->
+        @statusBarTile = statusBar.addRightTile item: new PgHoffStatus , priority: 2
+        @statusBarTile.item.alias = @getAliasForPane()
+        @statusBarTile.item.renderText()
+
+        atom.workspace.onDidChangeActivePaneItem((pane) =>
+            alias = @getAliasForPane(pane)
+            @statusBarTile.item.alias = alias
+            @statusBarTile.item.renderText()
+        )
+
+        @subscriptions.add @statusBarTile.item.onDidToggle =>
+            console.log 'toggle?'
+
+    getAliasForPane: (pane) =>
+        if not pane?
+            pane = atom.workspace.getActivePaneItem()
+        return unless pane?
+        if pane?.alias?
+            return pane.alias
+
+        return null
+
     toggleAliases: ->
-        alias = atom.workspace.getActivePaneItem().alias
+        alias = @getAliasForPane()
         if alias? or true
             return PgHoffServerRequest
                 .Post('get_settings', { alias: alias })
@@ -173,7 +199,7 @@ module.exports = PgHoff =
       @add true
 
     createDynamicTable: ->
-        alias = atom.workspace.getActivePaneItem().alias
+        alias = @getAliasForPane()
         globalName = null
         PgHoffDialog
             .Prompt('Enter name')
@@ -203,6 +229,9 @@ module.exports = PgHoff =
                     atom.notifications.addSuccess('Connected to ' + server.alias)
 
                 paneItem.alias = server.alias
+                @statusBarTile.item.alias = @getAliasForPane(paneItem)
+                @statusBarTile.item.transactionStatus = null
+                @statusBarTile.item.renderText()
             .catch (error) =>
                 atom.notifications.addError(error)
             .finally =>
@@ -225,7 +254,9 @@ module.exports = PgHoff =
           @hoffPanes.splice( index, 1 );
 
     executeQueryWithConnect: ->
-        if atom.workspace.getActivePaneItem().alias?
+        alias = @getAliasForPane()
+
+        if alias?
             @executeQuery()
         else
             return @connect()?.then =>
@@ -233,7 +264,6 @@ module.exports = PgHoff =
                 .catch (err) ->
                     console.error 'Connect error', err
                     atom.notifications.addError('Connect error')
-
 
     executeQuery: (selectedText, alias) ->
         @resultsPane.reset()
@@ -296,6 +326,10 @@ module.exports = PgHoff =
                 boom = () =>
                     return getResult()
                         .then (result) =>
+                            if @statusBarTile.item.transactionStatus != result.transaction_status
+                                @statusBarTile.item.transactionStatus = result.transaction_status.toUpperCase()
+                                @statusBarTile.item.renderText()
+
                             if result.columns
                                 gotResults = true
                             if result.notices?[0]

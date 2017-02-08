@@ -24,6 +24,11 @@
       "versions": {
         "^0.2.0": "consumeBottomDock"
       }
+    },
+    "status-bar": {
+      "versions": {
+        "^1.0.0": "consumeStatusBar"
+      }
     }
   },
   "dependencies": {
