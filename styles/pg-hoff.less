@@ -23,39 +23,27 @@
         width: 100%;
     }
 }
+.server {
+    padding: @component-padding/2 @component-padding;
+    color: @text-color-highlight;
+
+    .title {
+        float: left;
+    }
+    .clear {
+        clear: both;
+    }
+    .connected {
+        float: right;
+        background: lighten(@background-color-success, 5%);
+        color: #fff;
+        padding: 0px 7px;
+        border-radius: 3px;
+    }
+}
 .pg-hoff-list-servers {
     .clear { clear: both; }
     .connecting { padding: 5px 10px; font-size: 13px; font-weight: bold; }
-    .server {
-        padding: @component-padding/2 @component-padding;
-        color: @text-color-highlight;
-
-        .title {
-            font-size: 16px;
-            font-weight: bold;
-        }
-
-        .url-container {
-            font-size: 14px;
-            .url {
-                float: left;
-            }
-            .connected {
-                float: right;
-                font-size: 13px;
-                padding: 3px 6px;
-                background: lighten(@background-color-success, 5%);
-                color: #fff;
-                border-radius: 3px;
-                margin-top: -10px;
-            }
-        }
-
-        &:hover {
-            background: @background-color-highlight;
-            cursor: pointer;
-        }
-    }
 }
 .pg-hoff-results-view {
     height: 300px;

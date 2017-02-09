@@ -66,7 +66,6 @@ class HoffTableView extends View
             @selectionModel = new @selectionModel @grid
         else
             @selectionModel = new WinningSelectionModel @grid
-        console.log @selectionModel
         @grid.setSelectionModel(@selectionModel)
         @resize()
         setTimeout( () =>

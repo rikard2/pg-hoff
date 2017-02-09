@@ -21,11 +21,17 @@ class PgHoffListServersView
         maybeStartServer()
             .then (servers) ->
                 return PgHoffServerRequest.Get 'listservers'
-            .then (servers) ->
-                promise = listServersView.update(servers, listServersView.element)
-                panel.show()
+            .then (servers) =>
+                items = []
+                for server of servers
+                    servers[server].alias = server
+                    items.push name: server, value: servers[server], connected: servers[server].connected
 
-                return promise
+                return PgHoffDialog.PromptList(items, @createServerElement)
+                    .then (item) ->
+                        return item.value
+                    .catch (err) ->
+                        console.log 'err', err
             .then (server) ->
                 selectedServer = server
                 requiresAuthKey = selectedServer.requiresauthkey == 'True' || selectedServer.requiresauthkey == '"True"'
@@ -60,42 +66,24 @@ class PgHoffListServersView
             .catch (err) ->
                 atom.notifications.addError('Could not disconnect ' + err)
 
-    update: (servers, element) ->
-        return new Promise( (resolve, reject) ->
-            while (element.firstChild)
-                element.removeChild(element.firstChild)
+    createServerElement: (item) ->
+        server = item.value
+        container = document.createElement('li')
+        container.classList.add 'server'
 
-            for server of servers
-                loc = server
-                servers[server].alias = server
-                container = element.appendChild document.createElement('div')
-                container.classList.add 'server'
-                container.setAttribute('alias', server)
-                container.onclick = ->
-                    s = servers[this.getAttribute('alias')]
-                    element.innerHTML = '<div class="connecting">Connecting to ' + s.alias + '...</div>'
-                    resolve(s)
+        title = container.appendChild document.createElement('div')
+        title.classList.add 'title'
+        title.textContent = server.alias
 
-                title = container.appendChild document.createElement('div')
-                title.classList.add 'title'
-                title.textContent = server
+        if server.connected
+            connected = container.appendChild document.createElement('div')
+            connected.classList.add 'connected'
+            connected.innerHTML = 'Connected &#10003;'
 
-                urlContainer = container.appendChild document.createElement('div')
-                urlContainer.classList.add 'url-container'
+        clear = container.appendChild document.createElement('div')
+        clear.classList.add 'clear'
 
-                url = urlContainer.appendChild document.createElement('div')
-                url.classList.add 'url'
-                url.innerHTML = servers[server].url
-
-                if servers[server].connected
-                    connected = urlContainer.appendChild document.createElement('div')
-                    connected.classList.add 'connected'
-                    connected.setAttribute 'alias', server
-                    connected.innerHTML = 'Connected &#10003;'
-
-                clear = urlContainer.appendChild document.createElement('div')
-                clear.classList.add 'clear'
-        )
+        return container
 
     serialize: ->
 

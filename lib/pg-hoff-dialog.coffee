@@ -1,37 +1,38 @@
 SelectListView = require 'atom-select-list'
 
 class PgHoffDialog
-    modalPanel: null
-    listView: null
     constructor: (serializedState) ->
     serialize: ->
     destroy: ->
 
     @PromptList: (items, elementForItem) =>
+        modalPanel: null
+        listView: null
         return new Promise((fulfil, reject) ->
             config =
-                items: [{name: 'LF', value: '\n'}, {name: 'CRLF', value: '\r\n'}],
-                filterKeyForItem: (lineEnding) =>
-                    lineEnding.name
+                items: items,
+                filterKeyForItem: (item) =>
+                    item.name
                 didConfirmSelection: (item) =>
-                    @modalPanel.hide()
+                    modalPanel.hide()
                     fulfil(item)
                 didCancelSelection: () =>
-                    @modalPanel.hide()
+                    modalPanel.hide()
                     reject('cancel')
                 elementForItem: (item) =>
                     if elementForItem?
-                        return elementForItem(item)
+                        element = elementForItem(item)
+                        return element
                     else
                         element = document.createElement('li')
                         element.textContent = item.name
                         return element
 
-            @lineEndingListView = new SelectListView(config);
-            @modalPanel = atom.workspace.addModalPanel({item: @lineEndingListView})
-            @lineEndingListView.reset()
-            @modalPanel.show()
-            @lineEndingListView.focus()
+            lineEndingListView = new SelectListView(config);
+            modalPanel = atom.workspace.addModalPanel({item: lineEndingListView})
+            lineEndingListView.reset()
+            modalPanel.show()
+            lineEndingListView.focus()
         )
 
     @Prompt: (text) ->
