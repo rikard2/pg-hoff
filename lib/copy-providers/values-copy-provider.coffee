@@ -21,7 +21,7 @@ module.exports = class ValuesCopyProvider extends CopyProvider
                 if row.x == parseInt(col)
                     if not rows[row.y]?
                         rows[row.y] = []
-                    rows[row.y].push(["'", row.value, "'"].join(''))
+                    rows[row.y].push(@formatCell(columns[col].type, row.value))
         for col in Object.keys(rows)
             arr.push(rows[col])
         z = arr.join("""),\n           (""")
@@ -30,8 +30,15 @@ module.exports = class ValuesCopyProvider extends CopyProvider
 FROM (
     VALUES (#{z})
 ) X (#{y})"""
-        console.log 'result', result
         return result
-        
+
 
     getName: () -> 'Values'
+
+    formatCell: (columnType, cellValue) ->
+        if cellValue == null
+            return 'NULL'
+        if columnType not in ['integer', 'bigint', 'numeric', 'real']
+            return "'" + cellValue + "'"
+        else
+            return cellValue
