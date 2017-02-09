@@ -11,7 +11,8 @@ class OutputView extends View
         @div outlet: 'outputContainer' #, class: 'task-container'
 
   initialize: (resultset) ->
-    @outputContainer.empty()
+    if resultset.transaction_status == 'idle'
+        @outputContainer.empty()
     @append(resultset)
 
 

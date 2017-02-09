@@ -267,7 +267,7 @@ module.exports = PgHoff =
 
     executeQuery: (selectedText, alias) ->
         @resultsPane.reset()
-        if @outputPane
+        if @outputPane and @statusBarTile.item.transactionStatus == 'IDLE'
             @outputPane.clear()
 
         if not @bottomDock?.isActive()
