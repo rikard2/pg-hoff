@@ -1,10 +1,12 @@
 ValuesCopyProvider = require './values-copy-provider'
+JsonCopyProvider = require './json-copy-provider'
 PgHoffDialog       = require('../pg-hoff-dialog')
 module.exports = class CopyProvider
     constructor: () ->
     @PromptCopy: (selectedColumns, columns) =>
         providers = []
         providers.push new ValuesCopyProvider
+        providers.push new JsonCopyProvider
         for provider in providers
             provider.name = provider.getName()
             provider.value = provider
