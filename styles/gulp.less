@@ -1,41 +1,145 @@
 @import "ui-variables";
+@import "octicon-mixins";
 
 .statusmessage {
-    border-left: 2px solid @background-color-info;
     border-top-left-radius: 0px;
     border-radius: 0px;
-    padding-left: 5px;
-    padding-top: 5px;
-    padding-bottom: 5px;
-    padding-right: 80px;
+    padding: 0px;
     vertical-align: middle;
     margin-bottom: 2px;
     font-size: @font-size;
+    display: flex;
+}
+.statusmessage .message {
+    margin-right:80px;
+    display: inline-flex;
+    margin-top: 7px;
+}
+.statusmessage .runtime_instant {
+    border-right: 2px solid @background-color-info;
+    background: darken(@button-background-color, 8%);
+    color: lighten(@button-background-color, 2%);
+    letter-spacing: 0px;
+    font-size: 10px;
+    vertical-align: middle;
+    padding-left: 5px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    display: inline-flex;
+    min-width: 58px;
+    margin-right: 5px;
+}
+.statusmessage .runtime_short {
+    border-right: 2px solid @background-color-info;
+    background: darken(@button-background-color, 8%);
+    color: lighten(@button-background-color, 2%);
+    letter-spacing: 0px;
+    font-size: 10px;
+    vertical-align: middle;
+    padding-left: 5px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    display: inline-flex;
+    min-width: 58px;
+    margin-right: 5px;
+    &::before {
+        font-family: 'Octicons Regular';
+        content: "\f052" !important;
+        font-size: 5px;
+        margin-left: 2px;
+        margin-right: 5px;
+        margin-top: 4px;
+        color: #343434;
+    }
+}
+.statusmessage .runtime_medium {
+    border-right: 2px solid @background-color-info;
+    background: darken(@button-background-color, 8%);
+    color: lighten(@button-background-color, 2%);
+    letter-spacing: 0px;
+    font-size: 10px;
+    vertical-align: middle;
+    padding-left: 5px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    display: inline-flex;
+    min-width: 58px;
+    margin-right: 5px;
+    &::before {
+        font-family: 'Octicons Regular';
+        content: "\f052" !important;
+        font-size: 5px;
+        margin-left: 2px;
+        margin-right: 5px;
+        margin-top: 4px;
+        color: #ffb01e;
+    }
+}
+.statusmessage .runtime_long {
+    border-right: 2px solid @background-color-info;
+    background: darken(@button-background-color, 8%);
+    color: lighten(@button-background-color, 2%);
+    letter-spacing: 0px;
+    font-size: 10px;
+    vertical-align: middle;
+    padding-left: 5px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    display: inline-flex;
+    min-width: 58px;
+    margin-right: 5px;
+    &::before {
+        font-family: 'Octicons Regular';
+        content: "\f052" !important;
+        font-size: 5px;
+        margin-left: 2px;
+        margin-right: 5px;
+        margin-top: 4px;
+        color: #ff5353;
+    }
 }
 .notice {
-    border-left: 2px solid @background-color-warning;
+    border-left: 2px solid lighten(@background-color-warning, 15%);
     border-top-left-radius: 0px;
     border-radius: 0px;
     padding-left: 5px;
     padding-top: 5px;
     padding-bottom: 5px;
-    padding-right: 80px;
     vertical-align: middle;
     margin-bottom: 2px;
+    margin-left: 56px;
     font-size: @font-size;
 }
 .error {
-    border-left: 2px solid @background-color-error;
     border-top-left-radius: 0px;
     border-radius: 0px;
-    padding-left: 5px;
-    padding-top: 5px;
-    padding-bottom: 5px;
-    padding-right: 80px;
+    padding: 0px;
     vertical-align: middle;
     margin-bottom: 2px;
     font-size: @font-size;
+    display: flex;
 }
+.error .errormessage {
+    margin-right:80px;
+    display: inline-flex;
+    margin-top: 7px;
+}
+.error .errorheader {
+    border-right: 2px solid @background-color-error;
+    background: darken(@button-background-color, 8%);
+    color: lighten(@button-background-color, 2%);
+    letter-spacing: 0px;
+    font-size: 11px;
+    font-weight: bold;
+    vertical-align: middle;
+    padding-left: 12px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    display: inline-flex;
+    min-width: 58px;
+    margin-right: 5px;
+}
+
 .flashcell{
     background: #009900;
     color: #333333;
