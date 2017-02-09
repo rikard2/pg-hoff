@@ -140,19 +140,37 @@ class WinningSelectionModel
         if (e.metaKey or e.ctrlKey) and e.keyCode == 67
             selectedColumns = []
             output = []
+            clipboard = []
             data = @grid.getData()
             columns = @grid.getColumns()
             for range in @ranges.concat( [ @activeRange ] )
-                for x in [range.fromCell..range.toCell]
+                if range.fromCell == range.toCell
+                    copyRows = false
+                    for x in [range.fromCell..range.toCell]
+                        for y in [range.fromRow..range.toRow]
+                            selectedColumns.push({x: x, y:y})
+                else
+                    copyRows = true
                     for y in [range.fromRow..range.toRow]
-                        selectedColumns.push({x: x, y:y})
+                        for x in [range.fromCell..range.toCell]
+                            if x == range.toCell and y != range.toRow
+                                selectedColumns.push({x: x, y:y, newLine:true})
+                            else
+                                selectedColumns.push({x: x, y:y, newLine:false})
             obj1 = {}
             obj2 = {}
             for cell in selectedColumns
-                output.push(data[cell.y][columns[cell.x]["field"]]?.toString())
+                output.push(@formatCell(columns[cell.x]["type"], data[cell.y][columns[cell.x]["field"]]))
                 obj1[columns[cell.x]["field"]] = "copyFlash"
                 obj2[cell.y] = obj1
-            atom.clipboard.write(output.join(", ").toString())
+                if cell.newLine
+                    clipboard.push(output.join(", ") + '\n')
+                    output = []
+            if copyRows
+                clipboard.push(output.join(", "))
+                atom.clipboard.write(clipboard.join("").toString())
+            else
+                atom.clipboard.write(output.join(", ").toString())
             @grid.setCellCssStyles("copy_Flash", obj2)
 
     getSelectedColumns: () =>
@@ -167,6 +185,14 @@ class WinningSelectionModel
         for cell in selectedColumns
             cell.value = data[cell.y][columns[cell.x]["field"]]
         return selectedColumns
+
+    formatCell: (columnType, cellValue) ->
+        if cellValue == null
+            return 'NULL'
+        else if columnType not in ['integer', 'bigint', 'numeric', 'real']
+            return "'" + cellValue + "'"
+        else
+            return cellValue
 
     onAnimationEnd: (e, args) =>
         @grid.removeCellCssStyles("copy_Flash")
