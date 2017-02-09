@@ -1,6 +1,33 @@
 @import "ui-variables";
 @import "octicon-mixins";
 
+.indicator {
+    background: #333;
+    margin-bottom: 0px;
+    display:none;
+    height:10px;
+    width:100%;
+    border-bottom: 3px solid #313131;
+    background-image: repeating-linear-gradient(
+          -45deg,
+          #C09F24,
+          #C09F24 11px,
+          #FFC900 10px,
+          #FFC900 20px
+        );
+    background-size: 28px 28px;
+    animation: move .5s linear infinite;
+}
+
+@keyframes move {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 28px 0;
+  }
+}
+
 .statusmessage {
     border-top-left-radius: 0px;
     border-radius: 0px;

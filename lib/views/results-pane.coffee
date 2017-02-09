@@ -34,6 +34,25 @@ class ResultsPaneView extends DockPaneView
             return JSON.stringify(JSON.parse(value), null, '   ')
         return value
 
+    startLoadIndicator: () ->
+        setTimeout( () =>
+            if @stopCalled
+                @stopCalled = false
+            else
+                @indicator = document.createElement('div')
+                @indicator.classList.add 'indicator'
+                @prepend @indicator
+                $('.indicator').slideDown 300
+        , 1000)
+
+    stopLoadIndicator: () ->
+        if @indicator
+            $('.indicator').slideUp 100, ->
+                @remove()
+            @indicator = null
+        else
+            @stopCalled = true
+
     render: (resultset) ->
         return unless resultset.complete and resultset.columns
         options =

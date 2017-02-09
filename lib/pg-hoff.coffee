@@ -319,6 +319,8 @@ module.exports = PgHoff =
             query: selectedText
             alias: alias
 
+        @resultsPane.startLoadIndicator()
+        @bottomDock.changePane(@resultsPane.getId())
         return PgHoffServerRequest.Post('query', request)
             .then (response) ->
                 if response.statusCode == 500
@@ -375,6 +377,7 @@ module.exports = PgHoff =
                             return result
                 boom()
                     .then () =>
+                        @resultsPane.stopLoadIndicator()
                         if gotErrors or (gotNotices and gotResults) # and !@bigResults)
                             @bottomDock.changePane(@outputPane.getId())
                         else if gotResults
