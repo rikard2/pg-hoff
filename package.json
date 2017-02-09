@@ -32,6 +32,7 @@
     }
   },
   "dependencies": {
+    "atom-select-list": "0.0.12",
     "promise": "^7.1.1",
     "postgres-interval": "^1.0.0",
     "jquery": "^3.1.1",
