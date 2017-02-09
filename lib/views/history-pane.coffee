@@ -7,7 +7,9 @@ FileFinderUtil = require '../file-finder-util'
 {$} = require 'space-pen'
 parseInterval = require 'postgres-interval'
 window.jQuery = require 'jquery'
-PgHoffServerRequest         = require '../pg-hoff-server-request'
+PgHoffServerRequest   = require '../pg-hoff-server-request'
+RowSelectionModel = require './row-selection-model'
+
 
 
 class HistoryPaneView extends DockPaneView
@@ -64,10 +66,9 @@ class HistoryPaneView extends DockPaneView
             for d in resultset
                 if d[c["field"]] != null && d[c["field"]]?.toString().length > max
                     max = d[c["field"]].toString().length
-            c["width"] = Math.min((Math.max(max * 9, Math.round((c["name"].length * 8.4) + 12))), 250)
-            height = '100%'
+            c["width"] = Math.min((Math.max(max * 9, Math.round((c["name"].length * 8.4) + 12))), 450)
 
-        @table = new TableView options, resultset, columns , height
+        @table = new TableView options, resultset, columns , '100%', RowSelectionModel
 
         @append @table
 

@@ -5,15 +5,16 @@ WinningSelectionModel = require './winning-selectionmodel'
 {Emitter, Disposable} = require 'atom'
 
 class HoffTableView extends View
-    @content: (options, data, columns, height) ->
+    @content: (options, data, columns, height, selectionmodel) ->
         # console.log 'width: 100% !important;height:'.concat(height, ';overflow: auto !important;')
         @div style: 'width: 100% !important;height:'.concat(height, ';overflow: auto !important;'), ->
 
-    initialize: (@options, @data, @columns) ->
+    initialize: (@options, @data, @columns, height, selectionModel) ->
         @emitter = new Emitter()
         @columnpick = false
         @startColumn = {}
         @selectedColumns = []
+        @selectionModel = selectionModel
         resizeTimeout = null
         $(window).resize =>
             clearTimeout(resizeTimeout)
@@ -61,7 +62,11 @@ class HoffTableView extends View
         @columns = @columns ? []
 
         @grid = new SlickGrid @, @data, @columns, @options
-        @selectionModel = new WinningSelectionModel @grid
+        if @selectionModel
+            @selectionModel = new @selectionModel @grid
+        else
+            @selectionModel = new WinningSelectionModel @grid
+        console.log @selectionModel
         @grid.setSelectionModel(@selectionModel)
         @resize()
         setTimeout( () =>
