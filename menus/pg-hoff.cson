@@ -55,6 +55,10 @@
                     {
                         'label': 'Go to declaration'
                         'command': 'pg-hoff:goto-declaration'
+                    },
+                    {
+                        'label': 'Copy selection'
+                        'command': 'pg-hoff:copy'
                     }
                 ]
             ]

@@ -1,4 +1,6 @@
 SlickGrid = require 'bd-slickgrid/grid'
+{CompositeDisposable, Disposable} = require 'atom'
+CopyProvider = require '../copy-providers/copy-provider'
 
 class WinningSelectionModel
     onSelectedRangesChanged: null
@@ -8,6 +10,7 @@ class WinningSelectionModel
     grid : null
     lastCell: {}
     startCell: {}
+    subscriptions: null
 
     init: (grid) =>
         @grid = grid
@@ -17,9 +20,23 @@ class WinningSelectionModel
         @grid.onKeyDown.subscribe(@onKeyDown)
         @grid.onMouseDown.subscribe(@onMouseDown)
         @grid.onAnimationEnd.subscribe(@onAnimationEnd)
+        @subscriptions = new CompositeDisposable
+        @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:copy': => @onCopyCommand()
 
         @onSelectedRangesChanged = new Slick.Event
 
+    onCopyCommand: () =>
+        columns = @grid.getColumns()
+        CopyProvider.PromptCopy(@getSelectedColumns())
+            .then (selectedColumns) =>
+                obj1 = {}
+                obj2 = {}
+                for cell in selectedColumns
+                    obj1[columns[cell.x]["field"]] = "copyFlash"
+                    obj2[cell.y] = obj1
+                @grid.setCellCssStyles("copy_Flash", obj2)
+            .catch (reason) ->
+                console.log 'cancel'
     onMouseDown: (e, args, local) =>
         cell = @grid.getCellFromEvent(e)
         @lastCell = x: cell.cell, y: cell.row
@@ -134,6 +151,19 @@ class WinningSelectionModel
                 obj2[cell.y] = obj1
             atom.clipboard.write(output.join(", ").toString())
             @grid.setCellCssStyles("copy_Flash", obj2)
+
+    getSelectedColumns: () =>
+        selectedColumns = []
+        data = @grid.getData()
+        columns = @grid.getColumns()
+        for range in @ranges.concat( [ @activeRange ] )
+            continue unless range?
+            for x in [range.fromCell..range.toCell]
+                for y in [range.fromRow..range.toRow]
+                    selectedColumns.push({x: x, y:y})
+        for cell in selectedColumns
+            cell.value = data[cell.y][columns[cell.x]["field"]]
+        return selectedColumns
 
     onAnimationEnd: (e, args) =>
         @grid.removeCellCssStyles("copy_Flash")
