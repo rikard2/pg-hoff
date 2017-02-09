@@ -11,6 +11,7 @@ PgHoffStatus                = require('./pg-hoff-status')
 {BasicTabButton} = require 'atom-bottom-dock'
 ResultsPaneView = require './views/results-pane'
 OutputPaneView = require './views/output-pane'
+HistoryPaneView = require './views/history-pane'
 
 module.exports = PgHoff =
     provider: null
@@ -107,6 +108,7 @@ module.exports = PgHoff =
         @subscriptions = new CompositeDisposable
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:goto-declaration': => @gotoDeclaration()
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:connect': => @connect()
+        @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:search-history': => @searchHistoryWithConnect()
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:stop-query': => @stopQuery()
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:toggle-auto-alias': => @toggleAliases()
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:execute-query': => @executeQueryWithConnect()
@@ -179,8 +181,10 @@ module.exports = PgHoff =
 
         @resultsPane = new ResultsPaneView()
         @outputPane = new OutputPaneView()
+        @historyPane = new HistoryPaneView()
         @hoffPanes.push @resultsPane
         @hoffPanes.push @outputPane
+        @hoffPanes.push @historyPane
 
         config =
           name: 'YOLOPANE'
@@ -189,6 +193,7 @@ module.exports = PgHoff =
 
         @bottomDock.addPane @outputPane, 'Output', isInitial
         @bottomDock.addPane @resultsPane, 'Results', isInitial
+        @bottomDock.addPane @historyPane, 'History', isInitial
 
         @bottomDock.onDidToggle =>
             @resultsPane.resize() if @resultsPane.active && @bottomDock.isActive()
@@ -197,6 +202,31 @@ module.exports = PgHoff =
       @subscriptions.add @bottomDock.onDidFinishResizing =>
         pane.resize() for pane in @hoffPanes
       @add true
+
+    searchHistoryWithConnect: () ->
+        alias = @getAliasForPane()
+        if alias?
+            @searchHistory()
+        else
+            return @connect()?.then =>
+                    @searchHistory()
+                .catch (err) ->
+                    console.error 'Connect error', err
+                    atom.notifications.addError('Connect error')
+
+    searchHistory: () ->
+        return PgHoffDialog.Prompt("Search")
+        .then (searchstring) =>
+            request =
+                q: searchstring
+            return PgHoffServerRequest.Post('search', request)
+                    .then (response) =>
+                        @historyPane.reset()
+                        @historyPane.render response
+                        if not @bottomDock?.isActive()
+                            @bottomDock.toggle()
+                        @bottomDock.changePane(@historyPane.getId())
+                        @historyPane.refresh()
 
     createDynamicTable: ->
         alias = @getAliasForPane()
