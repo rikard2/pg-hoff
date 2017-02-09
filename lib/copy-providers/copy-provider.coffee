@@ -2,7 +2,7 @@ ValuesCopyProvider = require './values-copy-provider'
 PgHoffDialog       = require('../pg-hoff-dialog')
 module.exports = class CopyProvider
     constructor: () ->
-    @PromptCopy: (selectedColumns) =>
+    @PromptCopy: (selectedColumns, columns) =>
         providers = []
         providers.push new ValuesCopyProvider
         for provider in providers
@@ -12,8 +12,7 @@ module.exports = class CopyProvider
         return PgHoffDialog.PromptList(providers)
             .then (provider) =>
                 if provider?
-                    return provider.onCopy(selectedColumns)
-                    
+                    return provider.onCopy(selectedColumns, columns)
                 return null
             .then (copy) =>
                 if copy?

@@ -26,8 +26,9 @@ class WinningSelectionModel
         @onSelectedRangesChanged = new Slick.Event
 
     onCopyCommand: () =>
+        return unless WinningSelectionModel.ActiveGrid == @grid
         columns = @grid.getColumns()
-        CopyProvider.PromptCopy(@getSelectedColumns())
+        CopyProvider.PromptCopy(@getSelectedColumns(), columns)
             .then (selectedColumns) =>
                 obj1 = {}
                 obj2 = {}
@@ -94,7 +95,9 @@ class WinningSelectionModel
         else
             @onMouseDown(e, args, true)
 
+    @ActiveGrid: null # STATIC
     onKeyDown: (e, args) =>
+        WinningSelectionModel.ActiveGrid = @grid
         data = @grid.getData()
         columns = @grid.getColumns()
         if @lastCell? and ( [ 37, 38, 39, 40 ].indexOf e.keyCode ) >= 0
