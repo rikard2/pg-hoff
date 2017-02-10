@@ -13,16 +13,24 @@ class PgHoffStatus extends View
         @span.textContent = 'PgHoff'
 
         @on 'click', @toggleClicked
-        
+
     renderText: () =>
         alias = @alias ? 'NO_CONN'
         tran = @transactionStatus
+        @span[0].classList.remove 'tran', 'intrans', 'inerror', 'idle'
+        @span[0].classList.add 'tran'
         if tran?
+            if tran == 'INTRANS'
+                @span[0].classList.add 'intrans'
+            else if tran == 'INERROR'
+                @span[0].classList.add 'inerror'
+            else if tran == 'IDLE'
+                @span[0].classList.add 'idle'
             tran = ' - ' + tran
         else
             tran = ''
 
-        @span[0].textContent = "Pg-hoff #{alias}#{tran}" 
+        @span[0].textContent = "Pg-hoff #{alias}#{tran}"
 
     setVisiblity: (value) =>
         if value
