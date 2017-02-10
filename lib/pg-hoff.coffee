@@ -378,7 +378,7 @@ module.exports = PgHoff =
                 boom()
                     .then () =>
                         @resultsPane.stopLoadIndicator()
-                        if gotErrors or (gotNotices and gotResults) # and !@bigResults)
+                        if gotErrors or not gotResults or (gotResults and gotNotices) # and !@bigResults)
                             @bottomDock.changePane(@outputPane.getId())
                         else if gotResults
                             @bottomDock.changePane(@resultsPane.getId())
