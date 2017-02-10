@@ -35,23 +35,14 @@ class ResultsPaneView extends DockPaneView
         return value
 
     startLoadIndicator: () ->
-        setTimeout( () =>
-            if @stopCalled
-                @stopCalled = false
-            else
-                @indicator = document.createElement('div')
-                @indicator.classList.add 'indicator'
-                @prepend @indicator
-                $('.indicator').slideDown 300
-        , 1000)
+        @indicator = document.createElement('div')
+        @indicator.classList.add 'indicator'
+        @prepend @indicator
+        $('.indicator').slideDown 300
 
     stopLoadIndicator: () ->
-        if @indicator
-            $('.indicator').slideUp 100, ->
-                @remove()
-            @indicator = null
-        else
-            @stopCalled = true
+        $('.indicator').slideUp 100, ->
+            @remove()
 
     render: (resultset) ->
         return unless resultset.complete and resultset.columns

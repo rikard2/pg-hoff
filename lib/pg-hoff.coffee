@@ -319,7 +319,6 @@ module.exports = PgHoff =
             query: selectedText
             alias: alias
 
-        @resultsPane.startLoadIndicator()
         @bottomDock.changePane(@resultsPane.getId())
         return PgHoffServerRequest.Post('query', request)
             .then (response) ->
@@ -375,13 +374,21 @@ module.exports = PgHoff =
                                 return boom()
 
                             return result
+
+                clearTimeout(@resultsPane.loadingTimeout) if @resultsPane.loadingTimeout?
+                @resultsPane.loadingTimeout = setTimeout(
+                    () =>
+                        @resultsPane.startLoadIndicator()
+                , 1000)
                 boom()
                     .then () =>
-                        @resultsPane.stopLoadIndicator()
                         if gotErrors or not gotResults or (gotResults and gotNotices) # and !@bigResults)
                             @bottomDock.changePane(@outputPane.getId())
                         else if gotResults
                             @bottomDock.changePane(@resultsPane.getId())
+                    .finally () =>
+                        @resultsPane.stopLoadIndicator()
+                        clearTimeout(@resultsPane.loadingTimeout)
             .catch (err) =>
                 atom.workspace.getActivePaneItem().alias = null
                 @resultsViewPanel.hide()
