@@ -28,6 +28,8 @@ class ResultsPaneView extends DockPaneView
             @remove()
 
     render: (resultset) ->
+        @removeClass 'transpose'
+        @removeClass 'row-numbers'
         return unless resultset.complete and resultset.columns
         options =
             enableCellNavigation: false
