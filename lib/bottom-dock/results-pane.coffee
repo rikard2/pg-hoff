@@ -5,6 +5,7 @@ window.jQuery                       = require 'jquery'
 {DockPaneView, TableView, Toolbar}  = require 'atom-bottom-dock'
 TableView                           = require '../slickgrid/table-view'
 OutputView                          = require './output-view'
+SlickFormatting                     = require '../slickgrid/formatting'
 
 class ResultsPaneView extends DockPaneView
     @table: null
@@ -15,22 +16,6 @@ class ResultsPaneView extends DockPaneView
 
     reset: () ->
         @empty()
-
-    formatter: (row, cell, value, columnDef, dataContext) ->
-        if value == null
-            return "<span style='color:#fcc81e;font-weight:bold;font-style:italic;'>NULL</span>";
-        if columnDef.type == "boolean"
-            if value == true
-                return "<span style='color:#a2ff6d;font-weight:bold;'>true</span>";
-            else
-                return "<span style='color:#ff816d;font-weight:bold;'>false</span>";
-        if columnDef.type in ['timestamp with time zone', 'timestamp without time zone']
-            return new Date(value).toLocaleString(atom.config.get('pg-hoff.locale'))
-        if columnDef.type in ['time with time zone', 'time without time zone']
-            return new Date('2000-01-01 ' + value).toLocaleTimeString(atom.config.get('pg-hoff.locale'))
-        if columnDef.type == 'json'
-            return JSON.stringify(JSON.parse(value), null, '   ')
-        return value
 
     startLoadIndicator: () ->
         @indicator = document.createElement('div')
@@ -63,7 +48,7 @@ class ResultsPaneView extends DockPaneView
             c["rerenderOnResize"] = true
             c["id"] = c["field"]
             c["width"] = 200
-            c["formatter"] = @formatter
+            c["formatter"] = SlickFormatting.DefaultFormatter
             max = 0
             for d in resultset.rows
                 if d[c["field"]] != null && d[c["field"]]?.toString().length > max

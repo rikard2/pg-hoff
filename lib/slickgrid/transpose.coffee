@@ -1,3 +1,5 @@
+SlickFormatting = require './formatting'
+
 module.exports = class TransposeSlickData
     columns: []
     rows: []
@@ -40,6 +42,7 @@ module.exports = class TransposeSlickData
             id:"rownr_#{index}"
             minWidth:30
             name:""
+            formatter: SlickFormatting.DefaultFormatter
             rerenderOnResize :true
             resizable:false
             sortable:false
