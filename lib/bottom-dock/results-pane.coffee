@@ -57,7 +57,6 @@ class ResultsPaneView extends DockPaneView
             multiSelect:true
             cellFlashingCssClass: "flashcell"
             rowNumberColumn: true
-        @addClass 'row-numbers'
 
         for c in resultset.columns
             c["sortable"] = true
@@ -75,6 +74,13 @@ class ResultsPaneView extends DockPaneView
             height = ''.concat(resultset.rows.length * 30 + 30, 'px')
         else
             height = '100%'
+
+        if resultset.onlyOne and resultset.rows.length <= 2 and resultset.columns.length > 5
+            @addClass 'transpose'
+            options.transpose = true
+            height = '100%'
+        else if options.rowNumberColumn
+            @addClass 'row-numbers'
 
         table = new TableView options, resultset.rows, resultset.columns , height
 

@@ -2,6 +2,7 @@
 window.jQuery                       = $
 SlickGrid                           = require '../../extlib/bd-slickgrid/grid'
 WinningSelectionModel               = require './selection-models/winning-selectionmodel'
+TransposeSlickData                  = require './transpose'
 {Emitter, Disposable}               = require 'atom'
 
 class HoffTableView extends View
@@ -10,7 +11,17 @@ class HoffTableView extends View
 
     initialize: (@options, @data, @columns, height, selectionModel) ->
         @emitter = new Emitter()
-        if @options.rowNumberColumn
+        if @options.transpose
+            transpose = new TransposeSlickData @columns, @data
+            @columns = transpose.columns
+            @data = transpose.rows
+        else if @options.rowNumberColumn
+            if @data.length <= 9
+                rowNumberWidth = 15
+            else if @data.length <= 99
+                rowNumberWidth = 25
+            else if @data.length <= 999
+                rowNumberWidth = 35
             rowNumberColumn =
                 defaultSortAsc:true
                 field:"rownr"
@@ -23,7 +34,7 @@ class HoffTableView extends View
                 sortable:false
                 type:"bigint"
                 type_code: 20
-                width: 30
+                width: rowNumberWidth
             @columns.unshift(rowNumberColumn)
             for d, index in @data
                 d['rownr'] = index

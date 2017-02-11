@@ -342,6 +342,7 @@ module.exports = PgHoff =
                 gotErrors = false
                 gotNotices = false
                 return unless response.queryids.length >= 1
+                queryCount = response.queryids.length
                 getResult = (queryid) =>
                     if not queryid?
                         queryid = response.queryids.shift()
@@ -373,7 +374,9 @@ module.exports = PgHoff =
                                 gotNotices = true
                             if result.error
                                 gotErrors = true
-                            @renderResults(result, first)
+                            if queryCount == 1
+                                result.onlyOne = true
+                            @renderResults(result)
                             first = false
 
                             if response.queryids.length > 0
