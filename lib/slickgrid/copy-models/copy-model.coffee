@@ -1,6 +1,7 @@
-ValuesCopyModel = require './values-copy-model'
-JsonCopyModel = require './json-copy-model'
-PgHoffDialog       = require('../pg-hoff-dialog')
+ValuesCopyModel                 = require './values-copy-model'
+JsonCopyModel                   = require './json-copy-model'
+PgHoffDialog                    = require('../../pg-hoff-dialog')
+
 module.exports = class CopyModel
     constructor: () ->
     @PromptCopy: (selectedColumns, columns) =>
@@ -20,4 +21,5 @@ module.exports = class CopyModel
                 if copy?
                     atom.clipboard.write(copy)
                 return selectedColumns
-    getName: () -> 'SET NAME HERE'
+
+    getName: () -> ''

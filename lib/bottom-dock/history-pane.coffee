@@ -1,12 +1,12 @@
-{DockPaneView, TableView, Toolbar}  = require 'atom-bottom-dock'
-TableView                           = require './hoff-table-view'
 {Emitter, CompositeDisposable}      = require 'atom'
-OutputView                          = require './output-view'
+{DockPaneView, TableView, Toolbar}  = require 'atom-bottom-dock'
 {$}                                 = require 'space-pen'
 parseInterval                       = require 'postgres-interval'
 window.jQuery                       = require 'jquery'
+OutputView                          = require './output-view'
 PgHoffServerRequest                 = require '../pg-hoff-server-request'
-RowSelectionModel                   = require './row-selection-model'
+TableView                           = require '../slickgrid/pg-hoff-table-view'
+RowSelectionModel                   = require '../slickgrid/selection-models/row-selection-model'
 
 class HistoryPaneView extends DockPaneView
     @table: null

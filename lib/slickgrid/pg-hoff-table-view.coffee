@@ -1,7 +1,7 @@
 {View, $}                           = require 'space-pen'
 window.jQuery                       = $
 SlickGrid                           = require 'bd-slickgrid/grid'
-WinningSelectionModel               = require './winning-selectionmodel'
+WinningSelectionModel               = require './selection-models/winning-selectionmodel'
 {Emitter, Disposable}               = require 'atom'
 
 class HoffTableView extends View

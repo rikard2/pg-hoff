@@ -2,8 +2,8 @@
 {$}                                 = require 'space-pen'
 window.jQuery                       = require 'jquery'
 {DockPaneView, TableView, Toolbar}  = require 'atom-bottom-dock'
-TableView                           = require './hoff-table-view'
 OutputView                          = require './output-view'
+TableView                           = require '../slickgrid/pg-hoff-table-view'
 
 class OutputPaneView extends DockPaneView
     @table: null
