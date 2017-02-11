@@ -37,7 +37,7 @@ class HoffTableView extends View
                 width: rowNumberWidth
             @columns.unshift(rowNumberColumn)
             for d, index in @data
-                d['rownr'] = index
+                d['rownr'] = index + 1
 
         @columnpick = false
         @startColumn = {}
