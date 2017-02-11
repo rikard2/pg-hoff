@@ -10,7 +10,7 @@ class ResultsPaneView extends DockPaneView
     @table: null
     getId: () -> 'results'
     @content: ->
-        @div class: 'gulp-pane', style: 'overflow: auto !important; font-family:menlo', =>
+        @div class: 'gulp-pane', outlet: 'pane', style: 'overflow: auto !important; font-family:menlo', =>
         #@subview 'toolbar', new Toolbar()
 
     reset: () ->
@@ -56,6 +56,8 @@ class ResultsPaneView extends DockPaneView
             syncColumnCellResize: true
             multiSelect:true
             cellFlashingCssClass: "flashcell"
+            rowNumberColumn: true
+        @addClass 'row-numbers'
 
         for c in resultset.columns
             c["sortable"] = true

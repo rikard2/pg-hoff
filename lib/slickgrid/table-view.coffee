@@ -10,6 +10,24 @@ class HoffTableView extends View
 
     initialize: (@options, @data, @columns, height, selectionModel) ->
         @emitter = new Emitter()
+        if @options.rowNumberColumn
+            rowNumberColumn =
+                defaultSortAsc:true
+                field:"rownr"
+                headerCssClass:'row-number'
+                id:"rownr"
+                minWidth:30
+                name:""
+                rerenderOnResize :true
+                resizable:false
+                sortable:false
+                type:"bigint"
+                type_code: 20
+                width: 30
+            @columns.unshift(rowNumberColumn)
+            for d, index in @data
+                d['rownr'] = index
+
         @columnpick = false
         @startColumn = {}
         @selectedColumns = []
