@@ -1,6 +1,6 @@
 {View, $}                           = require 'space-pen'
 window.jQuery                       = $
-SlickGrid                           = require 'bd-slickgrid/grid'
+SlickGrid                           = require '../../extlib/bd-slickgrid/grid'
 WinningSelectionModel               = require './selection-models/winning-selectionmodel'
 {Emitter, Disposable}               = require 'atom'
 
@@ -23,22 +23,6 @@ class HoffTableView extends View
         @grid.resizeCanvas()
         @grid.autosizeColumns()
         @grid.resizeCanvas()
-
-    addRows: (newData) ->
-        return unless @grid
-        @data = @data.concat newData
-        @sortData()
-        @grid.setData @data
-        @grid.invalidateAllRows()
-        @grid.autosizeColumns()
-        @grid.render()
-
-    deleteAllRows: ->
-        return unless @grid
-        @data = []
-        @grid.setData @data
-        @grid.invalidateAllRows()
-        @grid.render()
 
     sortData: () =>
         cols = @grid.getSortColumns()
