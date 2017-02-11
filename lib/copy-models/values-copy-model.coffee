@@ -1,6 +1,6 @@
-CopyProvider = require './copy-provider'
+CopyModel = require './copy-model'
 
-module.exports = class ValuesCopyProvider extends CopyProvider
+module.exports = class ValuesCopyModel extends CopyModel
     constructor: () ->
     onCopy: (selection, columns) ->
         columnNames = []

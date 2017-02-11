@@ -1,6 +1,6 @@
 SlickGrid = require 'bd-slickgrid/grid'
 {CompositeDisposable, Disposable} = require 'atom'
-CopyProvider = require '../copy-providers/copy-provider'
+CopyModel = require '../copy-models/copy-model'
 
 class WinningSelectionModel
     onSelectedRangesChanged: null
@@ -28,7 +28,7 @@ class WinningSelectionModel
     onCopyCommand: () =>
         return unless WinningSelectionModel.ActiveGrid == @grid
         columns = @grid.getColumns()
-        CopyProvider.PromptCopy(@getSelectedColumns(), columns)
+        CopyModel.PromptCopy(@getSelectedColumns(), columns)
             .then (selectedColumns) =>
                 obj1 = {}
                 obj2 = {}

@@ -1,6 +1,6 @@
-CopyProvider = require './copy-provider'
+CopyModel = require './copy-model'
 
-module.exports = class JsonCopyProvider extends CopyProvider
+module.exports = class JsonCopyModel extends CopyModel
     constructor: () ->
     onCopy: (selection, columns) ->
         console.log 'seleciton', selection
