@@ -1,6 +1,5 @@
 {View, $} = require 'space-pen'
 {Emitter, CompositeDisposable} = require 'atom'
-GulpfileRunner = require '../gulpfile-runner'
 Converter = require 'ansi-to-html'
 {Toolbar} = require 'atom-bottom-dock'
 

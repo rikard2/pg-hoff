@@ -2,8 +2,6 @@
 TableView = require './hoff-table-view'
 {Emitter, CompositeDisposable} = require 'atom'
 OutputView = require './output-view'
-ControlsView = require './controls-view'
-FileFinderUtil = require '../file-finder-util'
 {$} = require 'space-pen'
 window.jQuery = require 'jquery'
 
@@ -25,14 +23,8 @@ class OutputPaneView extends DockPaneView
 
     initialize: ->
         super()
-        @fileFinderUtil = new FileFinderUtil()
         @emitter = new Emitter()
         @subscriptions = new CompositeDisposable()
-        @controlsView = new ControlsView()
-
-        @subscriptions.add @controlsView.onDidClickRefresh @refresh
-        @subscriptions.add @controlsView.onDidClickStop @stop
-        @subscriptions.add @controlsView.onDidClickClear @clear
 
     refresh: =>
         @outputView.refresh()

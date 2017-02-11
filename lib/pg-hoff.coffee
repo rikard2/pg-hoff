@@ -120,7 +120,7 @@ module.exports = PgHoff =
 
         unless packageFound
             atom.notifications.addError 'Could not find Bottom-Dock',
-                detail: 'Gulp-Manager: The bottom-dock package is a dependency. \n
+                detail: 'Pg-Hoff: The bottom-dock package is a dependency. \n
                 Learn more about bottom-dock here: https://atom.io/packages/bottom-dock'
                 dismissable: true
 
