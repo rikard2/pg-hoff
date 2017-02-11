@@ -48,7 +48,7 @@ class PgHoffDialog
             input.onkeydown = (e) ->
                 if e.which == 27
                     modal.hide()
-                    reject('escape')
+                    reject()
                 if e.which == 13
                     modal.hide()
                     fulfil(input.value)
@@ -67,7 +67,7 @@ class PgHoffDialog
             input.onkeydown = (e) ->
                 if e.which == 27
                     modal.hide()
-                    reject('escape')
+                    reject()
                 if e.which == 13
                     modal.hide()
                     fulfil(input.value)
