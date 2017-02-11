@@ -355,7 +355,11 @@ module.exports = PgHoff =
                     return PgHoffServerRequest.Get(url, true)
                         .then (result) =>
                             if result.errormessage?
-                                throw("WTF #{result.errormessage}")
+                                throw("#{result.errormessage}")
+                            if result.error?
+                                if result.error == 'connection already closed'
+                                    atom.editor.getActivePaneItem().alias = null
+                                throw("#{result.error}")
                             if not result.complete
                                 return timeout(100)
                                     .then () ->
