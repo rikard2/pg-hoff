@@ -1,6 +1,6 @@
 {CompositeDisposable, Disposable} = require 'atom'
 PgHoffServerRequest         = require './server-request'
-PgHoffListServersView       = require './list-servers-view'
+PgHoffConnection            = require './connection'
 PgHoffQuery                 = require './query'
 PgHoffGotoDeclaration       = require './goto-declaration'
 PgHoffAutocompleteProvider  = require('./autocomplete-provider')
@@ -92,7 +92,7 @@ module.exports = PgHoff =
 
     activate: (state) ->
         console.debug 'Activating the greatest plugin ever..'
-        @listServersView        = new PgHoffListServersView(state.pgHoffViewState)
+        @listServersView        = new PgHoffConnection(state.pgHoffViewState)
         @hoffPanes = []
 
         editor = atom.workspace.getActiveTextEditor()

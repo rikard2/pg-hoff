@@ -4,7 +4,7 @@ PgHoffServerRequest     = require './server-request'
 {maybeStartServer}      = require './util'
 {CompositeDisposable, Disposable} = require 'atom'
 
-class PgHoffListServersView
+class PgHoffConnection
     fulfil: null
     reject: null
 
@@ -93,4 +93,4 @@ class PgHoffListServersView
     getElement: ->
         @element
 
-module.exports = PgHoffListServersView
+module.exports = PgHoffConnection
