@@ -14,3 +14,5 @@
     'ctrl-c': 'pg-hoff:stop-query'
     'ctrl-h': 'pg-hoff:search-history'
     'ctrl-s': 'pg-hoff:copy'
+    'ctrl-r': 'pg-hoff:results'
+    'ctrl-o': 'pg-hoff:output'

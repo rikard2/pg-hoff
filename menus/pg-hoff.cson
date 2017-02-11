@@ -59,6 +59,14 @@
                     {
                         'label': 'Copy selection'
                         'command': 'pg-hoff:copy'
+                    },
+                    {
+                        'label': 'Change to results pane',
+                        'command': 'pg-hoff:results'
+                    },
+                    {
+                        'label': 'Change to output pane',
+                        'command': 'pg-hoff:output'
                     }
                 ]
             ]

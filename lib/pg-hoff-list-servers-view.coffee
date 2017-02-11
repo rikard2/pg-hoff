@@ -78,7 +78,7 @@ class PgHoffListServersView
         if server.connected
             connected = container.appendChild document.createElement('div')
             connected.classList.add 'connected'
-            connected.innerHTML = 'Connected &#10003;'
+            connected.innerHTML = 'Connected'
 
         clear = container.appendChild document.createElement('div')
         clear.classList.add 'clear'

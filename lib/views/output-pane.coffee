@@ -14,6 +14,8 @@ class OutputPaneView extends DockPaneView
             #@subview 'toolbar', new Toolbar()
             #@subview 'outputView', new OutputView()
 
+    getId: () -> 'output'
+
     render: (resultset) ->
         if not @outputView
             @outputView = new OutputView resultset

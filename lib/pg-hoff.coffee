@@ -112,6 +112,8 @@ module.exports = PgHoff =
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:stop-query': => @stopQuery()
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:toggle-auto-alias': => @toggleAliases()
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:execute-query': => @executeQueryWithConnect()
+        @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:results': => @changeToResultsPane()
+        @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:output': => @changeToOutputPane()
         @subscriptions.add atom.commands.add '.notices', 'pg-hoff:create-dynamic-table': => @createDynamicTable()
 
         packageFound = atom.packages.getAvailablePackageNames()
@@ -124,6 +126,9 @@ module.exports = PgHoff =
                 dismissable: true
 
     gotoDeclaration: PgHoffGotoDeclaration
+
+    changeToResultsPane: () -> @bottomDock.changePane('results') if @bottomDock
+    changeToOutputPane: () -> @bottomDock.changePane('output') if @bottomDock
 
     onDidChangeActivePane: () ->
         console.log 'onDidChangeActivePane'
@@ -342,12 +347,15 @@ module.exports = PgHoff =
                 gotResults = false
                 gotErrors = false
                 gotNotices = false
+                return unless response.queryids.length >= 1
                 getResult = (queryid) =>
                     if not queryid?
                         queryid = response.queryids.shift()
                     url = 'result/' + queryid
                     return PgHoffServerRequest.Get(url, true)
                         .then (result) =>
+                            if result.errormessage?
+                                throw("WTF #{result.errormessage}")
                             if not result.complete
                                 return timeout(100)
                                     .then () ->

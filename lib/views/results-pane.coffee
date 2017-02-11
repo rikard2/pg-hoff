@@ -15,6 +15,8 @@ class ResultsPaneView extends DockPaneView
             #@subview 'toolbar', new Toolbar()
             #@subview 'outputView', new OutputView()
 
+    getId: () -> 'results'
+
     reset: () ->
         @empty()
 
