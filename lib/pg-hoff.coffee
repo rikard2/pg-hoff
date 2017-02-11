@@ -357,7 +357,7 @@ module.exports = PgHoff =
                             if result.error?
                                 if result.error == 'connection already closed'
                                     atom.editor.getActivePaneItem().alias = null
-                                throw("#{result.error}")
+                                    throw("#{result.error}")
                             if not result.complete
                                 return timeout(100)
                                     .then () ->
