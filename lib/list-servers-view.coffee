@@ -1,7 +1,7 @@
 Promise = require('promise')
-PgHoffDialog = require('./pg-hoff-dialog')
-PgHoffServerRequest     = require './pg-hoff-server-request'
-{maybeStartServer}      = require './pg-hoff-util'
+PgHoffDialog = require('./dialog')
+PgHoffServerRequest     = require './server-request'
+{maybeStartServer}      = require './util'
 {CompositeDisposable, Disposable} = require 'atom'
 
 class PgHoffListServersView

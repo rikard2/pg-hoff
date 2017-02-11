@@ -1,5 +1,5 @@
 Promise = require('promise')
-PgHoffServerRequest = require './pg-hoff-server-request'
+PgHoffServerRequest = require './server-request'
 {CompositeDisposable} = require 'atom'
 
 class PgHoffAutocompleteProvider

@@ -3,7 +3,7 @@
 parseInterval                       = require 'postgres-interval'
 window.jQuery                       = require 'jquery'
 {DockPaneView, TableView, Toolbar}  = require 'atom-bottom-dock'
-TableView                           = require '../slickgrid/pg-hoff-table-view'
+TableView                           = require '../slickgrid/table-view'
 OutputView                          = require './output-view'
 
 class ResultsPaneView extends DockPaneView

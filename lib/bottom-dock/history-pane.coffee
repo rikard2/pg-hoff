@@ -4,8 +4,8 @@
 parseInterval                       = require 'postgres-interval'
 window.jQuery                       = require 'jquery'
 OutputView                          = require './output-view'
-PgHoffServerRequest                 = require '../pg-hoff-server-request'
-TableView                           = require '../slickgrid/pg-hoff-table-view'
+PgHoffServerRequest                 = require '../server-request'
+TableView                           = require '../slickgrid/table-view'
 RowSelectionModel                   = require '../slickgrid/selection-models/row-selection-model'
 
 class HistoryPaneView extends DockPaneView

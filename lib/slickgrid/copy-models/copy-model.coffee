@@ -1,6 +1,6 @@
 ValuesCopyModel                 = require './values-copy-model'
 JsonCopyModel                   = require './json-copy-model'
-PgHoffDialog                    = require('../../pg-hoff-dialog')
+PgHoffDialog                    = require('../../dialog')
 
 module.exports = class CopyModel
     constructor: () ->

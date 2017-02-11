@@ -3,7 +3,7 @@
 window.jQuery                       = require 'jquery'
 {DockPaneView, TableView, Toolbar}  = require 'atom-bottom-dock'
 OutputView                          = require './output-view'
-TableView                           = require '../slickgrid/pg-hoff-table-view'
+TableView                           = require '../slickgrid/table-view'
 
 class OutputPaneView extends DockPaneView
     @table: null
