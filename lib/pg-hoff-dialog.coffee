@@ -45,7 +45,7 @@ class PgHoffDialog
             input.placeholder = text
             modal = atom.workspace.addModalPanel(item: element, visible: true)
             input.focus()
-            input.onkeyup = (e) ->
+            input.onkeydown = (e) ->
                 if e.which == 27
                     modal.hide()
                     reject('escape')
@@ -64,7 +64,7 @@ class PgHoffDialog
             input.placeholder = text
             modal = atom.workspace.addModalPanel(item: element, visible: true)
             input.focus()
-            input.onkeyup = (e) ->
+            input.onkeydown = (e) ->
                 if e.which == 27
                     modal.hide()
                     reject('escape')
