@@ -1,4 +1,3 @@
-PgHoffView                  = require './pg-hoff-view'
 PgHoffServerRequest         = require './pg-hoff-server-request'
 PgHoffListServersView       = require './pg-hoff-list-servers-view'
 PgHoffQuery                 = require './pg-hoff-query'
@@ -14,7 +13,6 @@ HistoryPaneView = require './views/history-pane'
 
 module.exports = PgHoff =
     provider: null
-    pgHoffView: null
     subscriptions: null
     listServersView: null
     listServersViewPanel: null
@@ -94,7 +92,6 @@ module.exports = PgHoff =
 
     activate: (state) ->
         console.debug 'Activating the greatest plugin ever..'
-        @pgHoffView             = new PgHoffView(state.pgHoffViewState)
         @listServersView        = new PgHoffListServersView(state.pgHoffViewState)
         @hoffPanes = []
 
@@ -404,12 +401,10 @@ module.exports = PgHoff =
                 atom.notifications.addError(err)
     deactivate: ->
         @subscriptions.dispose()
-        @pgHoffView.destroy()
         @listServersView.destroy()
         @bottomDock.deletePane pane.getId() for pane in @hoffPanes
 
     serialize: ->
-        pgHoffViewState: @pgHoffView.serialize()
 
     provide: ->
         @provider
