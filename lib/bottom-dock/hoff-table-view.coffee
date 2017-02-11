@@ -1,12 +1,11 @@
-{View, $} = require 'space-pen'
-window.jQuery = $
-SlickGrid = require 'bd-slickgrid/grid'
-WinningSelectionModel = require './winning-selectionmodel'
-{Emitter, Disposable} = require 'atom'
+{View, $}                           = require 'space-pen'
+window.jQuery                       = $
+SlickGrid                           = require 'bd-slickgrid/grid'
+WinningSelectionModel               = require './winning-selectionmodel'
+{Emitter, Disposable}               = require 'atom'
 
 class HoffTableView extends View
     @content: (options, data, columns, height, selectionmodel) ->
-        # console.log 'width: 100% !important;height:'.concat(height, ';overflow: auto !important;')
         @div style: 'width: 100% !important;height:'.concat(height, ';overflow: auto !important;'), ->
 
     initialize: (@options, @data, @columns, height, selectionModel) ->
@@ -20,9 +19,9 @@ class HoffTableView extends View
             clearTimeout(resizeTimeout)
             resizeTimeout = setTimeout(@resize, 100)
 
-    resize: (heightOnly) =>
+    resize: () =>
         @grid.resizeCanvas()
-        @grid.autosizeColumns() #unless heightOnly
+        @grid.autosizeColumns()
         @grid.resizeCanvas()
 
     addRows: (newData) ->
@@ -97,7 +96,5 @@ class HoffTableView extends View
     onDidFinishAttaching: (callback) =>
         @grid.autosizeColumns()
         @emitter.on 'table:attach:finished', callback
-
-
 
 module.exports = HoffTableView

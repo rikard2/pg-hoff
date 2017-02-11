@@ -1,19 +1,18 @@
-{DockPaneView, TableView, Toolbar} = require 'atom-bottom-dock'
-TableView = require './hoff-table-view'
-{Emitter, CompositeDisposable} = require 'atom'
-OutputView = require './output-view'
-{$} = require 'space-pen'
-parseInterval = require 'postgres-interval'
-window.jQuery = require 'jquery'
+{Emitter, CompositeDisposable}      = require 'atom'
+{$}                                 = require 'space-pen'
+parseInterval                       = require 'postgres-interval'
+window.jQuery                       = require 'jquery'
+{DockPaneView, TableView, Toolbar}  = require 'atom-bottom-dock'
+TableView                           = require './hoff-table-view'
+OutputView                          = require './output-view'
+OutputView                          = require './output-view'
 
 class ResultsPaneView extends DockPaneView
     @table: null
+    getId: () -> 'results'
     @content: ->
         @div class: 'gulp-pane', style: 'overflow: auto !important; font-family:menlo', =>
-            #@subview 'toolbar', new Toolbar()
-            #@subview 'outputView', new OutputView()
-
-    getId: () -> 'results'
+        #@subview 'toolbar', new Toolbar()
 
     reset: () ->
         @empty()
@@ -67,10 +66,8 @@ class ResultsPaneView extends DockPaneView
             c["formatter"] = @formatter
             max = 0
             for d in resultset.rows
-                ## console.log 'hej->', c["field"], d[c["field"]].length, max
                 if d[c["field"]] != null && d[c["field"]]?.toString().length > max
                     max = d[c["field"]].toString().length
-                    ## console.log 'hej->', c["field"], d[c["field"]].length, max
             c["width"] = Math.min((Math.max(max * 9, Math.round((c["name"].length * 8.4) + 12))), 250)
 
         if resultset.rows.length <= 100
@@ -97,7 +94,6 @@ class ResultsPaneView extends DockPaneView
         @outputView.clear()
 
     destroy: ->
-        #@outputView.destroy()
         @subscriptions.dispose()
         @remove()
 

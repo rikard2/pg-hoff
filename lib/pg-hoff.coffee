@@ -1,3 +1,4 @@
+{CompositeDisposable, Disposable} = require 'atom'
 PgHoffServerRequest         = require './pg-hoff-server-request'
 PgHoffListServersView       = require './pg-hoff-list-servers-view'
 PgHoffQuery                 = require './pg-hoff-query'
@@ -5,11 +6,10 @@ PgHoffGotoDeclaration       = require './pg-hoff-goto-declaration'
 PgHoffAutocompleteProvider  = require('./pg-hoff-autocomplete-provider')
 PgHoffDialog                = require('./pg-hoff-dialog')
 PgHoffStatus                = require('./pg-hoff-status')
-{CompositeDisposable, Disposable} = require 'atom'
-{BasicTabButton} = require 'atom-bottom-dock'
-ResultsPaneView = require './views/results-pane'
-OutputPaneView = require './views/output-pane'
-HistoryPaneView = require './views/history-pane'
+{BasicTabButton}            = require 'atom-bottom-dock'
+ResultsPaneView             = require './bottom-dock/results-pane'
+OutputPaneView              = require './bottom-dock/output-pane'
+HistoryPaneView             = require './bottom-dock/history-pane'
 
 module.exports = PgHoff =
     provider: null

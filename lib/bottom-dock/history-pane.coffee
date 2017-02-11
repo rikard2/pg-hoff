@@ -1,21 +1,17 @@
-{DockPaneView, TableView, Toolbar} = require 'atom-bottom-dock'
-TableView = require './hoff-table-view'
-{Emitter, CompositeDisposable} = require 'atom'
-OutputView = require './output-view'
-{$} = require 'space-pen'
-parseInterval = require 'postgres-interval'
-window.jQuery = require 'jquery'
-PgHoffServerRequest   = require '../pg-hoff-server-request'
-RowSelectionModel = require './row-selection-model'
-
-
+{DockPaneView, TableView, Toolbar}  = require 'atom-bottom-dock'
+TableView                           = require './hoff-table-view'
+{Emitter, CompositeDisposable}      = require 'atom'
+OutputView                          = require './output-view'
+{$}                                 = require 'space-pen'
+parseInterval                       = require 'postgres-interval'
+window.jQuery                       = require 'jquery'
+PgHoffServerRequest                 = require '../pg-hoff-server-request'
+RowSelectionModel                   = require './row-selection-model'
 
 class HistoryPaneView extends DockPaneView
     @table: null
     @content: ->
         @div class: 'gulp-pane', style: 'overflow: auto !important; font-family:menlo', =>
-            #@subview 'toolbar', new Toolbar()
-            #@subview 'outputView', new OutputView()
 
     reset: () ->
         @empty()

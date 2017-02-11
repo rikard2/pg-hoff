@@ -1,6 +1,6 @@
-SlickGrid = require 'bd-slickgrid/grid'
-{CompositeDisposable, Disposable} = require 'atom'
-CopyModel = require '../copy-models/copy-model'
+{CompositeDisposable, Disposable}   = require 'atom'
+SlickGrid                           = require 'bd-slickgrid/grid'
+CopyModel                           = require '../copy-models/copy-model'
 
 class WinningSelectionModel
     onSelectedRangesChanged: null
@@ -209,7 +209,6 @@ class WinningSelectionModel
         @lastCell = x: cell.cell, y: cell.row
 
         @activeRange = null
-        #@ranges = []
 
         if e.metaKey and @activeRange
             @ranges.push @activeRange

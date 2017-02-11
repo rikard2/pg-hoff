@@ -1,19 +1,19 @@
-{View, $} = require 'space-pen'
-{Emitter, CompositeDisposable} = require 'atom'
-Converter = require 'ansi-to-html'
-{Toolbar} = require 'atom-bottom-dock'
+{View, $}                           = require 'space-pen'
+{Emitter, CompositeDisposable}      = require 'atom'
+Converter                           = require 'ansi-to-html'
+{Toolbar}                           = require 'atom-bottom-dock'
+OutputView                          = require './output-view'
 
 class OutputView extends View
   @content: ->
     @div class: 'output-view', style: 'display:flex;', =>
       @div class: 'content-container', =>
-        @div outlet: 'outputContainer' #, class: 'task-container'
+        @div outlet: 'outputContainer'
 
   initialize: (resultset) ->
     if resultset.transaction_status == 'idle'
         @outputContainer.empty()
     @append(resultset)
-
 
   append: (resultset) ->
       if resultset.statusmessage?.length > 0
