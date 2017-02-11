@@ -28,7 +28,7 @@ module.exports = class TransposeSlickData
             headerCssClass:'row-number'
             id:"column"
             minWidth:30
-            name:"column"
+            name:""
             rerenderOnResize :true
             resizable:false
             sortable:false
