@@ -1,6 +1,5 @@
 PgHoffView                  = require './pg-hoff-view'
 PgHoffServerRequest         = require './pg-hoff-server-request'
-PgHoffResultsView           = require './pg-hoff-results-view'
 PgHoffListServersView       = require './pg-hoff-list-servers-view'
 PgHoffQuery                 = require './pg-hoff-query'
 PgHoffGotoDeclaration       = require './pg-hoff-goto-declaration'
@@ -17,8 +16,6 @@ module.exports = PgHoff =
     provider: null
     pgHoffView: null
     subscriptions: null
-    resultsView: null
-    resultsViewPanel: null
     listServersView: null
     listServersViewPanel: null
     resultsPane: null
@@ -98,13 +95,11 @@ module.exports = PgHoff =
     activate: (state) ->
         console.debug 'Activating the greatest plugin ever..'
         @pgHoffView             = new PgHoffView(state.pgHoffViewState)
-        @resultsView            = new PgHoffResultsView(state.pgHoffViewState)
         @listServersView        = new PgHoffListServersView(state.pgHoffViewState)
         @hoffPanes = []
 
         editor = atom.workspace.getActiveTextEditor()
         @listServersViewPanel = atom.workspace.addModalPanel(item: @listServersView.getElement(), visible: false)
-        @resultsViewPanel = atom.workspace.addBottomPanel(item: @resultsView.getElement(), visible: false)
 
         unless @provider?
             @provider = new PgHoffAutocompleteProvider()
@@ -321,7 +316,6 @@ module.exports = PgHoff =
             if atom.config.get('pg-hoff.executeAllWhenNothingSelected')
                 selectedText = atom.workspace.getActiveTextEditor().getText().trim()
             else
-                resultsViewPanel.hide()
                 return
 
         request =
@@ -407,12 +401,10 @@ module.exports = PgHoff =
                         clearTimeout(@resultsPane.loadingTimeout)
             .catch (err) =>
                 atom.workspace.getActivePaneItem().alias = null
-                @resultsViewPanel.hide()
                 atom.notifications.addError(err)
     deactivate: ->
         @subscriptions.dispose()
         @pgHoffView.destroy()
-        @resultsView.destroy()
         @listServersView.destroy()
         @bottomDock.deletePane pane.getId() for pane in @hoffPanes
 
