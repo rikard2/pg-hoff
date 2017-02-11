@@ -90,6 +90,10 @@ module.exports = PgHoff =
             description: 'Start server automatically'
             default: true
             order: 1
+        hoffServerPath:
+            type: 'string'
+            default: 'pghoffserver'
+            order: 1
 
     activate: (state) ->
         console.debug 'Activating the greatest plugin ever..'
