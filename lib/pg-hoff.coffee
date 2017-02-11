@@ -319,7 +319,6 @@ module.exports = PgHoff =
             query: selectedText
             alias: alias
 
-        @bottomDock.changePane(@resultsPane.getId())
         return PgHoffServerRequest.Post('query', request)
             .then (response) ->
                 if response.statusCode == 500
