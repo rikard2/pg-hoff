@@ -1,0 +1,1 @@
+- de-transpose när man kopierar values under transpose
