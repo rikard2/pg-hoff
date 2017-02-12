@@ -1,2 +1,11 @@
 - de-transpose när man kopierar values under transpose
 - hamburgler knapp på gridden
+  - trigga transpose
+  - pinna resultset
+  - öppna resultset i ny flik
+  - skapa dynamisk tabell
+- context-meny på kolumnrubriker
+  - skapa kolumn-funktion
+- context-meny på celler
+  - aktivera kolumn-funktion och visa resultat i modal
+- visa och markera query fel direkt i editorn
