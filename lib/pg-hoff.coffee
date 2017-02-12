@@ -263,8 +263,10 @@ module.exports = PgHoff =
                 @statusBarTile.item.alias = @getAliasForPane(paneItem)
                 @statusBarTile.item.transactionStatus = null
                 @statusBarTile.item.renderText()
-            .catch (error) =>
-                atom.notifications.addError(error)
+            .catch (err) =>
+                if err? and err != 'cancel'
+                    atom.notifications.addError("Connect error: #{err}")
+                throw(err)
             .finally =>
                 @listServersViewPanel.hide()
 
@@ -286,15 +288,10 @@ module.exports = PgHoff =
 
     executeQueryWithConnect: ->
         alias = @getAliasForPane()
-
         if alias?
             @executeQuery()
         else
-            return @connect()?.then =>
-                    @executeQuery()
-                .catch (err) ->
-                    console.error 'Connect error', err
-                    atom.notifications.addError('Connect error')
+            @connect()?.then => @executeQuery()
 
     executeQuery: (selectedText, alias) ->
         @resultsPane.reset()

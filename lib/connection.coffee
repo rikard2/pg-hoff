@@ -30,8 +30,6 @@ class PgHoffConnection
                 return PgHoffDialog.PromptList(items, @createServerElement)
                     .then (item) ->
                         return item.value
-                    .catch (err) ->
-                        console.log 'err', err
             .then (server) ->
                 selectedServer = server
                 requiresAuthKey = selectedServer.requiresauthkey == 'True' || selectedServer.requiresauthkey == '"True"'
