@@ -1563,6 +1563,9 @@ var Slick = require('./core');
 
       numVisibleRows = Math.ceil(viewportH / options.rowHeight);
       viewportW = parseFloat($.css($container[0], "width", true));
+      if (viewportW == 100) {
+        viewportW = 1250; // fulhack deluxe
+      }
       if (!options.autoHeight) {
         $viewport.height(viewportH);
       }
