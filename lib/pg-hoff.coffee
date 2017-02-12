@@ -180,6 +180,7 @@ module.exports = PgHoff =
             return PgHoffServerRequest
                 .Post('cancel', { alias: alias })
                 .then (response) ->
+                    @resultsPane.markQueryAborted()
                     # console.log 'cancel', response, alias
 
     add: (isInitial) ->
@@ -306,6 +307,8 @@ module.exports = PgHoff =
         if not @bottomDock?.isActive()
             @bottomDock.toggle()
 
+        selectedBufferRange = atom.workspace.getActiveTextEditor().getSelectedBufferRange()
+
         if not selectedText?
             selectedText = atom.workspace.getActiveTextEditor().getSelectedText().trim()
         if not alias?
@@ -343,6 +346,8 @@ module.exports = PgHoff =
                 gotResults = false
                 gotErrors = false
                 gotNotices = false
+                newBatch = true
+                NumberOfQueries = response.queryids.length
                 return unless response.queryids.length >= 1
                 queryCount = response.queryids.length
                 getResult = (queryid) =>
@@ -351,17 +356,25 @@ module.exports = PgHoff =
                     url = 'result/' + queryid
                     return PgHoffServerRequest.Get(url, true)
                         .then (result) =>
+                            @resultsPane.updateNotComplete(newBatch, result, NumberOfQueries - response.queryids.length, selectedBufferRange)
                             if result.errormessage?
                                 throw("#{result.errormessage}")
                             if result.error?
+                                @resultsPane.markQueryError(result)
                                 if result.error == 'connection already closed'
                                     atom.editor.getActivePaneItem().alias = null
                                     throw("#{result.error}")
                             if not result.complete
+                                newBatch = false
+                                return timeout(100)
+                                    .then () ->
+                                        return getResult(queryid)
                                 return timeout(100)
                                     .then () ->
                                         return getResult(queryid)
                             else
+                                @resultsPane.updateCompleted(result)
+                                newBatch = false
                                 return result
                 boom = () =>
                     return getResult()

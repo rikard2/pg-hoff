@@ -79,6 +79,67 @@ class ResultsPaneView extends DockPaneView
         @emitter = new Emitter()
         @subscriptions = new CompositeDisposable()
 
+    updateNotComplete: (newBatch, result, queryNumber, bufferRange) ->
+        if newBatch
+            query.marker.destroy() for query in @processedQueries?
+            @processedQueries = []
+        unless @processedQueries
+            @processedQueries = []
+        for query in @processedQueries
+            if query.queryNumber == queryNumber
+                return
+
+        @queryInfo = {
+            queryNumber: queryNumber
+            queryId: result.queryid
+            range: null
+            marker: null
+        }
+        @processedQueries.push @queryInfo
+
+        if JSON.stringify bufferRange.start == JSON.stringify bufferRange.end
+            bufferRange = atom.workspace.getActiveTextEditor().getBuffer().getRange()
+        if queryNumber > 1
+            bufferRange.start = @processedQueries[queryNumber-2].range.end
+
+        atom.workspace.getActiveTextEditor().scanInBufferRange(new RegExp(@escapeRegExp(result.query)), bufferRange, @queryHit)
+
+    updateCompleted: (result) ->
+        query.marker.destroy() for query in @processedQueries
+
+    markQueryError: (result) ->
+        editor = atom.workspace.getActiveTextEditor()
+        for query in @processedQueries
+            if query.queryId == result.queryid
+                query.marker.destroy()
+                if result.error.indexOf('canceling statement due to user request') != -1
+                    classType = 'query-aborted'
+                    timeout = 1000
+                else
+                    classType = 'query-error'
+                    timeout = 5000
+                marker = editor.markBufferRange(query.range, invalidate: 'overlap')
+                editor.decorateMarker(marker, type: 'line-number', class: classType)
+                setTimeout( () =>
+                    marker.destroy()
+                , timeout)
+
+    clear: () ->
+        query.marker.destroy() for query in @processedQueries
+
+    queryHit: (hit) =>
+        editor = atom.workspace.getActiveTextEditor()
+        marker = editor.markBufferRange(hit.range, invalidate: 'overlap')
+        for query in @processedQueries
+            if query.queryid == @queryInfo.queryid
+                query.range = hit.range
+                query.marker = marker
+        editor.decorateMarker(marker, type: 'line-number', class: 'query-loading')
+    escapeRegExp: (str) ->
+        str = str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+        return str.replace(/(?:\r\n|\r|\n)/g, '[\\r?\\n]');
+
+
     refresh: =>
         @outputView.refresh()
 
