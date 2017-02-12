@@ -80,6 +80,11 @@ module.exports = PgHoff =
             description: 'Representation of null values'
             default: 'NULL'
             order: 11
+        autoTranspose:
+            type: 'boolean'
+            description: 'Auto transpose'
+            default: true
+            order: 12
         startServerAutomatically:
             type: 'boolean'
             description: 'Start server automatically'

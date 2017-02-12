@@ -62,7 +62,8 @@ class ResultsPaneView extends DockPaneView
         else
             height = '100%'
 
-        if resultset.onlyOne and resultset.rows.length <= 2 and resultset.columns.length > 5
+        autoTranspose = atom.config.get('pg-hoff.autoTranspose')
+        if autoTranspose and resultset.onlyOne and resultset.rows.length <= 2 and resultset.columns.length > 5
             @addClass 'transpose'
             options.transpose = true
             height = '100%'
