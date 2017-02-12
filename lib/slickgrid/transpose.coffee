@@ -32,7 +32,7 @@ module.exports = class TransposeSlickData
             rerenderOnResize :true
             resizable:false
             sortable:false
-            type:"bigint"
+            type:"text"
             type_code: 20
             width: 175
         ].concat(@rows.map (row, index) =>
@@ -46,7 +46,7 @@ module.exports = class TransposeSlickData
             rerenderOnResize :true
             resizable:false
             sortable:false
-            type:"bigint"
+            type:"text"
             type_code: 20
             width: 300
         )
