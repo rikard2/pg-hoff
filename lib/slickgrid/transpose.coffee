@@ -41,7 +41,7 @@ module.exports = class TransposeSlickData
             defaultSortAsc:true
             field:"row_#{index}"
             headerCssClass:'row-number'
-            id:"rownr_#{index}"
+            id:"row_#{index}"
             minWidth:30
             name:""
             formatter: SlickFormatting.DefaultFormatter
