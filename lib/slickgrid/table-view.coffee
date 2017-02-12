@@ -83,24 +83,6 @@ class HoffTableView extends View
             @selectionModel = new WinningSelectionModel @grid
         @grid.setSelectionModel(@selectionModel)
         @resize()
-        setTimeout( () =>
-            @resize()
-        , 50)
-        setTimeout( () =>
-            @resize()
-        , 100)
-        setTimeout( () =>
-            @resize()
-        , 250)
-        setTimeout( () =>
-            @resize()
-        , 500)
-        setTimeout( () =>
-            @resize()
-        , 1000)
-        setTimeout( () =>
-            @resize()
-        , 3000)
         @grid.onColumnsReordered.subscribe (e, args) =>
                 @columns = @grid.getColumns()
 
