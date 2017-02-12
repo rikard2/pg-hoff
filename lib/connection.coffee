@@ -18,6 +18,7 @@ class PgHoffConnection
     connect: (panel) ->
         listServersView = @
         selectedServer = null
+        currentAlias = atom.workspace.getActiveTextEditor()?.alias
         maybeStartServer()
             .then (servers) ->
                 return PgHoffServerRequest.Get 'listservers'
@@ -25,9 +26,8 @@ class PgHoffConnection
                 items = []
                 for server of servers
                     servers[server].alias = server
-                    items.push name: server, value: servers[server], connected: servers[server].connected
-
-                return PgHoffDialog.PromptList(items, @createServerElement)
+                    items.push name: server, selected: server == currentAlias, value: servers[server], connected: servers[server].connected
+                return PgHoffDialog.PromptList('Choose a connection:', items, @createServerElement)
                     .then (item) ->
                         return item.value
             .then (server) ->

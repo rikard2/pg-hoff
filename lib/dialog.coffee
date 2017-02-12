@@ -5,7 +5,7 @@ class PgHoffDialog
     serialize: ->
     destroy: ->
 
-    @PromptList: (items, elementForItem) =>
+    @PromptList: (title, items, elementForItem) =>
         modalPanel: null
         listView: null
         return new Promise((fulfil, reject) ->
@@ -28,9 +28,12 @@ class PgHoffDialog
                         element.textContent = item.name
                         return element
 
-            lineEndingListView = new SelectListView(config);
+            config.infoMessage = title
+            lineEndingListView = new SelectListView(config)
             modalPanel = atom.workspace.addModalPanel({item: lineEndingListView})
             lineEndingListView.reset()
+            for item, index in items
+                lineEndingListView.selectIndex(index) if item.selected
             modalPanel.show()
             lineEndingListView.focus()
         )

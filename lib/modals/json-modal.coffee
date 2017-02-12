@@ -14,7 +14,9 @@ module.exports = class JSONModal
         return new Promise((fulfil, reject) ->
             element = document.createElement('div')
             element.classList.add('hoff-dialog')
+            element.classList.add('native-key-bindings')
             jsonElement = element.appendChild document.createElement('pre')
+            jsonElement.classList.add('native-key-bindings')
             jsonElement.style['overflow'] = 'auto'
             jsonElement.classList.add 'force-select'
             jsonElement.textContent = JSON.stringify json, null, '  '

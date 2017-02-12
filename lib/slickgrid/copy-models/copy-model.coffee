@@ -12,7 +12,7 @@ module.exports = class CopyModel
             model.name = model.getName()
             model.value = model
 
-        return PgHoffDialog.PromptList(models)
+        return PgHoffDialog.PromptList(null, models)
             .then (model) =>
                 if model?
                     return model.onCopy(selectedColumns, columns)
