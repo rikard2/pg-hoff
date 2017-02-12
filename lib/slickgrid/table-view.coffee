@@ -29,6 +29,8 @@ class HoffTableView extends View
                 headerCssClass:'row-number'
                 id:"rownr"
                 minWidth:30
+                selectable: false
+                focusable: false
                 name:""
                 rerenderOnResize :true
                 resizable:false

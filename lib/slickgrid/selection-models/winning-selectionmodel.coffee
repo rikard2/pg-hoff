@@ -40,9 +40,9 @@ class WinningSelectionModel
                 console.log 'cancel'
     onMouseDown: (e, args, local) =>
         cell = @grid.getCellFromEvent(e)
+        return unless cell? and @grid.canCellBeSelected(cell.row, cell.cell)
         @lastCell = x: cell.cell, y: cell.row
         @dragCell = cell
-        return unless cell?
 
         return unless cell?
         if not (@activeRange and
@@ -78,6 +78,9 @@ class WinningSelectionModel
 
     handleGridClick: (e, args) =>
         cell = @grid.getCellFromEvent(e)
+        console.log 'CANBE', @grid.canCellBeSelected(cell.row, cell.cell)
+        return unless cell? and @grid.canCellBeSelected(cell.row, cell.cell)
+
         if @activeRange and
         @activeRange.fromRow == @activeRange.toRow and
         @activeRange.fromCell == @activeRange.toCell and
@@ -112,12 +115,13 @@ class WinningSelectionModel
             else if e.keyCode == 40 and @lastCell? # DOWN
                 deltaY = 1
 
+            cellCanBeSelected = @grid.canCellBeSelected(@lastCell.y + deltaY, @lastCell.x + deltaX)
             outOfBounds = true
-            unless @lastCell.x + deltaX < 0 or @lastCell.x + deltaX >= columns.length
+            unless cellCanBeSelected == false or @lastCell.x + deltaX < 0 or @lastCell.x + deltaX >= columns.length
                 @lastCell.x = @lastCell.x + deltaX
                 outOfBounds = false
 
-            unless @lastCell.y + deltaY < 0 or @lastCell.y + deltaY >= data.length
+            unless cellCanBeSelected == false or @lastCell.y + deltaY < 0 or @lastCell.y + deltaY >= data.length
                 @lastCell.y = @lastCell.y + deltaY
                 outOfBounds = false
 
@@ -135,7 +139,9 @@ class WinningSelectionModel
             @onSelectedRangesChanged.notify @ranges
         if e.keyCode == 65 and e.metaKey and data.length > 0
             @ranges = []
-            @activeRange = new Slick.Range 0, 0, data.length - 1, columns.length - 1
+            firstColumn = 0
+            firstColumn = 1 unless @grid.canCellBeSelected(0, 0)
+            @activeRange = new Slick.Range 0, firstColumn, data.length - 1, columns.length - 1
             @onSelectedRangesChanged.notify [ @activeRange ]
         if (e.metaKey or e.ctrlKey) and e.keyCode == 67
             selectedColumns = []
@@ -181,7 +187,7 @@ class WinningSelectionModel
             continue unless range?
             for x in [range.fromCell..range.toCell]
                 for y in [range.fromRow..range.toRow]
-                    selectedColumns.push({x: x, y:y})
+                    selectedColumns.push({x: x, y:y}) if @grid.canCellBeSelected(y, x)
         for cell in selectedColumns
             cell.value = data[cell.y][columns[cell.x]["field"]]
         return selectedColumns
@@ -199,13 +205,12 @@ class WinningSelectionModel
 
     onDoubleClick: (e, args) =>
 
-    onClick: (e, args) =>
 
     onMouseEnter: (e, args) =>
         return unless e.buttons == 1 and e.button == 0
 
         cell = @grid.getCellFromEvent(e)
-        return unless cell?
+        return unless cell? and @grid.canCellBeSelected(cell.row, cell.cell)
         @lastCell = x: cell.cell, y: cell.row
 
         @activeRange = null
