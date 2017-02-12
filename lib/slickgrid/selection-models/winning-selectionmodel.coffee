@@ -78,7 +78,6 @@ class WinningSelectionModel
 
     handleGridClick: (e, args) =>
         cell = @grid.getCellFromEvent(e)
-        console.log 'CANBE', @grid.canCellBeSelected(cell.row, cell.cell)
         return unless cell? and @grid.canCellBeSelected(cell.row, cell.cell)
 
         if @activeRange and
