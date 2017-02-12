@@ -4,6 +4,7 @@ SlickGrid                           = require '../../extlib/bd-slickgrid/grid'
 WinningSelectionModel               = require './selection-models/winning-selectionmodel'
 TransposeSlickData                  = require './transpose'
 {Emitter, Disposable}               = require 'atom'
+JSONModal                           = require '../modals/json-modal'
 
 class HoffTableView extends View
     @content: (options, data, columns, height, selectionmodel) ->
@@ -105,6 +106,9 @@ class HoffTableView extends View
             @sortData()
             @grid.invalidate()
             @grid.render()
+        @grid.onDblClick.subscribe (e, args) =>
+            cell = @grid.getCellFromEvent(e)
+            JSONModal.Show @data[cell.row][@columns[cell.cell]["field"]]
 
     onDidFinishAttaching: (callback) =>
         @grid.autosizeColumns()
