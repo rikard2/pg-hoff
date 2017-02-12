@@ -89,23 +89,25 @@ class ResultsPaneView extends DockPaneView
             if query.queryNumber == queryNumber
                 return
 
-        @queryInfo = {
+        queryInfo = {
             queryNumber: queryNumber
             queryId: result.queryid
             range: null
             marker: null
         }
-        @processedQueries.push @queryInfo
 
         if JSON.stringify bufferRange.start == JSON.stringify bufferRange.end
             bufferRange = atom.workspace.getActiveTextEditor().getBuffer().getRange()
         if queryNumber > 1
             bufferRange.start = @processedQueries[queryNumber-2].range.end
 
-        atom.workspace.getActiveTextEditor().scanInBufferRange(new RegExp(@escapeRegExp(result.query)), bufferRange, @queryHit)
-
+        atom.workspace.getActiveTextEditor().scanInBufferRange(new RegExp(@escapeRegExp(result.query)), bufferRange, (hit) => @queryHit(hit, queryInfo) )
     updateCompleted: (result) ->
-        query.marker.destroy() for query in @processedQueries
+        for query in @processedQueries
+            if query.queryId == result.queryid
+                setTimeout( () =>
+                    query.marker.destroy()
+                , 300)
 
     markQueryError: (result) ->
         editor = atom.workspace.getActiveTextEditor()
@@ -127,13 +129,13 @@ class ResultsPaneView extends DockPaneView
     clear: () ->
         query.marker.destroy() for query in @processedQueries
 
-    queryHit: (hit) =>
+    queryHit: (hit, queryInfo) =>
         editor = atom.workspace.getActiveTextEditor()
         marker = editor.markBufferRange(hit.range, invalidate: 'overlap')
-        for query in @processedQueries
-            if query.queryid == @queryInfo.queryid
-                query.range = hit.range
-                query.marker = marker
+        queryInfo.range = hit.range
+        queryInfo.marker = marker
+        @processedQueries.push queryInfo
+
         editor.decorateMarker(marker, type: 'line-number', class: 'query-loading')
     escapeRegExp: (str) ->
         str = str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
