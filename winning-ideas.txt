@@ -1,1 +1,2 @@
 - de-transpose när man kopierar values under transpose
+- hamburgler knapp på gridden
