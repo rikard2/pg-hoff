@@ -32,3 +32,4 @@
 - hover över tabeller/funktioner triggar popup med definition
 - trigger all / trigger selected binds. Dagens funktionalitet kan va kvar (kör allt om inget är markerat eller kör markering) men en inställning bör finnas för att ha två. En bind som är som dagens samt en ny kör markerat eller i den query du står just nu (så man slipper markera saker konstant).
 - snabb-aggregat (typ summa, max, min, antal) i statusbaren vid markering av fler celler (excel style :)
+- få dit antal rader för ett resultset på något smart ställe, irriterande att inte kunna se det direkt i gridden
