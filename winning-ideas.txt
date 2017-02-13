@@ -4,8 +4,22 @@
   - pinna resultset
   - öppna resultset i ny flik
   - skapa dynamisk tabell
-- context-meny på kolumnrubriker
-  - skapa kolumn-funktion
-- context-meny på celler
-  - aktivera kolumn-funktion och visa resultat i modal
-- visa och markera query fel direkt i editorn
+- dashboard med favoritqueries med filterfunktionalitet (kanske kategoriserat? :), i stil med kolumnfunktioner.
+- kolumnfunktioner
+  - möjlighet från en basquery (som endast är baserad på vald kolumn) presentera data och jämförelser
+    - namnge en output
+    - jämföra kolumner och och presentera true/false
+    - aggregera kolumner om basqueryn har fler rader
+    - (långt i framtiden) kunna lägga till fler källor (queries) som kedjar på varandra där samma typ av jämförelser är möjliga + mellan källorna. I det här läget är pg-hoff ett riktigt BI-verktyg ;)
+    - context-meny på kolumnrubriker
+      - skapa kolumn-funktion
+    - context-meny på celler
+      - aktivera kolumn-funktion och visa resultat i popup
+- visa och markera queryfel direkt i editorn
+- toggla bottomdock/resultset (ctrl + r) och skifta fokus
+- query historik
+  - lägg till toolbar med sökfält högst upp samt sök i data checkbox
+  - visa fullständig query i popup vid hover
+  - möjlighet att hämta data för en query i ny flik
+- allmän popup (ej modal) som kan flyttas på, möjlighet att ha fler på samma gång
+- serverkonfigurationsflik (eller något åt det hållet)
