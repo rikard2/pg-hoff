@@ -34,7 +34,7 @@ class HoffTableView extends View
                 name:""
                 rerenderOnResize :true
                 resizable:false
-                sortable:false
+                sortable:true
                 type:"bigint"
                 type_code: 20
                 width: rowNumberWidth
@@ -47,9 +47,6 @@ class HoffTableView extends View
         @selectedColumns = []
         @selectionModel = selectionModel
         resizeTimeout = null
-        $(window).resize =>
-            clearTimeout(resizeTimeout)
-            resizeTimeout = setTimeout(@resize, 100)
 
     resize: () =>
         @grid.resizeCanvas()
