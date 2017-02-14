@@ -47,6 +47,9 @@ class HoffTableView extends View
         @selectedColumns = []
         @selectionModel = selectionModel
         resizeTimeout = null
+        $(window).resize =>
+            clearTimeout(resizeTimeout)
+            resizeTimeout = setTimeout(@resize, 200)
 
     resize: () =>
         @grid.resizeCanvas()
@@ -80,6 +83,9 @@ class HoffTableView extends View
             @selectionModel = new WinningSelectionModel @grid
         @grid.setSelectionModel(@selectionModel)
         @resize()
+        setTimeout( () =>
+            @resize()
+        , 250)
         @grid.onColumnsReordered.subscribe (e, args) =>
                 @columns = @grid.getColumns()
 

@@ -1,7 +1,7 @@
 module.exports = class SlickFormatting
     @DefaultFormatter: (row, cell, value, columnDef, dataContext) ->
         if value == null
-            return "<span style='color:#fcc81e;font-weight:bold;font-style:italic;'>NULL</span>";
+            return "<span style='color:#fcc81e;font-weight:bold;font-style:normal;'>NULL</span>";
         if columnDef.type == "boolean"
             if value == true
                 return "<span style='color:#a2ff6d;font-weight:bold;'>true</span>";

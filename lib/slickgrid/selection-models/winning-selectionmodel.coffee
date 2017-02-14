@@ -20,6 +20,7 @@ class WinningSelectionModel
         @grid.onKeyDown.subscribe(@onKeyDown)
         @grid.onMouseDown.subscribe(@onMouseDown)
         @grid.onAnimationEnd.subscribe(@onAnimationEnd)
+        @grid.onContextMenu.subscribe(@onContextMenu)
         @subscriptions = new CompositeDisposable
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:copy': => @onCopyCommand()
 
@@ -236,6 +237,11 @@ class WinningSelectionModel
         @activeRangeComplete = true
 
         @onSelectedRangesChanged.notify @ranges.concat( [ @activeRange ] )
+
+    onContextMenu: (e) =>
+      e.preventDefault();
+      cell = @grid.getCellFromEvent(e);
+      console.log e
 
     destroy: =>
 

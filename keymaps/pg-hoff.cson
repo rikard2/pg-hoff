@@ -16,3 +16,4 @@
     'ctrl-s': 'pg-hoff:copy'
     'ctrl-r': 'pg-hoff:results'
     'ctrl-o': 'pg-hoff:output'
+    'ctrl-d': 'pg-hoff:refresh-definitions'

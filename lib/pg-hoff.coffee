@@ -115,6 +115,8 @@ module.exports = PgHoff =
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:execute-query': => @executeQueryWithConnect()
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:results': => @changeToResultsPane()
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:output': => @changeToOutputPane()
+        @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:refresh-definitions': => @refreshDefinitions()
+
         @subscriptions.add atom.commands.add '.notices', 'pg-hoff:create-dynamic-table': => @createDynamicTable()
 
         packageFound = atom.packages.getAvailablePackageNames()
@@ -294,6 +296,18 @@ module.exports = PgHoff =
             @bigResults = true
 
         @outputPane.render(resultset, newQuery)
+
+    refreshDefinitions: ->
+        alias = @getAliasForPane()
+        if alias?
+            PgHoffServerRequest.Post('refresh_definitions', {alias:alias})
+            .then (response) ->
+                if response.success
+                    atom.notifications.addInfo('Refreshing definitions for ' + alias)
+                else
+                    atom.notifications.addError(response.errormessage)
+            .catch (err) =>
+                atom.notifications.addError(err)
 
     removeHoffPane: (pane) ->
         index = @hoffPanes.indexOf(pane);

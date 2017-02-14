@@ -67,6 +67,10 @@
                     {
                         'label': 'Change to output pane',
                         'command': 'pg-hoff:output'
+                    },
+                    {
+                        'label': 'Refresh definitions'
+                        'command': 'pg-hoff:refresh-definitions'
                     }
                 ]
             ]
