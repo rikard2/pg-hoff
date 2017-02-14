@@ -71,7 +71,6 @@ class ResultsPaneView extends DockPaneView
             @addClass 'row-numbers'
 
         table = new TableView options, resultset.rows, resultset.columns , height
-
         @append table
 
     initialize: ->
@@ -150,6 +149,9 @@ class ResultsPaneView extends DockPaneView
 
     clear: =>
         @outputView.clear()
+
+    focusFirstResult: =>
+        $(".slick-cell.l0.r0").first().click()
 
     destroy: ->
         @subscriptions.dispose()

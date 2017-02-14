@@ -114,6 +114,13 @@ class WinningSelectionModel
             else if e.keyCode == 40 and @lastCell? # DOWN
                 deltaY = 1
 
+            unless @lastCell.x
+                @lastCell = {x:1, y:0}
+                @startCell = {x:1, y:0}
+                @activeRange = new Slick.Range 0, 1, 0, 1
+                @onSelectedRangesChanged.notify [ @activeRange ]
+                return
+
             cellCanBeSelected = @grid.canCellBeSelected(@lastCell.y + deltaY, @lastCell.x + deltaX)
             outOfBounds = true
             unless cellCanBeSelected == false or @lastCell.x + deltaX < 0 or @lastCell.x + deltaX >= columns.length

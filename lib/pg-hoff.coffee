@@ -128,8 +128,16 @@ module.exports = PgHoff =
 
     gotoDeclaration: PgHoffGotoDeclaration
 
-    changeToResultsPane: () -> @bottomDock.changePane('results') if @bottomDock
-    changeToOutputPane: () -> @bottomDock.changePane('output') if @bottomDock
+    changeToResultsPane: () ->
+        @bottomDock.toggle() if @bottomDock
+        @bottomDock.changePane('results') if @bottomDock
+        if @bottomDock.isActive()
+            @resultsPane.focusFirstResult()
+        else
+            atom.workspace.getActivePane().activate()
+    changeToOutputPane: () ->
+        @bottomDock.toggle() if @bottomDock
+        @bottomDock.changePane('output') if @bottomDock
 
     onDidChangeActivePane: () ->
         console.log 'onDidChangeActivePane'
@@ -410,6 +418,7 @@ module.exports = PgHoff =
                             @bottomDock.changePane(@outputPane.getId())
                         else if gotResults
                             @bottomDock.changePane(@resultsPane.getId())
+                            @resultsPane.focusFirstResult()
                     .finally () =>
                         @resultsPane.stopLoadIndicator()
                         clearTimeout(@resultsPane.loadingTimeout)
