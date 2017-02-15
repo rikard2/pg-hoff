@@ -239,9 +239,26 @@ class WinningSelectionModel
         @onSelectedRangesChanged.notify @ranges.concat( [ @activeRange ] )
 
     onContextMenu: (e) =>
-      e.preventDefault();
-      cell = @grid.getCellFromEvent(e);
-      console.log e
+      e.preventDefault()
+      cell = @grid.getCellFromEvent(e)
+      columns = @grid.getColumns()
+      columnname = columns[cell.cell]['name']
+      target = '.' + e.target.classList[0] + '.' + e.target.classList[1]
+      value = @grid.getData()[cell.row][columns[cell.cell]["field"]]
+      commandparams = {}
+      commandparams['pg-hoff:executecellops' + cell.cell.toString() + cell.row.toString()] = (event) => @performCellOps(command, columnname, value)
+      command = atom.commands.add 'atom-workspace', commandparams
+      if columnname.toLowerCase() == 'orderid'
+          menu = {}
+          menu[target] = [{
+               'label': 'Do awesome stuff with ' + columnname,
+               'command':'pg-hoff:executecellops' + cell.cell.toString() + cell.row.toString()
+            }]
+          menuitem = atom.contextMenu.add menu
+
+    performCellOps: (command, columnname, value) ->
+        command.dispose()
+        atom.notifications.addInfo('Awestome stuff happening with ' + columnname + ' ' + value)
 
     destroy: =>
 
