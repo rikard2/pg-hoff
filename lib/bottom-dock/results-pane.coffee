@@ -57,7 +57,7 @@ class ResultsPaneView extends DockPaneView
                     max = d[c["field"]].toString().length
             c["width"] = Math.min((Math.max(max * 9, Math.round((c["name"].length * 8.4) + 12))), 250)
 
-        if resultset.rows.length <= 100
+        if resultset.rows.length <= 100 and not resultset.onlyOne
             height = ''.concat(resultset.rows.length * 30 + 30, 'px')
         else
             height = '100%'

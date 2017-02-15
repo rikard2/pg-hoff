@@ -536,3 +536,104 @@ atom-text-editor {
     border-color: darken(@background-color-warning, 20%);
    }
 }
+
+
+
+.result-html table {margin:5px;border-collapse:collapse;font-family: menlo}
+
+.result-html table th,
+.result-html table td {padding:4px 8px;border:1px solid @base-border-color;background:@button-background-color;text-align:left;vertical-align:top}
+
+.result-html table th {
+    background:@base-background-color;
+    font-size: 12px;
+    font-weight: normal;
+    height:16px;
+    padding-bottom: 0px;
+    padding-top: 0px;
+    padding-left: 5px;
+}
+.result-html table th.n {text-align:left}
+
+.result-html table th a,
+.result-html table th span {font-size:12px;color:@text-color;white-space:nowrap}
+
+.result-html table tbody tr {cursor:pointer}
+
+.result-html table td   {text-align:right}
+.result-html table td.n {text-align:left}
+
+.result-html table td.e,
+.result-html table td.i,
+.result-html table td.x {white-space:nowrap}
+
+.result-html table tr.even td {background:@background-color-selected}
+
+/* !important overrides tr.even */
+.result-html table tr.c-2 td,
+.result-html table tr.c-m td.c-2 {background-color:#846646 !important; color:#d4b089}
+.result-html table tr.c-3 td,
+.result-html table tr.c-m td.c-3 {background-color:#b16d3c !important;color:#ffd28f}
+.result-html table tr.c-4 td,
+.result-html table tr.c-m td.c-4 {background-color:#ca4640 !important;color:#ffaa9a}
+
+/* tr hover */
+.result-html table tr.hover      td,
+.result-html table tr.hover.even td {background-color:#d0d8d8 !important}
+
+/* !important overrides tr.c-[1..4] */
+.result-html table tr.hover.c-2 td,
+.result-html table tr.hover.c-m td.c-2 {background-color:#ec5 !important}
+.result-html table tr.hover.c-3 td,
+.result-html table tr.hover.c-m td.c-3 {background-color:#c60 !important}
+.result-html table tr.hover.c-4 td,
+.result-html table tr.hover.c-m td.c-4 {background-color:#600 !important}
+
+/* tr collapsed */
+.result-html table tr.collapsed td {border-bottom:3px dashed #888}
+
+.result-html table tr.collapsed.c-2 td,
+.result-html table tr.collapsed.c-m td.c-2 {border-bottom-color:#ec5}
+.result-html table tr.collapsed.c-3 td,
+.result-html table tr.collapsed.c-m td.c-3 {border-bottom-color:#c60}
+.result-html table tr.collapsed.c-4 td,
+.result-html table tr.collapsed.c-m td.c-4 {border-bottom-color:#600}
+
+.result-html table td.n div   {position:relative;min-height:22px;height:auto !important;height:22px}
+.result-html table td.n p,
+.result-html table td.n ul    {margin:0;padding:0}
+.result-html table td.n ul    {list-style:none}
+.result-html table td.n li    {padding-top:0.5em}
+
+.result-html table td.n p span.est,
+.result-html table td.n p span.act {white-space:nowrap}
+
+/* all ico(ns) */
+.result-html table td.n div.ico {position:absolute;top:-4px;left:-22px;width:22px;height:22px;background:url('../img/sprite.png') no-repeat 0px -180px;text-indent:-1000px;overflow:hidden}
+
+/* white arrow */
+.result-html table tr.c-3 td.n div.ico,
+.result-html table tr.c-4 td.n div.ico {background-position:0px -224px}
+
+/* for td.r(ows), td.l(oops) */
+.result-html table .tight span {display:none}
+.result-html table .tight,
+.result-html table .tight a    {padding-left:0 !important;padding-right:0 !important;width:1px !important;overflow:hidden;text-align:left;text-indent:-10000px}
+.result-html table .tight a    {margin:0 1px;background:url('../img/sprite.png') top left}
+
+.result-html table p {color:inherit}
+
+* html .result-html table tr.c-3 td     p,
+* html .result-html table tr.c-m td.c-3 p,
+* html .result-html table tr.c-4 td     p,
+* html .result-html table tr.c-m td.c-4 p {color:darken(@text-color, 30%) !important}
+
+*:first-child+html .result-html table tr.c-3 td     p,
+*:first-child+html .result-html table tr.c-m td.c-3 p,
+*:first-child+html .result-html table tr.c-4 td     p,
+*:first-child+html .result-html table tr.c-m td.c-4 p {color:darken(@text-color, 30%) !important}
+
+.result-html table tbody tr.sub-n td.n {background-image:url('../img/star.png');background-position:top left;background-repeat:no-repeat}
+
+.result-html table tbody tr.sp td.n,
+.result-html table tbody tr.ip td.n {background-image:none}

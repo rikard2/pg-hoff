@@ -98,3 +98,33 @@ class PgHoffServerRequest
                         fulfil(body)
             )
         )
+
+    @hoffingtonPost: (host, data) ->
+        return new Promise((fulfil, reject) ->
+
+            for key, value of data
+                if not value?
+                    data[key] = ''
+                else if typeof value is 'object'
+                    data[key] = JSON.stringify(value)
+
+            options =
+                method: 'POST'
+                followAllRedirects: true
+                url: host
+                headers:
+                    'cache-control': 'no-cache',
+                    'content-type': 'x-www-form-urlencoded;'
+                 form:
+                    data
+            console.log options
+            Request(options, (error, response, body) ->
+                console.log response
+                if error
+                    console.debug 'Error POST Request', error, response, body
+                    reject(error)
+                    atom.notifications.addError('HTTP: ' + error)
+                else
+                    fulfil(body)
+            )
+        )

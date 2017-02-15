@@ -10,6 +10,7 @@ PgHoffStatus                = require('./status')
 ResultsPaneView             = require './bottom-dock/results-pane'
 OutputPaneView              = require './bottom-dock/output-pane'
 HistoryPaneView             = require './bottom-dock/history-pane'
+AnalyzePaneView             = require './bottom-dock/analyze-pane'
 
 module.exports = PgHoff =
     provider: null
@@ -413,7 +414,13 @@ module.exports = PgHoff =
                                 gotErrors = true
                             if queryCount == 1
                                 result.onlyOne = true
-                            @renderResults(result)
+
+                            if queryCount == 1 and result.columns?.length == 1 and result.columns?[0]['name'] == 'QUERY PLAN' and result.query.substring(0, 7) == 'EXPLAIN'
+                                @renderQueryPlan(result.rows)
+                            else
+                                console.log 'aksjdljaslk'
+                                @renderResults(result)
+
                             first = false
 
                             if response.queryids.length > 0
@@ -439,6 +446,29 @@ module.exports = PgHoff =
             .catch (err) =>
                 atom.workspace.getActivePaneItem().alias = null
                 atom.notifications.addError(err)
+
+    renderQueryPlan: (queryplanrows) ->
+        queryplan = (queryplanrows.map (row) -> row['QUERY PLAN1']).join('\n')
+        request =
+            plan: queryplan
+            is_anon: 1
+            title: ' '
+            is_public:0
+        return PgHoffServerRequest.hoffingtonPost('https://explain.depesz.com/', request)
+            .then (response) =>
+                div = document.createElement('div');
+                div.innerHTML = response;
+                explain = div.querySelector(".result-html");
+
+                unless @analyzePane
+                    @analyzePane = new AnalyzePaneView()
+                    @hoffPanes.push @analyzePane
+                    @bottomDock.addPane @analyzePane, 'Analyze', true
+
+                @analyzePane.load(explain)
+                @bottomDock.changePane(@analyzePane.getId())
+            .catch (r) ->
+                console.error r
     deactivate: ->
         @subscriptions.dispose()
         @listServersView.destroy()
