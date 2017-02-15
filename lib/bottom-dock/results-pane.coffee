@@ -150,8 +150,7 @@ class ResultsPaneView extends DockPaneView
     clear: =>
         @outputView.clear()
 
-    focusFirstResult: =>
-        $(".slick-cell.l0.r0").first().click()
+    focusFirstResult: => $(".slick-cell.l0.r0").first().click()
 
     destroy: ->
         @subscriptions.dispose()

@@ -37,6 +37,7 @@ class WinningSelectionModel
                     obj1[columns[cell.x]["field"]] = "copyFlash"
                     obj2[cell.y] = obj1
                 @grid.setCellCssStyles("copy_Flash", obj2)
+                atom.workspace.getActivePane().activate()
             .catch (reason) ->
                 console.log 'cancel'
     onMouseDown: (e, args, local) =>
@@ -185,6 +186,7 @@ class WinningSelectionModel
             else
                 atom.clipboard.write(output.join(", ").toString())
             @grid.setCellCssStyles("copy_Flash", obj2)
+            atom.workspace.getActivePane().activate()
 
     getSelectedColumns: () =>
         selectedColumns = []

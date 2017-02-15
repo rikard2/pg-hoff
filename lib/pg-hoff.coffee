@@ -117,6 +117,7 @@ module.exports = PgHoff =
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:results': => @changeToResultsPane()
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:output': => @changeToOutputPane()
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:refresh-definitions': => @refreshDefinitions()
+        @subscriptions.add atom.commands.add 'body', 'core:cancel': => @cancel()
 
         @subscriptions.add atom.commands.add '.notices', 'pg-hoff:create-dynamic-table': => @createDynamicTable()
 
@@ -131,16 +132,37 @@ module.exports = PgHoff =
 
     gotoDeclaration: PgHoffGotoDeclaration
 
-    changeToResultsPane: () ->
-        @bottomDock.toggle() if @bottomDock
-        @bottomDock.changePane('results') if @bottomDock
+    cancel: () ->
         if @bottomDock.isActive()
-            @resultsPane.focusFirstResult()
-        else
+            @bottomDock.toggle() if @bottomDock
             atom.workspace.getActivePane().activate()
+
+    changeToResultsPane: () ->
+        return unless @bottomDock
+        if @bottomDock.isActive()
+            if @bottomDock.getCurrentPane().getId() == 'results'
+                @bottomDock.toggle()
+                atom.workspace.getActivePane().activate()
+            else
+                @bottomDock.changePane('results')
+                @resultsPane.focusFirstResult()
+        else
+            @bottomDock.toggle()
+            @bottomDock.changePane('results')
+            @resultsPane.focusFirstResult()
+
     changeToOutputPane: () ->
-        @bottomDock.toggle() if @bottomDock
-        @bottomDock.changePane('output') if @bottomDock
+        return unless @bottomDock
+        if @bottomDock.isActive()
+            if @bottomDock.getCurrentPane().getId() == 'output'
+                @bottomDock.toggle()
+                atom.workspace.getActivePane().activate()
+            else
+                @bottomDock.changePane('output')
+        else
+            @bottomDock.toggle()
+            @bottomDock.changePane('output')
+            @resultsPane.focusFirstResult()
 
     onDidChangeActivePane: () ->
         console.log 'onDidChangeActivePane'
