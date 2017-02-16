@@ -336,6 +336,9 @@ module.exports = PgHoff =
         index = @hoffPanes.indexOf(pane);
         if index >= 0
           @hoffPanes.splice( index, 1 );
+         @bottomDock.deletePane pane.getId()
+         pane = null
+
 
     executeQueryWithConnect: ->
         alias = @getAliasForPane()
@@ -440,7 +443,9 @@ module.exports = PgHoff =
                             if queryCount == 1 and result.columns?.length == 1 and result.columns?[0]['name'] == 'QUERY PLAN' and result.query.substring(0, 7) == 'EXPLAIN'
                                 @renderQueryPlan(result.rows)
                             else
-                                console.log 'aksjdljaslk'
+                                if @analyzePane in @hoffPanes
+                                    @removeHoffPane(@analyzePane)
+
                                 @renderResults(result)
 
                             first = false
@@ -482,7 +487,7 @@ module.exports = PgHoff =
                 div.innerHTML = response;
                 explain = div.querySelector(".result-html");
 
-                unless @analyzePane
+                unless @analyzePane in @hoffPanes
                     @analyzePane = new AnalyzePaneView()
                     @hoffPanes.push @analyzePane
                     @bottomDock.addPane @analyzePane, 'Analyze', true
