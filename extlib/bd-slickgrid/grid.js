@@ -556,14 +556,15 @@ var Slick = require('./core');
       for (var i = 0; i < columns.length; i++) {
         var m = columns[i];
         var hamburglerClass = '';
-        var tooltip = '';
+        var tooltip = null;
         if(i == 0){
             hamburglerClass = ' hamburgler';
+            tooltip = 'Right-click for resulset options';
         }
-        var header = $("<div alt='hejjasdj' class='ui-state-default slick-header-column" + hamburglerClass + "' queryid='" + queryid + "' id='" + uid+ m.id + "' />")
+        var header = $("<div class='ui-state-default slick-header-column" + hamburglerClass + "' queryid='" + queryid + "' id='" + uid+ m.id + "' />")
             .html("<span class='slick-column-name'>" + m.name + "</span>")
             .width(m.width - headerColumnWidthDiff)
-            .attr("title", m.toolTip || "")
+            .attr("title", tooltip || m.toolTip || "")
             .data("column", m)
             .addClass(m.headerCssClass || "")
             .appendTo($headers);
