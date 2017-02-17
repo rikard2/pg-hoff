@@ -44,6 +44,7 @@ class ResultsPaneView extends DockPaneView
             multiSelect:true
             cellFlashingCssClass: "flashcell"
             rowNumberColumn: true
+            queryid: resultset['queryid']
 
         for c in resultset.columns
             c["sortable"] = true

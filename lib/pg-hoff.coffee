@@ -11,6 +11,7 @@ ResultsPaneView             = require './bottom-dock/results-pane'
 OutputPaneView              = require './bottom-dock/output-pane'
 HistoryPaneView             = require './bottom-dock/history-pane'
 AnalyzePaneView             = require './bottom-dock/analyze-pane'
+{$}                         = require 'space-pen'
 
 module.exports = PgHoff =
     provider: null
@@ -119,7 +120,9 @@ module.exports = PgHoff =
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:refresh-definitions': => @refreshDefinitions()
         @subscriptions.add atom.commands.add 'body', 'core:cancel': => @cancel()
 
-        @subscriptions.add atom.commands.add '.notices', 'pg-hoff:create-dynamic-table': => @createDynamicTable()
+        #@subscriptions.add atom.commands.add '.hamburgler', 'pg-hoff:create-dynamic-table': => @createDynamicTable(event)
+        atom.commands.add '.hamburgler',
+            'pg-hoff:create-dynamic-table': (event) => @createDynamicTable(event)
 
         packageFound = atom.packages.getAvailablePackageNames()
             .indexOf('bottom-dock') != -1
@@ -268,14 +271,14 @@ module.exports = PgHoff =
                         @bottomDock.changePane(@historyPane.getId())
                         @historyPane.refresh()
 
-    createDynamicTable: ->
+    createDynamicTable: (event) ->
         alias = @getAliasForPane()
         globalName = null
         PgHoffDialog
             .Prompt('Enter name')
             .then (name) ->
                 req =
-                    queryid: window.queryId
+                    queryid: $(event.target).attr('queryid')
                     name: name
                 globalName = name
                 return PgHoffServerRequest.Post('create_dynamic_table', req)

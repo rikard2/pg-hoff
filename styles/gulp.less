@@ -15,6 +15,22 @@
 .tran.inerror {
     color: @text-color-error;
 }
+.hamburgler{
+    margin-top:0px;
+    &::before {
+        font-family: 'Octicons Regular';
+        content: "\f05e" !important;
+        font-size: 11px;
+        margin-left: 0px;
+        margin-right: 5px;
+        color: @text-color-subtle;
+    }
+}
+.hamburgler:hover{
+    &::before {
+        color: @text-color;
+    }
+}
 .indicator {
     background: #333;
     margin-bottom: 0px;
@@ -378,7 +394,28 @@
         padding-right: 8px;
     }
 }
-  .slick-cell, .slick-headerrow-column {
+.slick-sort-indicator-asc{
+    background-image: none !important;
+    &::before {
+        font-family: 'Octicons Regular';
+        content: "\f0aa" !important;
+        font-size: 11px;
+        color: @text-color-subtle;
+    }
+}
+.slick-sort-indicator-desc{
+    
+    &::before {
+        font-family: 'Octicons Regular';
+        content: "\f05b" !important;
+        font-size: 11px;
+        color: @text-color-subtle;
+    }
+}
+.slick-header-column:hover {
+    color: @text-color !important;
+}
+.slick-cell, .slick-headerrow-column {
     font-size: 12px;
     position: absolute;
     border: 1px solid transparent;
@@ -396,23 +433,23 @@
     white-space: nowrap;
     cursor: default;
     height:30px !important;
-  }
-  .slick-row{
-      color: @text-color !important;
-      background: @button-background-color;
-  }
-  .slick-row:hover, .slick-headerrow:hover{
-      background-color: @background-color-selected;
-      color: @text-color-highlight;
-  }
+}
+.slick-row{
+    color: @text-color !important;
+    background: @button-background-color;
+}
+.slick-row:hover, .slick-headerrow:hover{
+    background-color: @background-color-selected;
+    color: @text-color-highlight;
+}
 
- .slick-cell:hover, .slick-headerrow-column:hover{
+.slick-cell:hover, .slick-headerrow-column:hover{
 
-  }
-  .slick-header-column{
+}
+.slick-header-column{
     color: @text-color-subtle !important;
     background-color: @base-background-color;
-  }
+}
 
   .output-view {
     height: 100%;

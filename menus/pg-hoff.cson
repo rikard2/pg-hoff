@@ -16,6 +16,12 @@
             'command': 'pg-hoff:create-dynamic-table'
         }
     ]
+    '.hamburgler': [
+        {
+            'label': 'Create dynamic table'
+            'command': 'pg-hoff:create-dynamic-table'
+        }
+    ]
     'atom-text-editor': [
         {
             'label': 'Search history'

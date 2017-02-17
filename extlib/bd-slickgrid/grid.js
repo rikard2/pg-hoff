@@ -121,6 +121,7 @@ var Slick = require('./core');
     var initialized = false;
     var $container;
     var uid = "slickgrid_" + Math.round(1000000 * Math.random());
+    var queryid = options['queryid'];
     var self = this;
     var $focusSink, $focusSink2;
     var $headerScroller;
@@ -554,8 +555,12 @@ var Slick = require('./core');
 
       for (var i = 0; i < columns.length; i++) {
         var m = columns[i];
-
-        var header = $("<div class='ui-state-default slick-header-column' id='" + uid + m.id + "' />")
+        var hamburglerClass = '';
+        var tooltip = '';
+        if(i == 0){
+            hamburglerClass = ' hamburgler';
+        }
+        var header = $("<div alt='hejjasdj' class='ui-state-default slick-header-column" + hamburglerClass + "' queryid='" + queryid + "' id='" + uid+ m.id + "' />")
             .html("<span class='slick-column-name'>" + m.name + "</span>")
             .width(m.width - headerColumnWidthDiff)
             .attr("title", m.toolTip || "")
