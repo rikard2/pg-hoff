@@ -1,4 +1,4 @@
-{Emitter, CompositeDisposable}      = require 'atom'
+{Point, Range, Emitter, CompositeDisposable}      = require 'atom'
 {$}                                 = require 'space-pen'
 parseInterval                       = require 'postgres-interval'
 window.jQuery                       = require 'jquery'
@@ -122,6 +122,14 @@ class ResultsPaneView extends DockPaneView
                     timeout = 5000
                 marker = editor.markBufferRange(query.range, invalidate: 'overlap')
                 editor.decorateMarker(marker, type: 'line-number', class: classType)
+
+                r = new Range(new Point(1,3), new Point(1,4))
+                m2 = editor.markBufferRange(r, invalidate: 'overlap')
+                item = document.createElement('div')
+                item.classList.add 'arrow_box'
+                item.textContent = result.error
+                editor.decorateMarker(m2, {type:'overlay', item}, position:'head')
+                @parseQueryError(result.error)
                 setTimeout( () =>
                     marker.destroy()
                 , timeout)
@@ -141,7 +149,10 @@ class ResultsPaneView extends DockPaneView
         str = str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
         return str.replace(/(?:\r\n|\r|\n)/g, '[\\r?\\n]');
 
-
+    parseQueryError: (error) ->
+        console.log error
+        #if /LINE [0-9]+:/.test(error)
+        console.log /.*/.match(error)
     refresh: =>
         @outputView.refresh()
 
