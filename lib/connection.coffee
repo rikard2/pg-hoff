@@ -1,7 +1,7 @@
 Promise = require('promise')
 PgHoffDialog = require('./dialog')
 PgHoffServerRequest     = require './server-request'
-{maybeStartServer}      = require './util'
+{maybeStartServer, killHoffServer}      = require './util'
 {CompositeDisposable, Disposable} = require 'atom'
 
 class PgHoffConnection
@@ -14,6 +14,10 @@ class PgHoffConnection
 
         @subscriptions = new CompositeDisposable
         @subscriptions.add atom.commands.add '.connected', 'pg-hoff:disconnect': (event) => @disconnect(event)
+
+    @KillHoffServer: (restart) ->
+        port = 5000
+        killHoffServer(restart)
 
     connect: (panel) ->
         listServersView = @

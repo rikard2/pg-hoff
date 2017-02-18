@@ -10,7 +10,6 @@ cmd = (c) ->
             fulfil(stdout)
         )
     )
-
 spawnHoffServer = (command, args) ->
     resolved = false
     return new Promise((fulfil, reject) ->
@@ -48,7 +47,19 @@ checkPort = (interval, tries) ->
             return cmd 'lsof -i :5000'
                 .catch (err) ->
                     return checkPort(interval, tries)
-
+killHoffServer = (restart) ->
+    return cmd 'lsof -i :5000 | grep Python | lsof -ti :5000'
+        .then (pid) ->
+            console.debug 'Killing PID', pid
+            return cmd "kill #{pid}"
+        .then () ->
+            console.debug 'Pg-hoff-server killed'
+            if restart
+                return maybeStartServer()
+        .catch (err) ->
+            console.debug 'Killing pg-hoffserver failed (probably not running)'
+            if restart
+                return maybeStartServer()
 maybeStartServer = ->
     return cmd 'pgrep -f pghoffserver'
         .then ->
@@ -71,4 +82,5 @@ maybeStartServer = ->
                     return checkPort(50, 10) # 50ms interval, 10 tries
 
 module.exports =
-    'maybeStartServer': maybeStartServer
+    'maybeStartServer': maybeStartServer,
+    'killHoffServer': killHoffServer

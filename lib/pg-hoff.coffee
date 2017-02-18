@@ -118,6 +118,8 @@ module.exports = PgHoff =
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:results': => @changeToResultsPane()
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:output': => @changeToOutputPane()
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:refresh-definitions': => @refreshDefinitions()
+        @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:kill-hoff-server': => PgHoffConnection.KillHoffServer(false)
+        @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:restart-hoff-server': => PgHoffConnection.KillHoffServer(true)
         @subscriptions.add atom.commands.add 'body', 'core:cancel': => @cancel()
 
         #@subscriptions.add atom.commands.add '.hamburgler', 'pg-hoff:create-dynamic-table': => @createDynamicTable(event)
