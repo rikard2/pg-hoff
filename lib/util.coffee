@@ -15,18 +15,21 @@ cmd = (c) ->
         )
     )
 
-findTheHoff = (startPath, filter, callback) ->
-    files=fs.readdirSync(startPath)
-    for i in [0...files.length]
-        filename=path.join(startPath,files[i])
+findTheHoff = (startPath, filter) ->
+    files = fs.readdirSync(startPath).filter (x) -> x[0] != '.' and x != 'node_modules'
+    for file in files
+        filename = path.join(startPath, file)
         stat = fs.lstatSync(filename)
         if stat.isDirectory()
-            try findTheHoff(filename,filter, callback)
+            try
+                f = findTheHoff(filename, filter)
+                return f if f?
             catch e
-            finally continue
+                console.error 'E', e
         else if path.parse(filename).base == filter
-            console.log filename
-            return callback(filename)
+            return filename
+
+    return null
 
 spawnHoffServer = (command, args) ->
     resolved = false
@@ -44,8 +47,12 @@ spawnHoffServer = (command, args) ->
                 hoffpath = path.parse(path.join hoffpath, '../').dir
             else if not fs.existsSync(path.join hoffpath, 'pghoffserver', 'pghoffserver.py')
                  atom.notifications.addWarning('Pg-Hoffserver not found, searching...')
-                 findTheHoff(os.homedir(), 'pghoffserver.py')
-                 atom.notifications.addInfo('found the hoff')
+                 hoffpath = findTheHoff(os.homedir(), 'pghoffserver.py')
+                 atom.config.set('pg-hoff.hoffServerPath', hoffpath)
+                 if hoffpath?
+                     atom.notifications.addInfo('Found the hoff!')
+                 else
+                     atom.notifications.addError('Could not find the hoff :(')
 
             s = spawn('python', [ (path.join hoffpath, 'pghoffserver', 'pghoffserver.py') ], { env: process.env, detached: true })
 
