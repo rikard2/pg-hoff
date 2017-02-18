@@ -1,5 +1,9 @@
 Promise = require('promise')
 {exec, spawn} = require('child_process')
+fs = require('fs')
+path = require ('path')
+os = require ('os')
+
 
 cmd = (c) ->
     return new Promise((fulfil, reject) ->
@@ -10,6 +14,20 @@ cmd = (c) ->
             fulfil(stdout)
         )
     )
+
+findTheHoff = (startPath, filter, callback) ->
+    files=fs.readdirSync(startPath)
+    for i in [0...files.length]
+        filename=path.join(startPath,files[i])
+        stat = fs.lstatSync(filename)
+        if stat.isDirectory()
+            try findTheHoff(filename,filter, callback)
+            catch e
+            finally continue
+        else if path.parse(filename).base == filter
+            console.log filename
+            return callback(filename)
+
 spawnHoffServer = (command, args) ->
     resolved = false
     return new Promise((fulfil, reject) ->
@@ -18,7 +36,18 @@ spawnHoffServer = (command, args) ->
         if hoffpath == 'pghoffserver'
             s = spawn(hoffpath, [''], { env: process.env, detached: true })
         else
-            s = spawn('python', [ hoffpath ], { env: process.env, detached: true })
+            if fs.existsSync(path.join hoffpath, 'pghoffserver.py')
+                atom.config.set('pg-hoff.hoffServerPath', path.parse(hoffpath).dir)
+                hoffpath = path.parse(hoffpath).dir
+            else if hoffpath.indexOf('pghoffserver.py') != -1 and fs.existsSync(hoffpath)
+                atom.config.set('pg-hoff.hoffServerPath', path.parse(path.join hoffpath, '../').dir)
+                hoffpath = path.parse(path.join hoffpath, '../').dir
+            else if not fs.existsSync(path.join hoffpath, 'pghoffserver', 'pghoffserver.py')
+                 atom.notifications.addWarning('Pg-Hoffserver not found, searching...')
+                 findTheHoff(os.homedir(), 'pghoffserver.py')
+                 atom.notifications.addInfo('found the hoff')
+
+            s = spawn('python', [ (path.join hoffpath, 'pghoffserver', 'pghoffserver.py') ], { env: process.env, detached: true })
 
         s.stdout.on 'data', (data)      -> fulfil(data.toString()) if not resolved
         s.stderr.on 'data', (data)      -> fulfil('stderr ' + data.toString()) if not resolved
