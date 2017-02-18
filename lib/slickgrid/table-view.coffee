@@ -12,11 +12,34 @@ class HoffTableView extends View
 
     initialize: (@options, @data, @columns, height, selectionModel) ->
         @emitter = new Emitter()
+        @normalData = @data
+        @normalColumns = @columns
         if @options.transpose
-            transpose = new TransposeSlickData @columns, @data
-            @columns = transpose.columns
-            @data = transpose.rows
-        else if @options.rowNumberColumn
+            @transposeData()
+        else
+            @deTransposeData()
+
+        @columnpick = false
+        @startColumn = {}
+        @selectedColumns = []
+        @selectionModel = selectionModel
+        resizeTimeout = null
+        $(window).resize =>
+            clearTimeout(resizeTimeout)
+            resizeTimeout = setTimeout(@resize, 200)
+
+    transposeData: =>
+        @columns = @normalColumns.slice()
+        @data = @normalData.slice()
+        transpose = new TransposeSlickData @columns, @data
+        @columns = transpose.columns
+        @data = transpose.rows
+        @options.transpose = true
+
+    deTransposeData: =>
+        @columns = @normalColumns.slice()
+        @data = @normalData.slice()
+        if @options.rowNumberColumn
             if @data.length <= 9
                 rowNumberWidth = 15
             else if @data.length <= 99
@@ -41,15 +64,7 @@ class HoffTableView extends View
             @columns.unshift(rowNumberColumn)
             for d, index in @data
                 d['rownr'] = index + 1
-
-        @columnpick = false
-        @startColumn = {}
-        @selectedColumns = []
-        @selectionModel = selectionModel
-        resizeTimeout = null
-        $(window).resize =>
-            clearTimeout(resizeTimeout)
-            resizeTimeout = setTimeout(@resize, 200)
+        @options.transpose = false
 
     resize: () =>
         @grid.resizeCanvas()
@@ -77,6 +92,17 @@ class HoffTableView extends View
         @columns = @columns ? []
 
         @grid = new SlickGrid @, @data, @columns, @options
+
+        @[0].transpose = () =>
+            if @options.transpose
+                @deTransposeData()
+            else
+                @transposeData()
+            @grid.setData(@data)
+            @grid.setColumns(@columns)
+            @grid.invalidate()
+            @resize()
+
         if @selectionModel
             @selectionModel = new @selectionModel @grid
         else

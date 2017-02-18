@@ -561,7 +561,7 @@ var Slick = require('./core');
             hamburglerClass = ' hamburgler';
             tooltip = 'Right-click for resulset options';
         }
-        var header = $("<div class='ui-state-default slick-header-column" + hamburglerClass + "' queryid='" + queryid + "' id='" + uid+ m.id + "' />")
+        var header = $("<div class='ui-state-default slick-header-column" + hamburglerClass + "' queryid='" + queryid + "' uid='" + uid + "' id='" + uid+ m.id + "' />")
             .html("<span class='slick-column-name'>" + m.name + "</span>")
             .width(m.width - headerColumnWidthDiff)
             .attr("title", tooltip || m.toolTip || "")

@@ -39,7 +39,7 @@ class WinningSelectionModel
                 @grid.setCellCssStyles("copy_Flash", obj2)
                 atom.workspace.getActivePane().activate()
             .catch (reason) ->
-                console.log 'cancel'
+                #console.log 'cancel'
     onMouseDown: (e, args, local) =>
         cell = @grid.getCellFromEvent(e)
         return unless cell? and @grid.canCellBeSelected(cell.row, cell.cell)

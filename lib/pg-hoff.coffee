@@ -127,6 +127,8 @@ module.exports = PgHoff =
             'pg-hoff:create-dynamic-table': (event) => @createDynamicTable(event)
         atom.commands.add '.hamburgler',
             'pg-hoff:pin-toggle-result': (event) => @pinToggleResult(event)
+        atom.commands.add '.hamburgler',
+            'pg-hoff:transpose': (event) => @transpose(event)
 
         packageFound = atom.packages.getAvailablePackageNames()
             .indexOf('bottom-dock') != -1
@@ -143,6 +145,12 @@ module.exports = PgHoff =
         if @bottomDock.isActive()
             @bottomDock.toggle() if @bottomDock
             atom.workspace.getActivePane().activate()
+
+    transpose: (event) ->
+        uid = $(event.target).attr('uid')
+        grid = $(".#{uid}")[0];
+        #console.log 'transpose', grid, uid
+        grid.transpose() if grid?
 
     changeToResultsPane: () ->
         return unless @bottomDock
@@ -172,7 +180,7 @@ module.exports = PgHoff =
             @resultsPane.focusFirstResult()
 
     onDidChangeActivePane: () ->
-        console.log 'onDidChangeActivePane'
+        #console.log 'onDidChangeActivePane'
     consumeStatusBar: (statusBar) ->
         @statusBarTile = statusBar.addRightTile item: new PgHoffStatus , priority: 2
         @statusBarTile.item.alias = @getAliasForPane()
@@ -185,7 +193,7 @@ module.exports = PgHoff =
         )
 
         @subscriptions.add @statusBarTile.item.onDidToggle =>
-            console.log 'toggle?'
+            #console.log 'toggle?'
 
     getAliasForPane: (pane) =>
         if not pane?
@@ -221,7 +229,7 @@ module.exports = PgHoff =
                 .Post('cancel', { alias: alias })
                 .then (response) ->
                     @resultsPane.markQueryAborted()
-                    # console.log 'cancel', response, alias
+                    # #console.log 'cancel', response, alias
 
     add: (isInitial) ->
         return unless @bottomDock

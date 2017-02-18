@@ -18,6 +18,10 @@
     ]
     '.hamburgler': [
         {
+            'label': 'Toggle Transpose'
+            'command': 'pg-hoff:transpose'
+        },
+        {
             'label': 'Pin / unpin'
             'command': 'pg-hoff:pin-toggle-result'
         },
