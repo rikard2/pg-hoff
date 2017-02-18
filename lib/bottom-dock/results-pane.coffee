@@ -91,6 +91,7 @@ class ResultsPaneView extends DockPaneView
         @tables = []
         @emitter = new Emitter()
         @subscriptions = new CompositeDisposable()
+        @subscriptions.add atom.commands.add 'body', 'core:cancel': => @reset()
 
     updateNotComplete: (newBatch, result, queryNumber, bufferRange) ->
         if newBatch
