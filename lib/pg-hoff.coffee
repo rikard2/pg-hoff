@@ -123,6 +123,8 @@ module.exports = PgHoff =
         #@subscriptions.add atom.commands.add '.hamburgler', 'pg-hoff:create-dynamic-table': => @createDynamicTable(event)
         atom.commands.add '.hamburgler',
             'pg-hoff:create-dynamic-table': (event) => @createDynamicTable(event)
+        atom.commands.add '.hamburgler',
+            'pg-hoff:pin-toggle-result': (event) => @pinToggleResult(event)
 
         packageFound = atom.packages.getAvailablePackageNames()
             .indexOf('bottom-dock') != -1
@@ -270,6 +272,15 @@ module.exports = PgHoff =
                             @bottomDock.toggle()
                         @bottomDock.changePane(@historyPane.getId())
                         @historyPane.refresh()
+
+    pinToggleResult: (event) ->
+        queryid = $(event.target).attr('queryid')
+        if $(event.target).hasClass('pinned')
+            $(event.target).removeClass('pinned')
+            @resultsPane.unPinTable(queryid)
+        else
+            $(event.target).addClass('pinned')
+            @resultsPane.pinTable(queryid)
 
     createDynamicTable: (event) ->
         alias = @getAliasForPane()

@@ -15,8 +15,14 @@ class ResultsPaneView extends DockPaneView
         #@subview 'toolbar', new Toolbar()
 
     reset: () ->
-        @empty()
         marker.destroy() for marker in @errorMarkers
+        table.table.remove() for table in @tables when not table.pinned
+        @tables = (x for x in @tables when x.pinned)
+
+    pinTable: (queryid) ->
+        x.pinned = true for x in @tables when x.queryid == queryid
+    unPinTable: (queryid) ->
+        x.pinned = false for x in @tables when x.queryid == queryid
 
     startLoadIndicator: () ->
         @indicator = document.createElement('div')
@@ -72,12 +78,17 @@ class ResultsPaneView extends DockPaneView
         else if options.rowNumberColumn
             @addClass 'row-numbers'
 
+        for table in @tables when table.pinned and table.nrrows <= 100
+            $(table.table).height(''.concat(table.nrrows * 30 + 30, 'px'))
+
         table = new TableView options, resultset.rows, resultset.columns , height
+        @tables.push {table:table, queryid:resultset['queryid'], nrrows: resultset.rows.length, pinned:false}
         @append table
 
     initialize: ->
         super()
         @errorMarkers = []
+        @tables = []
         @emitter = new Emitter()
         @subscriptions = new CompositeDisposable()
 

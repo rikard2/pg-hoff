@@ -18,6 +18,10 @@
     ]
     '.hamburgler': [
         {
+            'label': 'Pin / unpin'
+            'command': 'pg-hoff:pin-toggle-result'
+        },
+        {
             'label': 'Create dynamic table'
             'command': 'pg-hoff:create-dynamic-table'
         }
