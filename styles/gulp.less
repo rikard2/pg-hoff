@@ -2,16 +2,19 @@
 @import "octicon-mixins";
 
 .arrow_box {
-	background: #7d2525;
-	border: 2px solid #3a0606;
+	background: @base-background-color;
+	border: 1px solid #ff4900;
 	color: #ff6b6b;
+	position: relative;
+	right: 20%;
+	top: 3px;
 	padding-left: 5px;
     padding-right: 5px;
-    border-radius: 3px;
+    border-radius: 2px;
 }
 .arrow_box:after, .arrow_box:before {
 	bottom: 100%;
-	left: 50%;
+	left: 17.7%;
 	border: solid transparent;
 	content: " ";
 	height: 0;
@@ -22,16 +25,16 @@
 
 .arrow_box:after {
 	border-color: rgba(143, 64, 64, 0);
-	border-bottom-color: #7d2525;
+	border-bottom-color: @base-background-color;
 	border-width: 8px;
 	margin-left: -8px;
 	margin-bottom: -4px;
 }
 .arrow_box:before {
 	border-color: rgba(110, 2, 2, 0);
-	border-bottom-color: #3a0606;
-	border-width: 8px;
-	margin-left: -8px;
+	border-bottom-color: #ff4900;
+	border-width: 6px;
+	margin-left: -6px;
 }
 
 .tran.idle {

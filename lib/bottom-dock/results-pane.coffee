@@ -16,6 +16,7 @@ class ResultsPaneView extends DockPaneView
 
     reset: () ->
         @empty()
+        marker.destroy() for marker in @errorMarkers
 
     startLoadIndicator: () ->
         @indicator = document.createElement('div')
@@ -76,6 +77,7 @@ class ResultsPaneView extends DockPaneView
 
     initialize: ->
         super()
+        @errorMarkers = []
         @emitter = new Emitter()
         @subscriptions = new CompositeDisposable()
 
@@ -123,13 +125,8 @@ class ResultsPaneView extends DockPaneView
                 marker = editor.markBufferRange(query.range, invalidate: 'overlap')
                 editor.decorateMarker(marker, type: 'line-number', class: classType)
 
-                r = new Range(new Point(1,3), new Point(1,4))
-                m2 = editor.markBufferRange(r, invalidate: 'overlap')
-                item = document.createElement('div')
-                item.classList.add 'arrow_box'
-                item.textContent = result.error
-                editor.decorateMarker(m2, {type:'overlay', item}, position:'head')
-                @parseQueryError(result.error)
+                @setErrorMarker(result, query)
+
                 setTimeout( () =>
                     marker.destroy()
                 , timeout)
@@ -149,10 +146,38 @@ class ResultsPaneView extends DockPaneView
         str = str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
         return str.replace(/(?:\r\n|\r|\n)/g, '[\\r?\\n]');
 
-    parseQueryError: (error) ->
-        console.log error
-        #if /LINE [0-9]+:/.test(error)
-        console.log /.*/.match(error)
+    setErrorMarker: (result, query) ->
+        unless /LINE [0-9]+:/.test(result.error)
+            return
+        matches = result.error.match('^(.+)\n((LINE ([0-9]+): )(.+))\n([ ]+\\^)')
+        pointAt = matches[6].length - matches[3].length
+        description = matches[1]
+        line = matches[4]
+        part = matches[5]
+        #part may contain "..." before and after, strip and move point
+        if /^\.\.\..*\.\.\.$/.test(part)
+            part = part.substring(3, part.length-3)
+            pointAt -= 3
+        else if /^\.\.\..*$/.test(part)
+            part = part.substring(3, part.length)
+            pointAt -= 3
+        else if /^.*\.\.\.$/.test(part)
+            part = part.substring(0, part.length-3)
+
+        range = new Range(new Point(query.range.start.row + parseInt(line) - 1,0), new Point(query.range.start.row + parseInt(line),0))
+        queryPart = atom.workspace.getActiveTextEditor().getTextInRange(range)
+        errorStart = queryPart.indexOf(part)
+        rangeY = errorStart + pointAt - 1
+
+        markerRange = new Range(new Point(query.range.start.row + parseInt(line) - 1, rangeY), new Point(query.range.start.row + parseInt(line) - 1,rangeY + 1))
+        m = atom.workspace.getActiveTextEditor().markBufferRange(markerRange, invalidate: 'touch')
+        item = document.createElement('div')
+        item.classList.add 'arrow_box'
+        item.textContent = description
+        atom.workspace.getActiveTextEditor().decorateMarker(m, {type:'overlay', item}, position:'head')
+
+        @errorMarkers.push(m)
+
     refresh: =>
         @outputView.refresh()
 
