@@ -34,27 +34,30 @@ findTheHoff = (startPath, filter) ->
 spawnHoffServer = (command, args) ->
     resolved = false
     return new Promise((fulfil, reject) ->
+        host = atom.config.get('pg-hoff.host')
+        host = host.match('(?:http://)(.*)')[1]
+        host = host.substr(0, host.lastIndexOf(':'))
         hoffpath = atom.config.get('pg-hoff.hoffServerPath')
         s = null
-        if hoffpath == 'pghoffserver'
-            s = spawn(hoffpath, [''], { env: process.env, detached: true })
-        else
-            if fs.existsSync(path.join hoffpath, 'pghoffserver.py')
-                atom.config.set('pg-hoff.hoffServerPath', path.parse(hoffpath).dir)
-                hoffpath = path.parse(hoffpath).dir
-            else if hoffpath.indexOf('pghoffserver.py') != -1 and fs.existsSync(hoffpath)
-                atom.config.set('pg-hoff.hoffServerPath', path.parse(path.join hoffpath, '../').dir)
-                hoffpath = path.parse(path.join hoffpath, '../').dir
-            else if not fs.existsSync(path.join hoffpath, 'pghoffserver', 'pghoffserver.py')
-                 atom.notifications.addWarning('Pg-Hoffserver not found, searching...')
-                 hoffpath = findTheHoff(os.homedir(), 'pghoffserver.py')
-                 atom.config.set('pg-hoff.hoffServerPath', hoffpath)
-                 if hoffpath?
-                     atom.notifications.addInfo('Found the hoff!')
-                 else
-                     atom.notifications.addError('Could not find the hoff :(')
 
-            s = spawn('python', [ (path.join hoffpath, 'pghoffserver', 'pghoffserver.py') ], { env: process.env, detached: true })
+        if fs.existsSync(path.join hoffpath, 'pghoffserver.py')
+            atom.config.set('pg-hoff.hoffServerPath', path.parse(hoffpath).dir)
+            hoffpath = path.parse(hoffpath).dir
+        else if hoffpath.indexOf('pghoffserver.py') != -1 and fs.existsSync(hoffpath)
+            atom.config.set('pg-hoff.hoffServerPath', path.parse(path.join hoffpath, '../').dir)
+            hoffpath = path.parse(path.join hoffpath, '../').dir
+        else if hoffpath? and not fs.existsSync(path.join hoffpath, 'pghoffserver', 'pghoffserver.py')
+            atom.notifications.addWarning('Pg-Hoffserver not found, searching...')
+            hoffpath = findTheHoff(os.homedir(), 'pghoffserver.py')
+            if hoffpath?
+                hoffpath = path.parse(path.join hoffpath, '../').dir
+                atom.config.set('pg-hoff.hoffServerPath', hoffpath)
+                atom.notifications.addInfo('Found the hoff!')
+            else
+                atom.notifications.addError('Could not find the hoff :(')
+                return
+
+        s = spawn('gunicorn', ['pghoffserver:app', '--bind', host], { env: process.env, detached: true, cwd: (path.join hoffpath, 'pghoffserver') })
 
         s.stdout.on 'data', (data)      -> fulfil(data.toString()) if not resolved
         s.stderr.on 'data', (data)      -> fulfil('stderr ' + data.toString()) if not resolved
@@ -62,7 +65,7 @@ spawnHoffServer = (command, args) ->
     )
         .then (data) ->
             resolved = true
-            throw 'Spawn, wrong output' unless /Running on/.test(data)
+            throw 'Spawn, wrong output' unless /Starting gunicorn/.test(data)
             return data
 
 timeout = (ms) ->
@@ -72,22 +75,24 @@ timeout = (ms) ->
         , ms)
     )
 
-
 checkPort = (interval, tries) ->
     tries = 10 unless tries?
     return timeout interval
         .then ->
             tries = tries - 1
             if tries <= 0
-                throw('Could not find open port (5000).')
-            return cmd 'lsof -i :5000'
+                throw('Could not find domain socket.')
+            return cmd 'lsof -t /tmp/pghoffserver.sock'
                 .catch (err) ->
                     return checkPort(interval, tries)
+
 killHoffServer = (restart) ->
-    return cmd 'lsof -i :5000 | grep Python | lsof -ti :5000'
+    return cmd 'lsof -t /tmp/pghoffserver.sock'
         .then (pid) ->
             console.debug 'Killing PID', pid
-            return cmd "kill #{pid}"
+            for p in pid.split '\n' when p.length > 0
+                cmd "kill #{p}"
+            return
         .then () ->
             console.debug 'Pg-hoff-server killed'
             if restart
@@ -97,14 +102,13 @@ killHoffServer = (restart) ->
             if restart
                 return maybeStartServer()
 maybeStartServer = ->
-    return cmd 'pgrep -f pghoffserver'
+    return cmd 'lsof -t /tmp/pghoffserver.sock'
         .then ->
             # Already running, great!
             console.debug 'Pghoffserver already running'
             return checkPort(50, 10)
         .catch (err) ->
             return true unless atom.config.get('pg-hoff.startServerAutomatically')
-            return true unless /localhost|127\.0\.0\.1/.test atom.config.get('pg-hoff.host')
 
             # Could not find process, try to start
             console.debug 'Starting up pghoffserver'

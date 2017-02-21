@@ -23,7 +23,7 @@ module.exports = PgHoff =
     config:
         host:
             type: 'string'
-            default: 'http://localhost:5000'
+            default: 'http://unix:/tmp/pghoffserver.sock:/'
             order: 1
         pollInterval:
             type: 'integer',
@@ -94,7 +94,7 @@ module.exports = PgHoff =
             order: 1
         hoffServerPath:
             type: 'string'
-            default: 'pghoffserver'
+            default: ''
             order: 1
 
     activate: (state) ->

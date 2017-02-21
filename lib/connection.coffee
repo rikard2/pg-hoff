@@ -23,9 +23,13 @@ class PgHoffConnection
         listServersView = @
         selectedServer = null
         currentAlias = atom.workspace.getActiveTextEditor()?.alias
-        maybeStartServer()
-            .then (servers) ->
-                return PgHoffServerRequest.Get 'listservers'
+        PgHoffServerRequest.Get 'listservers'
+                .then (servers) =>
+                    return servers
+                .catch =>
+                    maybeStartServer()
+                    .then =>
+                        PgHoffServerRequest.Get 'listservers'
             .then (servers) =>
                 items = []
                 for server of servers
