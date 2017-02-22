@@ -22,6 +22,10 @@ class ResultsPaneView extends DockPaneView
             @querynumber = 0
             @selectedquery = 0
 
+    removeResult: (queryid) ->
+        table.table.remove() for table in @tables when table.queryid == queryid
+        @tables = (table for table in @tables when table.queryid != queryid)
+
     pinTable: (queryid) ->
         x.pinned = true for x in @tables when x.queryid == queryid
     unPinTable: (queryid) ->

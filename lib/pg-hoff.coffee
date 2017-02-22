@@ -124,12 +124,27 @@ module.exports = PgHoff =
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:cycle-results': => @cycleResults()
 
         #@subscriptions.add atom.commands.add '.hamburgler', 'pg-hoff:create-dynamic-table': => @createDynamicTable(event)
-        atom.commands.add '.hamburgler',
-            'pg-hoff:create-dynamic-table': (event) => @createDynamicTable(event)
-        atom.commands.add '.hamburgler',
-            'pg-hoff:pin-toggle-result': (event) => @pinToggleResult(event)
-        atom.commands.add '.hamburgler',
-            'pg-hoff:transpose': (event) => @transpose(event)
+        atom.commands.add '.hamburgler', 'pg-hoff:pin-toggle-result': (event) => @pinToggleResult(event)
+        atom.commands.add '.hamburgler', 'pg-hoff:transpose': (event) => @transpose(event)
+        atom.commands.add '.hamburgler', 'pg-hoff:create-dynamic-table': (event) => @createDynamicTable(event)
+        atom.commands.add '.hamburgler', 'pg-hoff:remove-result': (event) => @removeResult(event)
+
+        atom.contextMenu.add {
+          'atom-workspace': [{label: 'Pin', command: 'pg-hoff:pin-toggle-result', shouldDisplay: @pinVisible}]
+        }
+        atom.contextMenu.add {
+          'atom-workspace': [{label: 'Unpin', command: 'pg-hoff:pin-toggle-result', shouldDisplay: @unpinVisible}]
+        }
+
+        atom.contextMenu.add {
+          'atom-workspace': [{label: 'Toggle transpose', command: 'pg-hoff:transpose'}]
+        }
+        atom.contextMenu.add {
+          'atom-workspace': [{label: 'Create dynamic table', command: 'pg-hoff:create-dynamic-table'}]
+        }
+        atom.contextMenu.add {
+          'atom-workspace': [{label: 'Remove', command: 'pg-hoff:remove-result'}]
+        }
 
         packageFound = atom.packages.getAvailablePackageNames()
             .indexOf('bottom-dock') != -1
@@ -142,8 +157,22 @@ module.exports = PgHoff =
 
     gotoDeclaration: PgHoffGotoDeclaration
 
+    pinVisible: (event) ->
+        if $(event.target).hasClass('pinned')
+            return false
+        return true
+
+    unpinVisible: (event) ->
+        if $(event.target).hasClass('pinned')
+            return true
+        return false
+
     cycleResults: () ->
         @resultsPane.cycleResults()
+
+    removeResult: (event) ->
+        queryid = $(event.target).attr('queryid')
+        @resultsPane.removeResult(queryid)
 
     cancel: () ->
         if @bottomDock.isActive()
@@ -153,7 +182,6 @@ module.exports = PgHoff =
     transpose: (event) ->
         uid = $(event.target).attr('uid')
         grid = $(".#{uid}")[0];
-        #console.log 'transpose', grid, uid
         grid.transpose() if grid?
 
     changeToResultsPane: () ->
@@ -288,6 +316,7 @@ module.exports = PgHoff =
                         @historyPane.refresh()
 
     pinToggleResult: (event) ->
+        console.log 'aosdoasod'
         queryid = $(event.target).attr('queryid')
         if $(event.target).hasClass('pinned')
             $(event.target).removeClass('pinned')

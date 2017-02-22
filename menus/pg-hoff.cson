@@ -16,20 +16,6 @@
             'command': 'pg-hoff:create-dynamic-table'
         }
     ]
-    '.hamburgler': [
-        {
-            'label': 'Toggle Transpose'
-            'command': 'pg-hoff:transpose'
-        },
-        {
-            'label': 'Pin / unpin'
-            'command': 'pg-hoff:pin-toggle-result'
-        },
-        {
-            'label': 'Create dynamic table'
-            'command': 'pg-hoff:create-dynamic-table'
-        }
-    ]
     'atom-text-editor': [
         {
             'label': 'Search history'
