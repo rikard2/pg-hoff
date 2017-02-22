@@ -316,7 +316,6 @@ module.exports = PgHoff =
                         @historyPane.refresh()
 
     pinToggleResult: (event) ->
-        console.log 'aosdoasod'
         queryid = $(event.target).attr('queryid')
         if $(event.target).hasClass('pinned')
             $(event.target).removeClass('pinned')
