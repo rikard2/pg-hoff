@@ -20,6 +20,7 @@ class ResultsPaneView extends DockPaneView
         @tables = (x for x in @tables when x.pinned)
         unless @tables.length > 0
             @querynumber = 0
+            @selectedquery = 0
 
     pinTable: (queryid) ->
         x.pinned = true for x in @tables when x.queryid == queryid
