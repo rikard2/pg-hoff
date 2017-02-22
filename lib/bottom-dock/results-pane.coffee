@@ -18,11 +18,22 @@ class ResultsPaneView extends DockPaneView
         marker.destroy() for marker in @errorMarkers
         table.table.remove() for table in @tables when not table.pinned
         @tables = (x for x in @tables when x.pinned)
+        unless @tables.length > 0
+            @querynumber = 0
 
     pinTable: (queryid) ->
         x.pinned = true for x in @tables when x.queryid == queryid
     unPinTable: (queryid) ->
         x.pinned = false for x in @tables when x.queryid == queryid
+
+    cycleResults: ->
+        if @selectedquery < @tables.length - 1
+            @selectedquery += 1
+        else
+            @selectedquery = 0
+        number = @tables[@selectedquery].querynumber
+        $(@).animate { scrollTop: $('#slickgrid_' + number + 'rownr').offset().top - $(@).offset().top + $(@).scrollTop() }, 650
+
 
     startLoadIndicator: () ->
         @indicator = document.createElement('div')
@@ -35,6 +46,7 @@ class ResultsPaneView extends DockPaneView
             @remove()
 
     render: (resultset) ->
+        @querynumber += 1
         @removeClass 'transpose'
         @removeClass 'row-numbers'
         return unless resultset.complete and resultset.columns
@@ -52,6 +64,7 @@ class ResultsPaneView extends DockPaneView
             cellFlashingCssClass: "flashcell"
             rowNumberColumn: true
             queryid: resultset['queryid']
+            querynumber:@querynumber
 
         for c in resultset.columns
             c["sortable"] = true
@@ -82,13 +95,15 @@ class ResultsPaneView extends DockPaneView
             $(table.table).height(''.concat(table.nrrows * 30 + 30, 'px'))
 
         table = new TableView options, resultset.rows, resultset.columns , height
-        @tables.push {table:table, queryid:resultset['queryid'], nrrows: resultset.rows.length, pinned:false}
+        @tables.push {table:table, queryid:resultset['queryid'], nrrows: resultset.rows.length, pinned:false, querynumber: @querynumber}
         @append table
 
     initialize: ->
         super()
         @errorMarkers = []
         @tables = []
+        @querynumber = 0
+        @selectedquery = 0
         @emitter = new Emitter()
         @subscriptions = new CompositeDisposable()
         @subscriptions.add atom.commands.add 'body', 'core:cancel': => @reset()

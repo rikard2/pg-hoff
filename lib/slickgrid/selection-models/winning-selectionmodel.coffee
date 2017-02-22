@@ -152,6 +152,8 @@ class WinningSelectionModel
             @activeRange = new Slick.Range 0, firstColumn, data.length - 1, columns.length - 1
             @onSelectedRangesChanged.notify [ @activeRange ]
         if (e.metaKey or e.ctrlKey) and e.keyCode == 67
+            unless @lastCell and @startCell and @activeRange and @ranges
+                return
             selectedColumns = []
             output = []
             clipboard = []

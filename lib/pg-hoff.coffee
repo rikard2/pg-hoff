@@ -121,6 +121,7 @@ module.exports = PgHoff =
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:kill-hoff-server': => PgHoffConnection.KillHoffServer(false)
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:restart-hoff-server': => PgHoffConnection.KillHoffServer(true)
         @subscriptions.add atom.commands.add 'body', 'core:cancel': => @cancel()
+        @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:cycle-results': => @cycleResults()
 
         #@subscriptions.add atom.commands.add '.hamburgler', 'pg-hoff:create-dynamic-table': => @createDynamicTable(event)
         atom.commands.add '.hamburgler',
@@ -140,6 +141,9 @@ module.exports = PgHoff =
                 dismissable: true
 
     gotoDeclaration: PgHoffGotoDeclaration
+
+    cycleResults: () ->
+        @resultsPane.cycleResults()
 
     cancel: () ->
         if @bottomDock.isActive()

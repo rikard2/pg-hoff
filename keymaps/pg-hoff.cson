@@ -17,3 +17,4 @@
     'ctrl-r': 'pg-hoff:results'
     'ctrl-e': 'pg-hoff:output'
     'ctrl-d': 'pg-hoff:refresh-definitions'
+    'ctrl-v': 'pg-hoff:cycle-results'
