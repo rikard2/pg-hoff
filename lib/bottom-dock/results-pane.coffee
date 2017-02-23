@@ -111,7 +111,7 @@ class ResultsPaneView extends DockPaneView
         @selectedquery = 0
         @emitter = new Emitter()
         @subscriptions = new CompositeDisposable()
-        @subscriptions.add atom.commands.add 'body', 'core:cancel': => @reset()
+        @subscriptions.add atom.commands.add 'body', 'core:cancel': => @clear()
 
     updateNotComplete: (newBatch, result, queryNumber, bufferRange) ->
         if newBatch
@@ -130,12 +130,20 @@ class ResultsPaneView extends DockPaneView
             marker: null
         }
 
-        if JSON.stringify bufferRange.start == JSON.stringify bufferRange.end
+        if (JSON.stringify bufferRange.start).toString() == (JSON.stringify bufferRange.end).toString()
             bufferRange = atom.workspace.getActiveTextEditor().getBuffer().getRange()
         if queryNumber > 1
             bufferRange.start = @processedQueries[queryNumber-2].range.end
 
         atom.workspace.getActiveTextEditor().scanInBufferRange(new RegExp(@escapeRegExp(result.query)), bufferRange, (hit) => @queryHit(hit, queryInfo) )
+
+    updateRendering: (result) ->
+        for query in @processedQueries
+            if query.queryId == result.queryid
+                setTimeout( () =>
+                    atom.workspace.getActiveTextEditor().decorateMarker(query.marker, type: 'line-number', class: 'query-rendering')
+                , 300)
+
     updateCompleted: (result) ->
         for query in @processedQueries
             if query.queryId == result.queryid
@@ -165,6 +173,7 @@ class ResultsPaneView extends DockPaneView
 
     clear: () ->
         query.marker.destroy() for query in @processedQueries
+        marker.destroy() for marker in @errorMarkers
 
     queryHit: (hit, queryInfo) =>
         editor = atom.workspace.getActiveTextEditor()
@@ -210,14 +219,6 @@ class ResultsPaneView extends DockPaneView
 
         @errorMarkers.push(m)
 
-    refresh: =>
-        @outputView.refresh()
-
-    stop: =>
-        @outputView.stop()
-
-    clear: =>
-        @outputView.clear()
 
     focusFirstResult: => $(".slick-cell.l0.r0").first().click()
 

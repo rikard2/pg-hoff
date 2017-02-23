@@ -259,9 +259,11 @@ module.exports = PgHoff =
         if alias?
             return PgHoffServerRequest
                 .Post('cancel', { alias: alias })
-                .then (response) ->
-                    @resultsPane.markQueryAborted()
-                    # #console.log 'cancel', response, alias
+                .then (response) =>
+                    if response.success
+                        atom.notifications.addWarning('Execution aborted')
+                .catch (error) ->
+                    console.log 'error', error
 
     add: (isInitial) ->
         return unless @bottomDock
@@ -457,17 +459,10 @@ module.exports = PgHoff =
                 getResult = (queryid) =>
                     if not queryid?
                         queryid = response.queryids.shift()
-                    url = 'result/' + queryid
+                    url = 'query_status/' + queryid
                     return PgHoffServerRequest.Get(url, true)
                         .then (result) =>
                             @resultsPane.updateNotComplete(newBatch, result, NumberOfQueries - response.queryids.length, selectedBufferRange)
-                            if result.errormessage?
-                                throw("#{result.errormessage}")
-                            if result.error?
-                                @resultsPane.markQueryError(result)
-                                if result.error == 'connection already closed'
-                                    atom.editor.getActivePaneItem().alias = null
-                                    throw("#{result.error}")
                             if not result.complete
                                 newBatch = false
                                 return timeout(100)
@@ -477,9 +472,21 @@ module.exports = PgHoff =
                                     .then () ->
                                         return getResult(queryid)
                             else
-                                @resultsPane.updateCompleted(result)
-                                newBatch = false
-                                return result
+                                @resultsPane.updateRendering(result)
+                                url = 'result/' + queryid
+                                return PgHoffServerRequest.Get(url, true)
+                                    .then (result) =>
+                                        if result.errormessage?
+                                            throw("#{result.errormessage}")
+                                        if result.error?
+                                            @resultsPane.markQueryError(result)
+                                            if result.error == 'connection already closed'
+                                                atom.editor.getActivePaneItem().alias = null
+                                                throw("#{result.error}")
+                                        else
+                                            @resultsPane.updateCompleted(result)
+                                            newBatch = false
+                                            return result
                 boom = () =>
                     return getResult()
                         .then (result) =>
@@ -501,7 +508,6 @@ module.exports = PgHoff =
                             else
                                 if @analyzePane in @hoffPanes
                                     @removeHoffPane(@analyzePane)
-
                                 @renderResults(result)
 
                             first = false

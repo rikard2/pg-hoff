@@ -565,6 +565,11 @@ atom-text-editor {
       padding-left: ~"calc(0.5em - 4px)";
       animation: pulseaborted 0.5s ease-out infinite;
     }
+	&.query-rendering {
+      border-left: 4px solid;
+      padding-left: ~"calc(0.5em - 4px)";
+      animation: pulserendering 0.5s ease-out infinite;
+    }
   }
  }
 
@@ -610,6 +615,17 @@ atom-text-editor {
   }
    100% {
     border-color: darken(@background-color-warning, 20%);
+   }
+}
+@keyframes pulserendering {
+   0% {
+     border-color: darken(@background-color-info, 50%);
+   }
+   50% {
+      border-color: @background-color-info;
+  }
+   100% {
+    border-color: darken(@background-color-info, 20%);
    }
 }
 
