@@ -367,16 +367,12 @@ module.exports = PgHoff =
             .finally =>
                 @listServersViewPanel.hide()
 
-    renderResults: (resultset, newQuery) ->
+    renderResults: (resultset, complete) ->
         if not resultset.complete?
             throw 'WTF!? Resultset not complete'
-
         @resultsPane.render(resultset)
-
-        if resultset.rows?.length > 1
-            @bigResults = true
-
-        @outputPane.render(resultset, newQuery)
+        if complete
+            @outputPane.render(resultset)
 
     refreshDefinitions: ->
         alias = @getAliasForPane()
@@ -468,13 +464,28 @@ module.exports = PgHoff =
                                 return timeout(100)
                                     .then () ->
                                         return getResult(queryid)
-                                return timeout(100)
-                                    .then () ->
-                                        return getResult(queryid)
                             else
+                                return result
+                boom = () =>
+                    return getResult()
+                        .then (result) =>
+                            gotResults = result.has_result
+                            gotNotices = result.has_notices
+                            gotErrors = result.has_error
+                            if queryCount == 1
+                                result.onlyOne = true
+                            if queryCount == 1 and result.has_queryplan
+                                @renderQueryPlan(result.rows)
+                            else
+                                if @analyzePane in @hoffPanes
+                                    @removeHoffPane(@analyzePane)
+                                currentpage = 0
+                                pagesize = 10000
+
                                 @resultsPane.updateRendering(result)
-                                url = 'result/' + queryid
-                                return PgHoffServerRequest.Get(url, true)
+                                url = 'result/' + result.queryid + '/'
+                                fetchPartialResult = () =>
+                                    return PgHoffServerRequest.Get(url + currentpage + '/' + (currentpage + pagesize), true)
                                     .then (result) =>
                                         if result.errormessage?
                                             throw("#{result.errormessage}")
@@ -483,39 +494,23 @@ module.exports = PgHoff =
                                             if result.error == 'connection already closed'
                                                 atom.editor.getActivePaneItem().alias = null
                                                 throw("#{result.error}")
+                                        if  result.rowcount > 0 and currentpage + pagesize < result.rowcount
+                                            @renderResults(result, false)
+                                            currentpage += pagesize
+                                            fetchPartialResult()
                                         else
+                                            if @statusBarTile.item.transactionStatus != result.transaction_status
+                                                @statusBarTile.item.transactionStatus = result.transaction_status.toUpperCase()
+                                                @statusBarTile.item.renderText()
                                             @resultsPane.updateCompleted(result)
-                                            newBatch = false
+                                            @renderResults(result, true)
+                                            if response.queryids.length > 0
+                                                return boom()
                                             return result
-                boom = () =>
-                    return getResult()
-                        .then (result) =>
-                            if @statusBarTile.item.transactionStatus != result.transaction_status
-                                @statusBarTile.item.transactionStatus = result.transaction_status.toUpperCase()
-                                @statusBarTile.item.renderText()
-
-                            if result.columns
-                                gotResults = true
-                            if result.notices?[0]
-                                gotNotices = true
-                            if result.error
-                                gotErrors = true
-                            if queryCount == 1
-                                result.onlyOne = true
-
-                            if queryCount == 1 and result.columns?.length == 1 and result.columns?[0]['name'] == 'QUERY PLAN' and result.query.substring(0, 7) == 'EXPLAIN'
-                                @renderQueryPlan(result.rows)
-                            else
-                                if @analyzePane in @hoffPanes
-                                    @removeHoffPane(@analyzePane)
-                                @renderResults(result)
-
+                                    .catch (err) ->
+                                        console.log err
+                                fetchPartialResult()
                             first = false
-
-                            if response.queryids.length > 0
-                                return boom()
-
-                            return result
 
                 clearTimeout(@resultsPane.loadingTimeout) if @resultsPane.loadingTimeout?
                 @resultsPane.loadingTimeout = setTimeout(
@@ -524,7 +519,7 @@ module.exports = PgHoff =
                 , 1000)
                 boom()
                     .then () =>
-                        if gotErrors or not gotResults or (gotResults and gotNotices) # and !@bigResults)
+                        if gotErrors or not gotResults or (gotResults and gotNotices)
                             @bottomDock.changePane(@outputPane.getId())
                         else if gotResults
                             @bottomDock.changePane(@resultsPane.getId())
