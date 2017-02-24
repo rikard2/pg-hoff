@@ -28,6 +28,14 @@ class HoffTableView extends View
             clearTimeout(resizeTimeout)
             resizeTimeout = setTimeout(@resize, 200)
 
+    appendData: (data) =>
+        for i in [0...data.length]
+            @data.push data[i]
+        for d, index in @data
+            d['rownr'] = index + 1
+        @grid.updateRowCount()
+        @grid.render()
+
     transposeData: =>
         @columns = @normalColumns.slice()
         @data = @normalData.slice()
@@ -40,12 +48,7 @@ class HoffTableView extends View
         @columns = @normalColumns.slice()
         @data = @normalData.slice()
         if @options.rowNumberColumn
-            if @data.length <= 9
-                rowNumberWidth = 15
-            else if @data.length <= 99
-                rowNumberWidth = 25
-            else if @data.length <= 999
-                rowNumberWidth = 35
+            rowNumberWidth = @options.rowcount.toString().length * 11.5
             rowNumberColumn =
                 defaultSortAsc:true
                 field:"rownr"

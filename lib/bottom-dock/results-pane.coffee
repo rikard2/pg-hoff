@@ -51,6 +51,10 @@ class ResultsPaneView extends DockPaneView
             @remove()
 
     render: (resultset) ->
+        for x in @tables when x.queryid == resultset.queryid
+            x.table.appendData(resultset.rows)
+            return
+
         @querynumber += 1
         @removeClass 'transpose'
         @removeClass 'row-numbers'
@@ -70,6 +74,7 @@ class ResultsPaneView extends DockPaneView
             rowNumberColumn: true
             queryid: resultset['queryid']
             querynumber:@querynumber
+            rowcount: resultset.rowcount
 
         for c in resultset.columns
             c["sortable"] = true
@@ -84,12 +89,12 @@ class ResultsPaneView extends DockPaneView
             c["width"] = Math.min((Math.max(max * 9, Math.round((c["name"].length * 8.4) + 12))), 250)
 
         if resultset.rows.length <= 100 and not resultset.onlyOne
-            height = ''.concat(resultset.rows.length * 30 + 30, 'px')
+            height = ''.concat(resultset.rowcount * 30 + 30, 'px')
         else
             height = '100%'
 
         autoTranspose = atom.config.get('pg-hoff.autoTranspose')
-        if autoTranspose and resultset.onlyOne and resultset.rows.length <= 2 and resultset.columns.length > 5
+        if autoTranspose and resultset.onlyOne and resultset.rowcount <= 2 and resultset.columns.length > 5
             @addClass 'transpose'
             options.transpose = true
             height = '100%'
@@ -141,7 +146,8 @@ class ResultsPaneView extends DockPaneView
         for query in @processedQueries
             if query.queryId == result.queryid
                 setTimeout( () =>
-                    atom.workspace.getActiveTextEditor().decorateMarker(query.marker, type: 'line-number', class: 'query-rendering')
+                    if not query.marker.destroyed
+                        atom.workspace.getActiveTextEditor().decorateMarker(query.marker, type: 'line-number', class: 'query-rendering')
                 , 300)
 
     updateCompleted: (result) ->
