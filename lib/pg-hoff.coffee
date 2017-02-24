@@ -402,6 +402,10 @@ module.exports = PgHoff =
             @connect()?.then => @executeQuery()
 
     executeQuery: (selectedText, alias) ->
+        if @processingBatch? and @processingBatch
+            atom.notifications.addWarning('Processing query results, hold on!')
+            return
+        @processingBatch = true
         @resultsPane.reset()
         if @outputPane and @statusBarTile.item.transactionStatus == 'IDLE'
             @outputPane.clear()
@@ -506,9 +510,8 @@ module.exports = PgHoff =
                                             @renderResults(result, true)
                                             if response.queryids.length > 0
                                                 return boom()
+                                            @processingBatch = false
                                             return result
-                                    .catch (err) ->
-                                        console.log err
                                 fetchPartialResult()
                             first = false
 
