@@ -9,6 +9,7 @@ SlickFormatting                     = require '../slickgrid/formatting'
 
 class ResultsPaneView extends DockPaneView
     @table: null
+    processedQueries: []
     getId: () -> 'results'
     @content: ->
         @div class: 'gulp-pane', outlet: 'pane', style: 'overflow: auto !important; font-family:menlo', =>
@@ -123,8 +124,6 @@ class ResultsPaneView extends DockPaneView
         if newBatch
             query.marker.destroy() for query in @processedQueries?
             @processedQueries = []
-        unless @processedQueries
-            @processedQueries = []
         for query in @processedQueries
             if query.queryNumber == queryNumber
                 return
@@ -147,7 +146,7 @@ class ResultsPaneView extends DockPaneView
         for query in @processedQueries
             if query.queryId == result.queryid
                 setTimeout( () =>
-                    if not query.marker.destroyed
+                    unless query.marker.isDestroyed()
                         atom.workspace.getActiveTextEditor().decorateMarker(query.marker, type: 'line-number', class: 'query-rendering')
                 , 300)
 
