@@ -146,7 +146,7 @@ class ResultsPaneView extends DockPaneView
         for query in @processedQueries
             if query.queryId == result.queryid
                 setTimeout( () =>
-                    unless query.marker.isDestroyed()
+                    unless query.marker.isDestroyed() or query.marker? == false
                         atom.workspace.getActiveTextEditor().decorateMarker(query.marker, type: 'line-number', class: 'query-rendering')
                 , 300)
 
@@ -169,7 +169,7 @@ class ResultsPaneView extends DockPaneView
                     classType = 'query-error'
                     timeout = 5000
                 marker = editor.markBufferRange(query.range, invalidate: 'overlap')
-                editor.decorateMarker(marker, type: 'line-number', class: classType)
+                editor.decorateMarker(marker, type: 'line-number', class: classType) if marker?
 
                 @setErrorMarker(result, query)
 
@@ -188,7 +188,7 @@ class ResultsPaneView extends DockPaneView
         queryInfo.marker = marker
         @processedQueries.push queryInfo
 
-        editor.decorateMarker(marker, type: 'line-number', class: 'query-loading')
+        editor.decorateMarker(marker, type: 'line-number', class: 'query-loading') if marker?
     escapeRegExp: (str) ->
         str = str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
         return str.replace(/(?:\r\n|\r|\n)/g, '[\\r?\\n]');
@@ -221,7 +221,7 @@ class ResultsPaneView extends DockPaneView
         item = document.createElement('div')
         item.classList.add 'arrow_box'
         item.textContent = description
-        atom.workspace.getActiveTextEditor().decorateMarker(m, {type:'overlay', item}, position:'head')
+        atom.workspace.getActiveTextEditor().decorateMarker(m, {type:'overlay', item}, position:'head') if m?
 
         @errorMarkers.push(m)
 
