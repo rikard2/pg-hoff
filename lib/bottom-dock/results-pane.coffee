@@ -147,7 +147,10 @@ class ResultsPaneView extends DockPaneView
             if query.queryId == result.queryid
                 setTimeout( () =>
                     unless query.marker.isDestroyed() or query.marker? == false
-                        atom.workspace.getActiveTextEditor().decorateMarker(query.marker, type: 'line-number', class: 'query-rendering')
+                        try
+                            atom.workspace.getActiveTextEditor().decorateMarker(query.marker, type: 'line-number', class: 'query-rendering')
+                        catch err
+                            console.error 'Could not decorate marker', query.marker
                 , 300)
 
     updateCompleted: (result) ->
