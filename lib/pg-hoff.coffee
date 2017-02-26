@@ -516,7 +516,7 @@ module.exports = PgHoff =
                                     if  result.rowcount > 0 and currentpage + pagesize < result.rowcount
                                         @renderResults(result, false)
                                         currentpage += pagesize
-                                        fetchPartialResult()
+                                        return fetchPartialResult()
                                     else
                                         if @statusBarTile.item.transactionStatus != result.transaction_status
                                             @statusBarTile.item.transactionStatus = result.transaction_status.toUpperCase()
@@ -527,19 +527,19 @@ module.exports = PgHoff =
                                         @renderResults(result, true)
                                         if response.queryids.length > 0
                                             return boom()
-                                        @processingBatch = false
                                         return result
                                 .catch (err) ->
                                     console.log err
-                            fetchPartialResult()
+                                    throw err
                             first = false
+                            return fetchPartialResult()
 
                 clearTimeout(@resultsPane.loadingTimeout) if @resultsPane.loadingTimeout?
                 @resultsPane.loadingTimeout = setTimeout(
                     () =>
                         @resultsPane.startLoadIndicator()
                 , 1000)
-                boom()
+                return boom()
                     .then () =>
                         if gotErrors or not gotResults or (gotResults and gotNotices)
                             @bottomDock.changePane(@outputPane.getId())
@@ -552,6 +552,9 @@ module.exports = PgHoff =
             .catch (err) =>
                 atom.workspace.getActivePaneItem().alias = null
                 atom.notifications.addError(err)
+            .finally =>
+                console.log 'finally...!'
+                @processingBatch = false
 
     renderQueryPlan: (queryplanrows) ->
         queryplan = (queryplanrows.map (row) -> row['QUERY PLAN1']).join('\n')
