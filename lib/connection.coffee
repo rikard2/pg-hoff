@@ -54,14 +54,13 @@ class PgHoffConnection
                 if not selectedServer.connected
                     return PgHoffServerRequest.Post 'connect', request
                 else
-                    return { 'alias': selectedServer.alias }
+                    return { 'alias': selectedServer.alias, 'color': selectedServer.color }
             .then (response) ->
                 if response.errormessage == 'Already connected to server.'
                     response.already_connected = true
                     return response
                 else if response.errormessage?
                     throw(response.errormessage)
-
                 return response
 
     disconnect: (event) ->

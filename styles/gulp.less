@@ -1,6 +1,20 @@
 @import "ui-variables";
 @import "octicon-mixins";
 
+.tab-marker {
+	display: inline-block;
+    width: 0;
+    height: 0;
+    right: 0;
+    top: 0;
+	margin-right: 1px;
+	margin-top: 1px;
+    border-style: solid;
+    position: absolute;
+	border-color: transparent #F00 transparent transparent;
+    border-width: 0 8px 8px 0;
+}
+
 .pinned::before{
 	color: #ff9100 !important;
 }

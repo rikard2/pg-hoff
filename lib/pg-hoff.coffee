@@ -360,9 +360,24 @@ module.exports = PgHoff =
                 @statusBarTile.item.alias = @getAliasForPane(paneItem)
                 @statusBarTile.item.transactionStatus = null
                 @statusBarTile.item.renderText()
+
+                colorizeString = (str) ->
+                    i = 0
+                    hash = 0
+                    while i < str.length
+                        hash = str.charCodeAt(i++) + (hash << 5) - hash
+                    color = Math.floor(Math.abs(Math.sin(hash) * 10000 % 1 * 16777216)).toString(16)
+                    '#' + Array(6 - (color.length) + 1).join('0') + color
+                tabItem = atom.views.getView(atom.workspace).querySelector "ul.tab-bar>li.tab[data-type='TextEditor'].active"
+                tabMarker = (tabItem.querySelector "span.tab-marker") or document.createElement('span')
+                $(tabMarker).attr('alias', server.alias)
+                tabMarker.classList.add 'tab-marker'
+                $(tabMarker).css('border-color', "transparent #{server.color or colorizeString(server.alias)} transparent transparent")
+                tabItem.appendChild tabMarker
             .catch (err) =>
                 if err? and err != 'cancel'
                     atom.notifications.addError("Connect error: #{err}")
+                    tabMarker.remove() for tabMarker in atom.views.getView(atom.workspace).querySelectorAll "ul.tab-bar>li.tab[data-type='TextEditor']>span.tab-marker"
                 throw(err)
             .finally =>
                 @listServersViewPanel.hide()
