@@ -221,10 +221,15 @@ class ResultsPaneView extends DockPaneView
 
         markerRange = new Range(new Point(query.range.start.row + parseInt(line) - 1, rangeY), new Point(query.range.start.row + parseInt(line) - 1,rangeY + 1))
         m = atom.workspace.getActiveTextEditor().markBufferRange(markerRange, invalidate: 'touch')
+        lineCount = atom.workspace.getActiveTextEditor().getLineCount()
         item = document.createElement('div')
         item.classList.add 'arrow_box'
+        if query.range.start.row + parseInt(line) == lineCount
+            item.classList.add 'bottom'
+        else
+            item.classList.add 'top'
         item.textContent = description
-        atom.workspace.getActiveTextEditor().decorateMarker(m, {type:'overlay', item}, position:'head') if m?
+        atom.workspace.getActiveTextEditor().decorateMarker(m, {class: 'query-error-overlay', type:'overlay', item}, position:'head') if m?
 
         @errorMarkers.push(m)
 

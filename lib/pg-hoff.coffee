@@ -553,7 +553,6 @@ module.exports = PgHoff =
                 atom.workspace.getActivePaneItem().alias = null
                 atom.notifications.addError(err)
             .finally =>
-                console.log 'finally...!'
                 @processingBatch = false
 
     renderQueryPlan: (queryplanrows) ->
