@@ -13,7 +13,6 @@ class ResultsPaneView extends DockPaneView
     getId: () -> 'results'
     @content: ->
         @div class: 'gulp-pane', outlet: 'pane', style: 'overflow: auto !important; font-family:menlo', =>
-        #@subview 'toolbar', new Toolbar()
 
     reset: () ->
         marker.destroy() for marker in @errorMarkers
@@ -80,7 +79,6 @@ class ResultsPaneView extends DockPaneView
             querynumber:@querynumber
             rowcount: resultset.rowcount
             whitespace: "nowrap"
-
         for c in resultset.columns
             c["sortable"] = true
             c["rerenderOnResize"] = true
@@ -88,17 +86,15 @@ class ResultsPaneView extends DockPaneView
             c["width"] = 200
             c["formatter"] = SlickFormatting.DefaultFormatter
             max = 0
-            for d in resultset.rows
-                if d[c["field"]] != null && d[c["field"]]?.toString().length > max
+            for d in resultset.rows?
+                if d[c["field"]] != null && d[c["field"]]?.toString()?.length > max
                     max = d[c["field"]].toString().length
             max = Math.max(max * 9, Math.round((c["name"].length * 8.4) + 12))
             c["width"] = if resultset.columns.length > 1 then Math.min(max, 250) else max
-
-        if resultset.rows.length <= 100 and not resultset.onlyOne
+        if resultset.rowcount <= 100 and not resultset.onlyOne
             height = ''.concat(resultset.rowcount * 30 + 30, 'px')
         else
             height = '100%'
-
         autoTranspose = atom.config.get('pg-hoff.autoTranspose')
         if autoTranspose and resultset.onlyOne and resultset.rowcount <= 2 and resultset.columns.length > 5
             @addClass 'transpose'
@@ -109,9 +105,8 @@ class ResultsPaneView extends DockPaneView
 
         for table in @tables when table.pinned and table.nrrows <= 100
             $(table.table).height(''.concat(table.nrrows * 30 + 30, 'px'))
-
         table = new TableView options, resultset.rows, resultset.columns , height
-        @tables.push {table:table, queryid:resultset['queryid'], nrrows: resultset.rows.length, pinned:false, querynumber: @querynumber}
+        @tables.push {table:table, queryid:resultset['queryid'], nrrows: resultset.rowcount, pinned:false, querynumber: @querynumber}
         @append table
 
     initialize: ->

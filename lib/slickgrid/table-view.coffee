@@ -29,9 +29,9 @@ class HoffTableView extends View
             resizeTimeout = setTimeout(@resize, 200)
 
     appendData: (data) =>
-        for i in [0...data.length]
+        for i in [0...data?.length?]
             @data.push data[i]
-        for d, index in @data
+        for d, index in @data?
             d['rownr'] = index + 1
         @grid.updateRowCount()
         @grid.render()
@@ -72,7 +72,7 @@ class HoffTableView extends View
 
     deTransposeData: =>
         @columns = @normalColumns.slice()
-        @data = @normalData.slice()
+
         if @options.rowNumberColumn
             rowNumberWidth = @options.rowcount.toString().length * 11.5
             rowNumberColumn =
@@ -91,6 +91,9 @@ class HoffTableView extends View
                 type_code: 20
                 width: rowNumberWidth
             @columns.unshift(rowNumberColumn)
+            unless @normalData
+                return
+            @data = @normalData.slice()
             for d, index in @data
                 d['rownr'] = index + 1
         @options.transpose = false
