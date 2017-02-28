@@ -14,7 +14,7 @@ class HoffTableView extends View
         @emitter = new Emitter()
         @normalData = @data
         @normalColumns = @columns
-        if @options.transpose
+        if @options.transpose and @data
             @transposeData()
         else
             @deTransposeData()
