@@ -1,7 +1,4 @@
 - de-transpose när man kopierar values under transpose
-- hamburgler knapp på gridden
-  - pinna resultset
-  - öppna resultset i ny flik
 - dashboard med favoritqueries med filterfunktionalitet (kanske kategoriserat? :), i stil med kolumnfunktioner.
 - kolumnfunktioner
   - möjlighet från en basquery (som endast är baserad på vald kolumn) presentera data och jämförelser
@@ -13,7 +10,6 @@
       - skapa kolumn-funktion
     - context-meny på celler
       - aktivera kolumn-funktion och visa resultat i popup
-- visa och markera queryfel direkt i editorn
 - query historik
   - lägg till toolbar med sökfält högst upp samt sök i data checkbox
   - visa fullständig query i popup vid hover
@@ -34,5 +30,9 @@ WON IDEAS:
 - hamburgler knapp på gridden
   - trigga transpose
   - skapa dynamisk tabell
+  - pinna resultset
+  - öppna resultset i ny flik
 - toggla bottomdock/resultset (ctrl + r) och skifta fokus
 - möjlighet att få ut queryplans och beautifya dem (kanske genom onlineverktyg?)
+- visa och markera queryfel direkt i editorn
+
