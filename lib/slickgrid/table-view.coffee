@@ -36,6 +36,32 @@ class HoffTableView extends View
         @grid.updateRowCount()
         @grid.render()
 
+    expandColumns: =>
+        maxrows = 1
+        for c in @columns when c["field"] != 'rownr'
+            max = 0
+            width = 200
+            for d in @data
+                if d[c["field"]] != null
+                    rows = 0
+                    for l in d[c["field"]].toString().split('\n')
+                        rows += 1
+                        if l.length * 9 > max
+                            max = Math.max(l.length * 9, Math.round((c["name"].length * 8.4) + 12))
+                    if rows > maxrows
+                        maxrows = rows
+                    console.log rows, maxrows
+            width = max
+            c['width'] = width
+        @options.rowHeight = maxrows * 17 + 15
+        @options.whitespace = 'pre'
+        @grid.setOptions(@options);
+        @grid.setColumns(@columns);
+        @grid.invalidate();
+        @grid.render();
+        @resize()
+
+
     transposeData: =>
         @columns = @normalColumns.slice()
         @data = @normalData.slice()

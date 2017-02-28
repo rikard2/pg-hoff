@@ -32,6 +32,9 @@ class ResultsPaneView extends DockPaneView
     unPinTable: (queryid) ->
         x.pinned = false for x in @tables when x.queryid == queryid
 
+    expandColumns: (queryid) ->
+        x.table.expandColumns() for x in @tables when x.queryid == queryid
+
     cycleResults: ->
         if @selectedquery < @tables.length - 1
             @selectedquery += 1
@@ -76,6 +79,7 @@ class ResultsPaneView extends DockPaneView
             queryid: resultset['queryid']
             querynumber:@querynumber
             rowcount: resultset.rowcount
+            whitespace: "nowrap"
 
         for c in resultset.columns
             c["sortable"] = true

@@ -1436,7 +1436,7 @@ var Slick = require('./core');
         }
       }
 
-      stringArray.push("<div class='" + cellCss + "'>");
+      stringArray.push("<div class='" + cellCss + "' style='white-space:" + options.whitespace + "!important; height:" + options.rowHeight + "px'>");
 
       // if there is a corresponding row (if not, this is the Add New row or this data hasn't been loaded yet)
       if (d) {

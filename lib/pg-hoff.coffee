@@ -128,22 +128,26 @@ module.exports = PgHoff =
         atom.commands.add '.hamburgler', 'pg-hoff:transpose': (event) => @transpose(event)
         atom.commands.add '.hamburgler', 'pg-hoff:create-dynamic-table': (event) => @createDynamicTable(event)
         atom.commands.add '.hamburgler', 'pg-hoff:remove-result': (event) => @removeResult(event)
+        atom.commands.add '.hamburgler', 'pg-hoff:expand-columns': (event) => @expandColumns(event)
 
         atom.contextMenu.add {
-          'atom-workspace': [{label: 'Pin', command: 'pg-hoff:pin-toggle-result', shouldDisplay: @pinVisible}]
+          '.hamburgler': [{label: 'Pin', command: 'pg-hoff:pin-toggle-result', shouldDisplay: @pinVisible}]
         }
         atom.contextMenu.add {
-          'atom-workspace': [{label: 'Unpin', command: 'pg-hoff:pin-toggle-result', shouldDisplay: @unpinVisible}]
+          '.hamburgler': [{label: 'Unpin', command: 'pg-hoff:pin-toggle-result', shouldDisplay: @unpinVisible}]
         }
 
         atom.contextMenu.add {
-          'atom-workspace': [{label: 'Toggle transpose', command: 'pg-hoff:transpose'}]
+          '.hamburgler': [{label: 'Toggle transpose', command: 'pg-hoff:transpose'}]
         }
         atom.contextMenu.add {
-          'atom-workspace': [{label: 'Create dynamic table', command: 'pg-hoff:create-dynamic-table'}]
+          '.hamburgler': [{label: 'Expand columns', command: 'pg-hoff:expand-columns'}]
         }
         atom.contextMenu.add {
-          'atom-workspace': [{label: 'Remove', command: 'pg-hoff:remove-result'}]
+          '.hamburgler': [{label: 'Create dynamic table', command: 'pg-hoff:create-dynamic-table'}]
+        }
+        atom.contextMenu.add {
+          '.hamburgler': [{label: 'Remove', command: 'pg-hoff:remove-result'}]
         }
 
         packageFound = atom.packages.getAvailablePackageNames()
@@ -183,6 +187,10 @@ module.exports = PgHoff =
         uid = $(event.target).attr('uid')
         grid = $(".#{uid}")[0];
         grid.transpose() if grid?
+
+    expandColumns: (event) ->
+        queryid = $(event.target).attr('queryid')
+        @resultsPane.expandColumns(queryid)
 
     changeToResultsPane: () ->
         return unless @bottomDock
@@ -491,8 +499,6 @@ module.exports = PgHoff =
                             gotResults = result.has_result
                             gotNotices = result.has_notices
                             gotErrors = result.has_error
-                            if queryCount == 1
-                                result.onlyOne = true
                             if queryCount == 1 and result.has_queryplan
                                 gotQueryplan = true
                             else
@@ -513,6 +519,8 @@ module.exports = PgHoff =
                                         if result.error == 'connection already closed'
                                             atom.editor.getActivePaneItem().alias = null
                                             throw("#{result.error}")
+                                    if queryCount == 1
+                                        result.onlyOne = true
                                     if  result.rowcount > 0 and currentpage + pagesize < result.rowcount
                                         @renderResults(result, false)
                                         currentpage += pagesize
