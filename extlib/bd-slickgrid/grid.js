@@ -562,7 +562,7 @@ var Slick = require('./core');
             hamburglerClass = ' hamburgler';
             tooltip = 'Right-click for resulset options';
         }
-        var header = $("<div class='ui-state-default slick-header-column" + hamburglerClass + "' queryid='" + queryid + "' uid='" + uid + "' id='" + uid+ m.id + "' />")
+        var header = $("<div class='ui-state-default slick-header-column" + hamburglerClass + "' queryid='" + queryid + "' uid='" + uid + "' id='" + uid+ m.id + "' headerid='"+ m.id +"' />")
             .html("<span class='slick-column-name'>" + m.name + "</span>")
             .width(m.width - headerColumnWidthDiff)
             .attr("title", tooltip || m.toolTip || "")
@@ -902,6 +902,8 @@ var Slick = require('./core');
           .appendTo(e)
           .bind("mousedown", function(e) {
               resizeStarted(e);
+          }).bind("dblclick", function(e) {
+              trigger(self.onColumnResizeDblClick, {}, e);
           });
         });
     }
@@ -3239,6 +3241,7 @@ var Slick = require('./core');
       "onAddNewRow": new Slick.Event(),
       "onValidationError": new Slick.Event(),
       "onViewportChanged": new Slick.Event(),
+      "onColumnResizeDblClick": new Slick.Event(),
       "onColumnsReordered": new Slick.Event(),
       "onColumnsResized": new Slick.Event(),
       "onCellChange": new Slick.Event(),

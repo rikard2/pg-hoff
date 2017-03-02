@@ -47,10 +47,10 @@ class HoffTableView extends View
                     for l in d[c["field"]].toString().split('\n')
                         rows += 1
                         if l.length * 9 > max
-                            max = Math.max(l.length * 9, Math.round((c["name"].length * 8.4) + 12))
+                            max = l.length * 9
                     if rows > maxrows
                         maxrows = rows
-                    console.log rows, maxrows
+                max = Math.max(max, Math.round((c["name"].length * 8.4) + 12))
             width = max
             c['width'] = width
         @options.rowHeight = maxrows * 17 + 15
@@ -146,6 +146,17 @@ class HoffTableView extends View
         , 250)
         @grid.onColumnsReordered.subscribe (e, args) =>
                 @columns = @grid.getColumns()
+
+        @grid.onColumnResizeDblClick.subscribe (e, args) =>
+            headerid = $(e.currentTarget).parent().attr('headerid')
+            column = @columns[@grid.getColumnIndex(headerid)]
+            max = 0
+            for d in @data
+                if d[headerid] != null and d[headerid]?.toString()?.length > max
+                    max = d[headerid].toString().length
+            max = Math.max(max * 7.8 + 10, Math.round((column['name'].length * 8.4) + 12))
+            @columns[@grid.getColumnIndex(headerid)].width = max
+            @resize()
 
         @grid.onSort.subscribe (e, args) =>
             @sortData()
