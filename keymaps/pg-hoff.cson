@@ -11,6 +11,7 @@
     'ctrl-z': 'pg-hoff:connect'
     'f1': 'pg-hoff:goto-declaration'
     'ctrl-<': 'pg-hoff:execute-query'
+    'ctrl-alt-space': 'pg-hoff:execute-current-query'
     'ctrl-c': 'pg-hoff:stop-query'
     'ctrl-h': 'pg-hoff:search-history'
     'ctrl-s': 'pg-hoff:copy'

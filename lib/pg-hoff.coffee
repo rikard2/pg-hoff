@@ -115,6 +115,7 @@ module.exports = PgHoff =
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:stop-query': => @stopQuery()
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:toggle-auto-alias': => @toggleAliases()
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:execute-query': => @executeQueryWithConnect()
+        @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:execute-current-query': => @executeQueryWithConnect(true)
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:results': => @changeToResultsPane()
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:output': => @changeToOutputPane()
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:refresh-definitions': => @refreshDefinitions()
@@ -416,15 +417,19 @@ module.exports = PgHoff =
          @bottomDock.deletePane pane.getId()
          pane = null
 
-
-    executeQueryWithConnect: ->
+    executeQueryWithConnect: (onlyCurrentQuery) ->
         alias = @getAliasForPane()
+        cursor_pos = null
+        if onlyCurrentQuery
+            editor = atom.workspace.getActiveTextEditor()
+            pos = editor.getCursorBufferPosition()
+            cursor_pos = editor.getBuffer().characterIndexForPosition(pos)
         if alias?
-            @executeQuery()
+            @executeQuery(cursor_pos)
         else
-            @connect()?.then => @executeQuery()
+            @connect()?.then => @executeQuery(cursor_pos)
 
-    executeQuery: (selectedText, alias) ->
+    executeQuery: (cursor_pos) ->
         if @processingBatch? and @processingBatch
             atom.notifications.addWarning('Execution in progress, hold on!')
             return
@@ -448,10 +453,11 @@ module.exports = PgHoff =
                 selectedText = atom.workspace.getActiveTextEditor().getText().trim()
             else
                 return
-
         request =
             query: selectedText
             alias: alias
+        if cursor_pos
+            request.cursor_pos = cursor_pos
 
         return PgHoffServerRequest.Post('query', request)
             .then (response) ->
