@@ -162,6 +162,10 @@ module.exports = PgHoff =
 
     gotoDeclaration: PgHoffGotoDeclaration
 
+    getHyperclickProvider: () ->
+        console.log 'getHyperclickProvider!'
+        return require './hyperclick-provider'
+
     pinVisible: (event) ->
         if $(event.target).hasClass('pinned')
             return false
@@ -300,6 +304,9 @@ module.exports = PgHoff =
       @subscriptions.add @bottomDock.onDidFinishResizing =>
         pane.resize() for pane in @hoffPanes
       @add true
+
+    consumeProvider: () =>
+        console.log 'consume'
 
     searchHistoryWithConnect: () ->
         alias = @getAliasForPane()
