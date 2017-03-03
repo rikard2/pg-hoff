@@ -424,6 +424,7 @@ module.exports = PgHoff =
             editor = atom.workspace.getActiveTextEditor()
             pos = editor.getCursorBufferPosition()
             cursor_pos = editor.getBuffer().characterIndexForPosition(pos)
+            cursor_pos = cursor_pos - editor.getBuffer().getText(pos).substr(0, cursor_pos).split(/\r\n|\r|\n/).length
         if alias?
             @executeQuery(cursor_pos)
         else

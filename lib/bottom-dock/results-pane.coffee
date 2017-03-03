@@ -85,13 +85,8 @@ class ResultsPaneView extends DockPaneView
             c["id"] = c["field"]
             c["width"] = 200
             c["formatter"] = SlickFormatting.DefaultFormatter
-            max = 0
-            if resultset.rowcount > 0
-                for d in resultset.rows
-                    if d[c["field"]] != null and d[c["field"]]?.toString()?.length > max
-                        max = d[c["field"]].toString().length
-            max = Math.max(max * 7.8 + 10, Math.round((c["name"].length * 8.4) + 12))
-            c["width"] = if resultset.columns.length > 1 then Math.min(max, 250) else max
+            max = Math.round(Math.max(c["data_length"] * 7.8 + 10, (c["name"].length * 8.4) + 12))
+            c["width"] = if resultset.columns.length > 1 then Math.min(max, 250) else 100
         if resultset.rowcount <= 100 and not resultset.onlyOne
             height = ''.concat(resultset.rowcount * 30 + 30, 'px')
         else
