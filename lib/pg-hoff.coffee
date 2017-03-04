@@ -24,11 +24,10 @@ module.exports = PgHoff =
 
     activate: (state) ->
         console.debug 'Activating the greatest plugin ever..'
-        @listServersView        = new PgHoffConnection(state.pgHoffViewState)
+        @connection = new PgHoffConnection(state.pgHoffViewState)
         @hoffPanes = []
 
         editor = atom.workspace.getActiveTextEditor()
-        @listServersViewPanel = atom.workspace.addModalPanel(item: @listServersView.getElement(), visible: false)
 
         unless @provider?
             @provider = new PgHoffAutocompleteProvider()
@@ -279,11 +278,7 @@ module.exports = PgHoff =
     connect: ->
         paneItem = atom.workspace.getActivePaneItem()
 
-        if @listServersViewPanel.isVisible()
-            @listServersViewPanel.hide()
-            return
-
-        return @listServersView.connect(@listServersViewPanel)
+        return @connection.connect()
             .then (server) =>
                 if server.already_connected
                     atom.notifications.addInfo('Using ' + server.alias)
@@ -313,8 +308,6 @@ module.exports = PgHoff =
                     atom.notifications.addError("Connect error: #{err}")
                     tabMarker.remove() for tabMarker in atom.views.getView(atom.workspace).querySelectorAll "ul.tab-bar>li.tab[data-type='TextEditor']>span.tab-marker"
                 throw(err)
-            .finally =>
-                @listServersViewPanel.hide()
 
     renderResults: (resultset, complete) ->
         if not resultset.complete?
@@ -519,7 +512,7 @@ module.exports = PgHoff =
                 console.error r
     deactivate: ->
         @subscriptions.dispose()
-        @listServersView.destroy()
+        @connection.destroy()
         @bottomDock.deletePane pane.getId() for pane in @hoffPanes
 
     serialize: ->

@@ -19,7 +19,7 @@ class PgHoffConnection
         port = 5000
         killHoffServer(restart)
 
-    connect: (panel) ->
+    connect: () ->
         listServersView = @
         selectedServer = null
         currentAlias = atom.workspace.getActiveTextEditor()?.alias
