@@ -468,6 +468,7 @@ module.exports = PgHoff =
                 @bottomDock.changePane(@analyzePane.getId())
             .catch (r) ->
                 console.error r
+
     setupHamburgler: ->
         atom.commands.add '.hamburgler', 'pg-hoff:pin-toggle-result': (event) => @pinToggleResult(event)
         atom.commands.add '.hamburgler', 'pg-hoff:transpose': (event) => @transpose(event)
