@@ -15,6 +15,21 @@ cmd = (c) ->
         )
     )
 
+colorizeString = (str) ->
+    i = 0
+    hash = 0
+    while i < str.length
+        hash = str.charCodeAt(i++) + (hash << 5) - hash
+    color = Math.floor(Math.abs(Math.sin(hash) * 10000 % 1 * 16777216)).toString(16)
+    '#' + Array(6 - (color.length) + 1).join('0') + color
+
+getCursorPosInCurrentTextEditor = ->
+    editor = atom.workspace.getActiveTextEditor()
+    pos = editor.getCursorBufferPosition()
+    cursor_pos = editor.getBuffer().characterIndexForPosition(pos)
+    cursor_pos = cursor_pos - editor.getBuffer().getText(pos).substr(0, cursor_pos).split(/\r\n|\r|\n/).length
+    return cursor_pos
+
 findTheHoff = (startPath, filter) ->
     files = fs.readdirSync(startPath).filter (x) -> x[0] != '.' and x != 'node_modules'
     for file in files
@@ -123,4 +138,5 @@ maybeStartServer = ->
 
 module.exports =
     'maybeStartServer': maybeStartServer,
-    'killHoffServer': killHoffServer
+    'killHoffServer': killHoffServer,
+    'colorizeString': colorizeString

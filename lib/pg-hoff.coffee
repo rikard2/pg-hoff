@@ -12,6 +12,7 @@ ResultsPaneView                   = require './bottom-dock/results-pane'
 OutputPaneView                    = require './bottom-dock/output-pane'
 HistoryPaneView                   = require './bottom-dock/history-pane'
 AnalyzePaneView                   = require './bottom-dock/analyze-pane'
+util                              = (require './util')
 
 module.exports = PgHoff =
     config        : require './config'
@@ -248,18 +249,11 @@ module.exports = PgHoff =
                 @statusBarTile.item.transactionStatus = null
                 @statusBarTile.item.renderText()
 
-                colorizeString = (str) ->
-                    i = 0
-                    hash = 0
-                    while i < str.length
-                        hash = str.charCodeAt(i++) + (hash << 5) - hash
-                    color = Math.floor(Math.abs(Math.sin(hash) * 10000 % 1 * 16777216)).toString(16)
-                    '#' + Array(6 - (color.length) + 1).join('0') + color
                 tabItem = atom.views.getView(atom.workspace).querySelector "ul.tab-bar>li.tab[data-type='TextEditor'].active"
                 tabMarker = (tabItem.querySelector "span.tab-marker") or document.createElement('span')
                 $(tabMarker).attr('alias', server.alias)
                 tabMarker.classList.add 'tab-marker'
-                $(tabMarker).css('border-color', "transparent #{server.color or colorizeString(server.alias)} transparent transparent")
+                $(tabMarker).css('border-color', "transparent #{server.color or util.colorizeString(server.alias)} transparent transparent")
                 tabItem.appendChild tabMarker
             .catch (err) =>
                 if err? and err != 'cancel'
@@ -268,11 +262,9 @@ module.exports = PgHoff =
                 throw(err)
 
     renderResults: (resultset, complete) ->
-        if not resultset.complete?
-            throw 'WTF!? Resultset not complete'
+        throw 'WTF!? Resultset not complete' unless resultset.complete?
         @resultsPane.render(resultset)
-        if complete
-            @outputPane.render(resultset)
+        @outputPane.render(resultset) if complete
 
     refreshDefinitions: ->
         alias = @getAliasForPane()
@@ -289,18 +281,13 @@ module.exports = PgHoff =
     removeHoffPane: (pane) ->
         index = @hoffPanes.indexOf(pane);
         if index >= 0
-          @hoffPanes.splice( index, 1 );
-         @bottomDock.deletePane pane.getId()
-         pane = null
+            @hoffPanes.splice( index, 1 );
+        @bottomDock.deletePane pane.getId()
+        pane = null
 
     executeQueryWithConnect: (onlyCurrentQuery) ->
         alias = @getAliasForPane()
-        cursor_pos = null
-        if onlyCurrentQuery
-            editor = atom.workspace.getActiveTextEditor()
-            pos = editor.getCursorBufferPosition()
-            cursor_pos = editor.getBuffer().characterIndexForPosition(pos)
-            cursor_pos = cursor_pos - editor.getBuffer().getText(pos).substr(0, cursor_pos).split(/\r\n|\r|\n/).length
+        cursor_pos = if onlyCurrentQuery then util.getCursorPosInCurrentTextEditor else null
         if alias?
             @executeQuery(cursor_pos)
         else
@@ -347,12 +334,6 @@ module.exports = PgHoff =
 
                 return response
             .then (response) =>
-                timeout = (ms) ->
-                    return new Promise((fulfil) ->
-                        setTimeout(() ->
-                            fulfil()
-                        , ms)
-                    )
                 promises = []
                 first = true
                 gotResults = false
@@ -371,11 +352,8 @@ module.exports = PgHoff =
                             @resultsPane.updateNotComplete(newBatch, result, NumberOfQueries - response.queryids.length, selectedBufferRange)
                             if not result.complete
                                 newBatch = false
-                                return timeout(100)
-                                    .then () ->
-                                        return getResult(queryid)
-                            else
-                                return result
+                                return util.timeout(100).then () -> getResult(queryid)
+                            return result
                 boom = () =>
                     return getResult()
                         .then (result) =>
