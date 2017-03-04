@@ -14,26 +14,19 @@ HistoryPaneView                   = require './bottom-dock/history-pane'
 AnalyzePaneView                   = require './bottom-dock/analyze-pane'
 
 module.exports = PgHoff =
-    config: require './config'
-
-    provider: null
-    subscriptions: null
-    listServersView: null
-    listServersViewPanel: null
-    resultsPane: null
+    config        : require './config'
+    provider      : null
+    subscriptions : null
+    resultsPane   : null
+    hoffPanes     : []
 
     activate: (state) ->
         console.debug 'Activating the greatest plugin ever..'
         @connection = new PgHoffConnection(state.pgHoffViewState)
-        @hoffPanes = []
-
-        editor = atom.workspace.getActiveTextEditor()
-
-        unless @provider?
-            @provider = new PgHoffAutocompleteProvider()
+        @provider = new PgHoffAutocompleteProvider() unless @provider?
 
         @subscriptions = new CompositeDisposable
-        @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:goto-declaration': => @gotoDeclaration()
+        @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:goto-declaration': => PgHoffGotoDeclaration()
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:connect': => @connect()
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:search-history': => @searchHistoryWithConnect()
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:stop-query': => @stopQuery()
@@ -48,32 +41,7 @@ module.exports = PgHoff =
         @subscriptions.add atom.commands.add 'body', 'core:cancel': => @cancel()
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:cycle-results': => @cycleResults()
 
-        #@subscriptions.add atom.commands.add '.hamburgler', 'pg-hoff:create-dynamic-table': => @createDynamicTable(event)
-        atom.commands.add '.hamburgler', 'pg-hoff:pin-toggle-result': (event) => @pinToggleResult(event)
-        atom.commands.add '.hamburgler', 'pg-hoff:transpose': (event) => @transpose(event)
-        atom.commands.add '.hamburgler', 'pg-hoff:create-dynamic-table': (event) => @createDynamicTable(event)
-        atom.commands.add '.hamburgler', 'pg-hoff:remove-result': (event) => @removeResult(event)
-        atom.commands.add '.hamburgler', 'pg-hoff:expand-columns': (event) => @expandColumns(event)
-
-        atom.contextMenu.add {
-          '.hamburgler': [{label: 'Pin', command: 'pg-hoff:pin-toggle-result', shouldDisplay: @pinVisible}]
-        }
-        atom.contextMenu.add {
-          '.hamburgler': [{label: 'Unpin', command: 'pg-hoff:pin-toggle-result', shouldDisplay: @unpinVisible}]
-        }
-
-        atom.contextMenu.add {
-          '.hamburgler': [{label: 'Toggle transpose', command: 'pg-hoff:transpose'}]
-        }
-        atom.contextMenu.add {
-          '.hamburgler': [{label: 'Expand columns', command: 'pg-hoff:expand-columns'}]
-        }
-        atom.contextMenu.add {
-          '.hamburgler': [{label: 'Create dynamic table', command: 'pg-hoff:create-dynamic-table'}]
-        }
-        atom.contextMenu.add {
-          '.hamburgler': [{label: 'Remove', command: 'pg-hoff:remove-result'}]
-        }
+        @setupHamburgler()
 
         packageFound = atom.packages.getAvailablePackageNames()
             .indexOf('bottom-dock') != -1
@@ -83,8 +51,6 @@ module.exports = PgHoff =
                 detail: 'Pg-Hoff: The bottom-dock package is a dependency. \n
                 Learn more about bottom-dock here: https://atom.io/packages/bottom-dock'
                 dismissable: true
-
-    gotoDeclaration: PgHoffGotoDeclaration
 
     pinVisible: (event) ->
         if $(event.target).hasClass('pinned')
@@ -510,12 +476,37 @@ module.exports = PgHoff =
                 @bottomDock.changePane(@analyzePane.getId())
             .catch (r) ->
                 console.error r
+    setupHamburgler: ->
+        atom.commands.add '.hamburgler', 'pg-hoff:pin-toggle-result': (event) => @pinToggleResult(event)
+        atom.commands.add '.hamburgler', 'pg-hoff:transpose': (event) => @transpose(event)
+        atom.commands.add '.hamburgler', 'pg-hoff:create-dynamic-table': (event) => @createDynamicTable(event)
+        atom.commands.add '.hamburgler', 'pg-hoff:remove-result': (event) => @removeResult(event)
+        atom.commands.add '.hamburgler', 'pg-hoff:expand-columns': (event) => @expandColumns(event)
+
+        atom.contextMenu.add {
+          '.hamburgler': [{label: 'Pin', command: 'pg-hoff:pin-toggle-result', shouldDisplay: @pinVisible}]
+        }
+        atom.contextMenu.add {
+          '.hamburgler': [{label: 'Unpin', command: 'pg-hoff:pin-toggle-result', shouldDisplay: @unpinVisible}]
+        }
+
+        atom.contextMenu.add {
+          '.hamburgler': [{label: 'Toggle transpose', command: 'pg-hoff:transpose'}]
+        }
+        atom.contextMenu.add {
+          '.hamburgler': [{label: 'Expand columns', command: 'pg-hoff:expand-columns'}]
+        }
+        atom.contextMenu.add {
+          '.hamburgler': [{label: 'Create dynamic table', command: 'pg-hoff:create-dynamic-table'}]
+        }
+        atom.contextMenu.add {
+          '.hamburgler': [{label: 'Remove', command: 'pg-hoff:remove-result'}]
+        }
+
     deactivate: ->
         @subscriptions.dispose()
         @connection.destroy()
         @bottomDock.deletePane pane.getId() for pane in @hoffPanes
 
     serialize: ->
-
-    provide: ->
-        @provider
+    provide: -> @provider
