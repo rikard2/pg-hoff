@@ -110,8 +110,6 @@ module.exports = PgHoff =
             @bottomDock.changePane('output')
             @resultsPane.focusFirstResult()
 
-    onDidChangeActivePane: () ->
-        #console.log 'onDidChangeActivePane'
     consumeStatusBar: (statusBar) ->
         @statusBarTile = statusBar.addRightTile item: new PgHoffStatus , priority: 2
         @statusBarTile.item.alias = @getAliasForPane()
@@ -124,16 +122,11 @@ module.exports = PgHoff =
         )
 
         @subscriptions.add @statusBarTile.item.onDidToggle =>
-            #console.log 'toggle?'
+            #console.log 'toggle?
 
     getAliasForPane: (pane) =>
-        if not pane?
-            pane = atom.workspace.getActivePaneItem()
-        return unless pane?
-        if pane?.alias?
-            return pane.alias
-
-        return null
+        return atom.workspace.getActivePaneItem()?.alias? or null unless pane?
+        return pane.alias? or null
 
     toggleAliases: ->
         alias = @getAliasForPane()
