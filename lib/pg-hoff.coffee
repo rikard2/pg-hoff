@@ -130,21 +130,20 @@ module.exports = PgHoff =
 
     toggleAliases: ->
         alias = @getAliasForPane()
-        if alias? or true
-            return PgHoffServerRequest
-                .Post('get_settings', { alias: alias })
-                .then (response) ->
-                    response.generate_aliases = !response.generate_aliases
-                    settings = response
-                    return PgHoffServerRequest
-                        .Post('update_settings', { alias: alias,  settings: settings })
-                        .then (response) ->
-                            if response.success
-                                atom.notifications.addSuccess 'Auto alias: ' + if settings.generate_aliases == true then 'ON' else 'OFF'
-                            else
-                                atom.notifications.addError response.errormessage
-                        .catch (err) ->
-                            console.error 'catch', err
+        return PgHoffServerRequest
+            .Post('get_settings', { alias: alias })
+            .then (response) ->
+                response.generate_aliases = !response.generate_aliases
+                settings = response
+                return PgHoffServerRequest
+                    .Post('update_settings', { alias: alias,  settings: settings })
+                    .then (response) ->
+                        if response.success
+                            atom.notifications.addSuccess 'Auto alias: ' + if settings.generate_aliases == true then 'ON' else 'OFF'
+                        else
+                            atom.notifications.addError response.errormessage
+                    .catch (err) ->
+                        console.error 'catch', err
 
     stopQuery: ->
         alias = atom.workspace.getActivePaneItem().alias
@@ -180,9 +179,9 @@ module.exports = PgHoff =
             @resultsPane.resize() if @resultsPane.active && @bottomDock.isActive()
 
     consumeBottomDock: (@bottomDock) ->
-      @subscriptions.add @bottomDock.onDidFinishResizing =>
-        pane.resize() for pane in @hoffPanes
-      @add true
+        @subscriptions.add @bottomDock.onDidFinishResizing =>
+            pane.resize() for pane in @hoffPanes
+        @add true
 
     searchHistoryWithConnect: () ->
         alias = @getAliasForPane()
