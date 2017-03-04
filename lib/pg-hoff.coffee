@@ -343,6 +343,7 @@ module.exports = PgHoff =
                 NumberOfQueries = response.queryids.length
                 return unless response.queryids.length >= 1
                 queryCount = response.queryids.length
+                pollInterval = atom.config.get('pg-hoff.pollInterval')
                 getResult = (queryid) =>
                     if not queryid?
                         queryid = response.queryids.shift()
@@ -352,7 +353,7 @@ module.exports = PgHoff =
                             @resultsPane.updateNotComplete(newBatch, result, NumberOfQueries - response.queryids.length, selectedBufferRange)
                             if not result.complete
                                 newBatch = false
-                                return util.timeout(100).then () -> getResult(queryid)
+                                return util.timeout(pollInterval).then () -> getResult(queryid)
                             return result
                 boom = () =>
                     return getResult()
