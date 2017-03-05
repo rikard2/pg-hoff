@@ -1,6 +1,15 @@
 @import "ui-variables";
 @import "octicon-mixins";
 
+.definition-underline .region {
+    pointer-events: auto !important;
+    z-index: 1 !important;
+    cursor: pointer;
+}
+.definition-underline:hover .region:hover {
+    border-bottom: 1px solid @text-color-info !important;
+}
+
 .tab-marker {
 	display: inline-block;
     width: 0;

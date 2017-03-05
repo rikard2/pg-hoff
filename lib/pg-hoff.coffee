@@ -124,6 +124,13 @@ module.exports = PgHoff =
         @subscriptions.add atom.commands.add 'body', 'core:cancel': => @cancel()
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:cycle-results': => @cycleResults()
 
+        atom.workspace.observeTextEditors((editor) =>
+            markerLayer = editor.addMarkerLayer()
+            editor.onDidStopChanging () =>
+                markerLayer.clear()
+                @fetchMetadata(editor, markerLayer)
+            )
+
         #@subscriptions.add atom.commands.add '.hamburgler', 'pg-hoff:create-dynamic-table': => @createDynamicTable(event)
         atom.commands.add '.hamburgler', 'pg-hoff:pin-toggle-result': (event) => @pinToggleResult(event)
         atom.commands.add '.hamburgler', 'pg-hoff:transpose': (event) => @transpose(event)
@@ -174,6 +181,17 @@ module.exports = PgHoff =
 
     cycleResults: () ->
         @resultsPane.cycleResults()
+
+    fetchMetadata: (editor, markerLayer) ->
+        return unless @getAliasForPane()
+        PgHoffServerRequest
+            .Post('get_metadata', { sql: editor.getText().trim() })
+            .then (response) =>
+                for table in response
+                    editor.scan new RegExp(table.expression, 'i'), (hit) =>
+                        marker = markerLayer.markBufferRange(hit.range)
+            .finally () =>
+                editor.decorateMarkerLayer(markerLayer, type: 'highlight', class: 'definition-underline')
 
     removeResult: (event) ->
         queryid = $(event.target).attr('queryid')
