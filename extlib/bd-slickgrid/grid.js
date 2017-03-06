@@ -683,12 +683,18 @@ var Slick = require('./core');
         placeholder: "slick-sortable-placeholder ui-state-default slick-header-column",
         forcePlaceholderSize: true,
         start: function (e, ui) {
+          if(e.ctrlKey){
+                $(this).sortable("cancel");
+                return;
+          }
           $(ui.helper).addClass("slick-header-column-active");
         },
         beforeStop: function (e, ui) {
+          if(e.ctrlKey){ return; }
           $(ui.helper).removeClass("slick-header-column-active");
         },
         stop: function (e) {
+          if(e.ctrlKey){ return; }
           if (!getEditorLock().commitCurrentEdit()) {
             $(this).sortable("cancel");
             return;
