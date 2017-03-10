@@ -513,17 +513,33 @@
     margin: 0;
     cursor: default;
 }
+.SQLvalueNULL{
+    color:#fcc81e;
+    font-weight:bold;
+    font-style:normal;
+}
+.SQLvalueTRUE{
+    color:#a2ff6d;
+    font-weight:bold;
+}
+.SQLvalueFALSE{
+    color:#ff816d;
+    font-weight:bold;
+}
 .slick-row{
     color: @text-color !important;
     background: @button-background-color;
 }
 .slick-row:hover, .slick-headerrow:hover{
     background: lighten(@tab-background-color, 5%);
-    color: #ffae38 !important;
+    color: #b699ff !important;
     .selected {
         background: lighten(@tab-background-color, 1%) !important;
-        color: lighten(#dfaf68, 10%) !important;
+        color: #ccb8ff !important;
     }
+    .SQLvalueNULL{ color:#fde490; }
+    .SQLvalueTRUE{ color:#d2ffb8 }
+    .SQLvalueFALSE{ color:#ffb8ad; }
 }
 .grid-canvas {
     .selected {
