@@ -13,4 +13,18 @@ module.exports = class SlickFormatting
             return new Date('2000-01-01 ' + value).toLocaleTimeString(atom.config.get('pg-hoff.locale'))
         if columnDef.type == 'json'
             return JSON.stringify(JSON.parse(value), null, '   ')
-        return value
+
+        entityMap =
+            '&': '&amp;'
+            '<': '&lt;'
+            '>': '&gt;'
+            '"': '&quot;'
+            '\'': '&#39;'
+            '/': '&#x2F;'
+            '`': '&#x60;'
+            '=': '&#x3D;'
+
+        escapeHtml = (string) ->
+          String(string).replace /[&<>"'`=\/]/g, (s) ->
+            entityMap[s]
+        return escapeHtml(value)
