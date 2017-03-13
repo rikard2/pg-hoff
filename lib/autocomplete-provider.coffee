@@ -54,11 +54,15 @@ class PgHoffAutocompleteProvider
                     if unQuoteFunctionNames
                         value.displayText = value.text = PgHoffAutocompleteProvider.UnQuote(value.text)
 
+                    replacementPrefix = switch before[-1..-1]
+                        when '*' then '*'
+
                     suggestion =
                         text: value.text
                         displayText: value.text
                         iconHTML: iconHTML
                         rightLabel: value.type
+                        replacementPrefix: replacementPrefix
                         #description: 'this would be nice'
                         type: type
                     return suggestion
