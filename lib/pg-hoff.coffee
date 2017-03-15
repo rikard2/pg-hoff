@@ -365,7 +365,7 @@ module.exports = PgHoff =
                 globalName = name
                 return PgHoffServerRequest.Post('create_dynamic_table', req)
             .then (response) ->
-                atom.notifications.addSuccess 'Dynamic query created with name ' + globalName + '.'
+                atom.notifications.addInfo('Dynamic table created with name ' + globalName + '.')
             .catch (err) ->
                 console.debug 'user aborted prompt'
 
