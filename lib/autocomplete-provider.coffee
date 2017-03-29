@@ -50,23 +50,24 @@ class PgHoffAutocompleteProvider
 
                     if pascalize
                         value.displayText = value.text = PgHoffAutocompleteProvider.Pascalize(value.text)
+                        value.displayText = PgHoffAutocompleteProvider.Pascalize(value.displayText)
 
                     if unQuoteFunctionNames
-                        value.displayText = value.text = PgHoffAutocompleteProvider.UnQuote(value.text)
+                        value.text = PgHoffAutocompleteProvider.UnQuote(value.text)
+                        value.displayText = PgHoffAutocompleteProvider.UnQuote(value.displayText)
 
                     replacementPrefix = switch before[-1..-1]
                         when '*' then '*'
 
                     suggestion =
-                        text: value.text
-                        displayText: value.text
+                        snippet: value.text
+                        displayText: value.displayText
                         iconHTML: iconHTML
                         rightLabel: value.type
                         replacementPrefix: replacementPrefix
                         #description: 'this would be nice'
                         type: type
                     return suggestion
-
                 return suggestions
 
             .catch (err) ->
