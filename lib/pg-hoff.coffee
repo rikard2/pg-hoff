@@ -592,7 +592,7 @@ module.exports = PgHoff =
         queryplan = (queryplanrows.map (row) -> row['QUERY PLAN1']).join('\n')
         request =
             plan: queryplan
-            is_anon: 1
+            is_anon: 0
             title: ' '
             is_public:0
         return PgHoffServerRequest.hoffingtonPost('https://explain.depesz.com/', request)
