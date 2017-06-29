@@ -96,6 +96,11 @@ module.exports = PgHoff =
             type: 'string'
             default: ''
             order: 1
+        quoteValues:
+            description: 'Quote non-numerics when copying'
+            type: 'boolean'
+            default: true
+            order: 37
 
     activate: (state) ->
         console.debug 'Activating the greatest plugin ever..'
