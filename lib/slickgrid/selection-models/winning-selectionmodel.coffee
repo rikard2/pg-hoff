@@ -206,7 +206,7 @@ class WinningSelectionModel
     formatCell: (columnType, cellValue) ->
         if cellValue == null
             return 'NULL'
-        else if columnType not in ['integer', 'bigint', 'numeric', 'real']
+        else if atom.config.get('pg-hoff.quoteValues') and columnType not in ['integer', 'bigint', 'numeric', 'real']
             return "'" + cellValue + "'"
         else
             return cellValue
