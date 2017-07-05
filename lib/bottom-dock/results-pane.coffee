@@ -104,6 +104,8 @@ class ResultsPaneView extends DockPaneView
         table = new TableView options, resultset.rows, resultset.columns , height
         @tables.push {table:table, queryid:resultset['queryid'], nrrows: resultset.rowcount, pinned:false, querynumber: @querynumber}
         @append table
+        if resultset.onlyOne and resultset.rowcount == 1 and resultset.columns.length == 1
+            @expandColumns(resultset.queryid)
 
     initialize: ->
         super()
