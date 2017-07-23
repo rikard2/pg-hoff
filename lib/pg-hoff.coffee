@@ -139,6 +139,9 @@ module.exports = PgHoff =
         #@subscriptions.add atom.commands.add '.hamburgler', 'pg-hoff:create-dynamic-table': => @createDynamicTable(event)
         atom.commands.add '.hamburgler', 'pg-hoff:pin-toggle-result': (event) => @pinToggleResult(event)
         atom.commands.add '.hamburgler', 'pg-hoff:transpose': (event) => @transpose(event)
+        atom.commands.add '.hamburgler', 'pg-hoff:open-scripts': (event) => @openScripts(event)
+        atom.commands.add '.hamburgler', 'pg-hoff:write-scripts': (event) => @writeScripts(event)
+        atom.commands.add '.hamburgler', 'pg-hoff:write-and-open-scripts': (event) => @writeAndOpenScripts(event)
         atom.commands.add '.hamburgler', 'pg-hoff:create-dynamic-table': (event) => @createDynamicTable(event)
         atom.commands.add '.hamburgler', 'pg-hoff:remove-result': (event) => @removeResult(event)
         atom.commands.add '.hamburgler', 'pg-hoff:expand-columns': (event) => @expandColumns(event)
@@ -161,6 +164,36 @@ module.exports = PgHoff =
         }
         atom.contextMenu.add {
           '.hamburgler': [{label: 'Remove', command: 'pg-hoff:remove-result'}]
+        }
+        atom.contextMenu.add {
+            '.hamburgler': [{
+                label: 'Open scripts',
+                command: 'pg-hoff:open-scripts',
+                shouldDisplay: (event) ->
+                    uid = $(event.target).attr('uid')
+                    grid = $(".#{uid}")[0];
+                    grid.showOpenScripts()
+            }]
+        }
+        atom.contextMenu.add {
+            '.hamburgler': [{
+                label: 'Write scripts',
+                command: 'pg-hoff:write-scripts',
+                shouldDisplay: (event) ->
+                    uid = $(event.target).attr('uid')
+                    grid = $(".#{uid}")[0];
+                    grid.showWriteScripts()
+            }]
+        }
+        atom.contextMenu.add {
+            '.hamburgler': [{
+                label: 'Write+open scripts',
+                command: 'pg-hoff:write-and-open-scripts',
+                shouldDisplay: (event) ->
+                    uid = $(event.target).attr('uid')
+                    grid = $(".#{uid}")[0];
+                    grid.showWriteAndOpenScripts()
+            }]
         }
 
         packageFound = atom.packages.getAvailablePackageNames()
@@ -420,6 +453,21 @@ module.exports = PgHoff =
         @resultsPane.render(resultset)
         if complete
             @outputPane.render(resultset)
+
+    openScripts: (event) ->
+        uid = $(event.target).attr('uid')
+        grid = $(".#{uid}")[0];
+        grid.openScripts()
+
+    writeScripts: (event) ->
+        uid = $(event.target).attr('uid')
+        grid = $(".#{uid}")[0];
+        grid.writeScripts()
+
+    writeAndOpenScripts: (event) ->
+        uid = $(event.target).attr('uid')
+        grid = $(".#{uid}")[0];
+        grid.writeAndOpenScripts()
 
     refreshDefinitions: ->
         alias = @getAliasForPane()

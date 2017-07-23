@@ -5,6 +5,7 @@ WinningSelectionModel               = require './selection-models/winning-select
 TransposeSlickData                  = require './transpose'
 {Emitter, Disposable}               = require 'atom'
 JSONModal                           = require '../modals/json-modal'
+{showOpenScripts, openScripts, showWriteScripts, writeScripts, showWriteAndOpenScripts, writeAndOpenScripts}      = require '../open-scripts'
 
 class HoffTableView extends View
     @content: (options, data, columns, height, selectionmodel) ->
@@ -122,6 +123,24 @@ class HoffTableView extends View
         @columns = @columns ? []
 
         @grid = new SlickGrid @, @data, @columns, @options
+
+        @[0].showOpenScripts = () =>
+            showOpenScripts(@data)
+
+        @[0].openScripts = () =>
+            openScripts(@data)
+
+        @[0].showWriteScripts = () =>
+            showWriteScripts(@data)
+
+        @[0].writeScripts = () =>
+            writeScripts(@data)
+
+        @[0].showWriteAndOpenScripts = () =>
+            showWriteAndOpenScripts(@data)
+
+        @[0].writeAndOpenScripts = () =>
+            writeAndOpenScripts(@data)
 
         @[0].transpose = () =>
             if @options.transpose
