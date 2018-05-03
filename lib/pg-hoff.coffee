@@ -140,6 +140,7 @@ module.exports = PgHoff =
         atom.commands.add '.hamburgler', 'pg-hoff:pin-toggle-result': (event) => @pinToggleResult(event)
         atom.commands.add '.hamburgler', 'pg-hoff:transpose': (event) => @transpose(event)
         atom.commands.add '.hamburgler', 'pg-hoff:create-dynamic-table': (event) => @createDynamicTable(event)
+        atom.commands.add '.hamburgler', 'pg-hoff:export-to-csv': (event) => @exportToCSV(event)
         atom.commands.add '.hamburgler', 'pg-hoff:remove-result': (event) => @removeResult(event)
         atom.commands.add '.hamburgler', 'pg-hoff:expand-columns': (event) => @expandColumns(event)
 
@@ -158,6 +159,9 @@ module.exports = PgHoff =
         }
         atom.contextMenu.add {
           '.hamburgler': [{label: 'Create dynamic table', command: 'pg-hoff:create-dynamic-table'}]
+        }
+        atom.contextMenu.add {
+          '.hamburgler': [{label: 'Export to CSV', command: 'pg-hoff:export-to-csv'}]
         }
         atom.contextMenu.add {
           '.hamburgler': [{label: 'Remove', command: 'pg-hoff:remove-result'}]
@@ -373,6 +377,22 @@ module.exports = PgHoff =
                 atom.notifications.addInfo('Dynamic table created with name ' + globalName + '.')
             .catch (err) ->
                 console.debug 'user aborted prompt'
+
+    exportToCSV: (event) ->
+        PgHoffDialog
+            .SaveAs()
+            .then (path) ->
+                req =
+                    queryid: $(event.target).attr('queryid')
+                    path: path
+                return PgHoffServerRequest.Post('write_csv_file', req)
+            .then (response) ->
+                if response.success
+                    atom.notifications.addInfo('Exporting to CSV.')
+                else
+                    atom.notifications.addWarning('There was a problem exporting to CSV')
+            .catch (err) ->
+                console.debug err
 
     connect: ->
         paneItem = atom.workspace.getActivePaneItem()

@@ -1,4 +1,6 @@
 SelectListView = require 'atom-select-list'
+remote = require "remote"
+dialog = remote.require "dialog"
 
 class PgHoffDialog
     constructor: (serializedState) ->
@@ -38,6 +40,10 @@ class PgHoffDialog
             lineEndingListView.focus()
         )
 
+    @SaveAs: () ->
+        return new Promise((fulfil, reject) ->
+            fulfil(remote.dialog.showSaveDialog(remote.getCurrentWindow(), properties: ['showSaveDialog']))
+        )
     @Prompt: (text) ->
         return new Promise((fulfil, reject) ->
             element = document.createElement('div')

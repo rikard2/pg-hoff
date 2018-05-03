@@ -55,9 +55,14 @@ class OutputView extends View
           for n in resultset.notices
               notice = document.createElement('pre')
               notice.classList.add 'notice'
-              notice.setAttribute 'title', resultset.query
               notice.textContent = n.substr(9)
               @outputContainer.append notice
+      if resultset.messages?.length > 0
+          for n in resultset.messages
+              message = document.createElement('pre')
+              message.classList.add 'messages'
+              message.textContent = n
+              @outputContainer.append message
 
   clear: ->
     @outputContainer.empty()
