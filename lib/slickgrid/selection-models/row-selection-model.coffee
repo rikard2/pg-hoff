@@ -52,8 +52,7 @@ class RowSelectionModel
             @grid.setCellCssStyles("copy_Flash", obj2)
 
         if e.keyCode == 13
-            for pane in atom.workspace.getPanes()
-                atom.commands.dispatch(atom.views.getView(pane), 'application:new-file')
+            atom.commands.dispatch(atom.views.getView(atom.workspace.getPanes()[0]), 'application:new-file')
             setTimeout( () =>
                 atom.workspace.getActiveTextEditor().insertText(data[@lastCell.y]["query"].toString())
             , 50)
