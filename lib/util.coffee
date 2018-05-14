@@ -43,6 +43,9 @@ spawnHoffServer = (command, args) ->
         if fs.existsSync(path.join hoffpath, 'pghoffserver.py')
             atom.config.set('pg-hoff.hoffServerPath', path.parse(hoffpath).dir)
             hoffpath = path.parse(hoffpath).dir
+        else if fs.existsSync(path.join os.homedir(), '.pghoffserver', 'src', 'pg-hoffserver', 'pghoffserver', 'pghoffserver.py')
+            atom.config.set('pg-hoff.hoffServerPath', path.join os.homedir(), '.pghoffserver', 'src', 'pg-hoffserver', 'pghoffserver')
+            hoffpath = path.parse(path.join os.homedir(), '.pghoffserver', 'src', 'pg-hoffserver', 'pghoffserver').dir
         else if hoffpath.indexOf('pghoffserver.py') != -1 and fs.existsSync(hoffpath)
             atom.config.set('pg-hoff.hoffServerPath', path.parse(path.join hoffpath, '../').dir)
             hoffpath = path.parse(path.join hoffpath, '../').dir
