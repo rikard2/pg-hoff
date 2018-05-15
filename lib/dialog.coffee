@@ -1,6 +1,6 @@
 SelectListView = require 'atom-select-list'
 remote = require "remote"
-dialog = remote.require "dialog"
+dialog = remote.dialog
 
 class PgHoffDialog
     constructor: (serializedState) ->
