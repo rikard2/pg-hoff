@@ -18,6 +18,9 @@ class ResultsPaneView extends DockPaneView
         marker.destroy() for marker in @errorMarkers
         table.table.remove() for table in @tables when not table.pinned
         @tables = (x for x in @tables when x.pinned)
+        for query in @processedQueries
+            unless query.marker.isDestroyed() or query.marker? == false
+                query.marker.destroy()
         unless @tables.length > 0
             @querynumber = 0
             @selectedquery = 0
