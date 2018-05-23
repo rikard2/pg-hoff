@@ -45,7 +45,7 @@ class HoffTableView extends View
             for d in @data
                 if d[c["field"]] != null
                     rows = 0
-                    for l in d[c["field"]].toString().split('\n')
+                    for l in d[c["field"]].toString().trim().split('\n')
                         rows += 1
                         if l.length * 9 > max
                             max = l.length * 9
@@ -54,7 +54,9 @@ class HoffTableView extends View
                 max = Math.max(max, Math.round((c["name"].length * 8.4) + 12))
             width = max
             c['width'] = width
-        @options.rowHeight = maxrows * 17 + 15
+        lineHeight = 17
+        padding = 3
+        @options.rowHeight = maxrows * lineHeight + padding
         @options.whitespace = 'pre'
         @grid.setOptions(@options);
         @grid.setColumns(@columns);
