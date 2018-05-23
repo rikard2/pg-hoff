@@ -134,14 +134,14 @@ class ResultsPaneView extends DockPaneView
             range: null
             marker: null
         }
+        try
+            if (JSON.stringify bufferRange.start).toString() == (JSON.stringify bufferRange.end).toString()
+                bufferRange = atom.workspace.getActiveTextEditor().getBuffer().getRange()
+            if queryNumber > 1
+                bufferRange.start = @processedQueries[queryNumber-2].range.end
 
-        if (JSON.stringify bufferRange.start).toString() == (JSON.stringify bufferRange.end).toString()
-            bufferRange = atom.workspace.getActiveTextEditor().getBuffer().getRange()
-        if queryNumber > 1
-            bufferRange.start = @processedQueries[queryNumber-2].range.end
-
-        atom.workspace.getActiveTextEditor().scanInBufferRange(new RegExp(@escapeRegExp(result.query)), bufferRange, (hit) => @queryHit(hit, queryInfo) )
-
+            atom.workspace.getActiveTextEditor().scanInBufferRange(new RegExp(@escapeRegExp(result.query)), bufferRange, (hit) => @queryHit(hit, queryInfo) )
+        catch
     updateRendering: (result) ->
         for query in @processedQueries
             if query.queryId == result.queryid

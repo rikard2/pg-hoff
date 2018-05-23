@@ -114,7 +114,7 @@ module.exports = PgHoff =
             @provider = new PgHoffAutocompleteProvider()
 
         @subscriptions = new CompositeDisposable
-        @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:goto-declaration': => @gotoDeclaration()
+        @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:perform-hoff-import': => @executeHoffImport()
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:connect': => @connect()
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:search-history': => @searchHistoryWithConnect()
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:stop-query': => @stopQuery()
@@ -522,6 +522,16 @@ module.exports = PgHoff =
             @connect()?.then => @executeQuery(cursor_pos)
 
     executeQuery: (cursor_pos) ->
+        @executePost('query', null, cursor_pos)
+
+    executeHoffImport: () ->
+        editor = atom.workspace.getActivePaneItem()
+        file = editor?.buffer.file
+        request =
+            hoffimportfile: file['path']
+        @executePost('hoff_import', request, null)
+
+    executePost: (path, request, cursor_pos) ->
         if @processingBatch? and @processingBatch
             atom.notifications.addWarning('Execution in progress, hold on!')
             return
@@ -545,13 +555,12 @@ module.exports = PgHoff =
                 selectedText = atom.workspace.getActiveTextEditor().getText().trim()
             else
                 return
-        request =
+        request = request ?
             query: selectedText
             alias: alias
         if cursor_pos
             request.cursor_pos = cursor_pos
-
-        return PgHoffServerRequest.Post('query', request)
+        return PgHoffServerRequest.Post(path, request)
             .then (response) ->
                 if response.statusCode == 500
                     throw("/query status code 500")

@@ -5,14 +5,21 @@ class PgHoffQuery
     serialize: ->
     destroy: ->
 
+    @HoffImport: (hoffimportfile) ->
+        request =
+            hoffimportfile: hoffimportfile
+        return Perform_request('hoff_import', request)
+
     @Execute: (query, alias) ->
         request =
             query: query
             alias: alias ? atom.workspace.getActivePaneItem().alias
+        return @Perform_request('query', request)
 
+    @Perform_request: (path, request) ->
         url = null
         return PgHoffServerRequest
-            .Post('query', request)
+            .Post(path, request)
             .then (response) ->
                 # #console.log 'query response', response
                 if response.statusCode == 500
