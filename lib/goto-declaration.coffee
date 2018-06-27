@@ -13,7 +13,7 @@ getIdentifiers = (editor) ->
 gotoIdentifier = (identifier) ->
     words = identifier.split '.'
     name    = if words.length > 1 then words[1] else words[0]
-    schema  = if words.length > 1 then words[0]
+    schema  = if words.length > 1 then words[0] else 'public'
     path = [schema, null, name + '.sql']
     openFile(new Directory(base), path) for base in atom.project.getPaths()
 
