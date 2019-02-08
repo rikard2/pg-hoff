@@ -114,6 +114,7 @@ module.exports = PgHoff =
             @provider = new PgHoffAutocompleteProvider()
 
         @subscriptions = new CompositeDisposable
+        @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:goto-declaration': => @gotoDeclaration()
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:perform-hoff-import': => @executeHoffImport()
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:connect': => @connect()
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:search-history': => @searchHistoryWithConnect()
