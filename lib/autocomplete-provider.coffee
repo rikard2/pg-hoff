@@ -15,7 +15,36 @@ class PgHoffAutocompleteProvider
         return text
             .replace /"([A-Za-z_]+)"\(\)/, "$1()"
 
+    timeout = (ms) ->
+        return new Promise((fulfil) ->
+            setTimeout(() ->
+                fulfil()
+            , ms)
+        )
+
     getSuggestions: (options) ->
+        window.lastrun = (new Date()).getTime()
+        lastrun_myself = window.lastrun
+        dis = @
+        retries = 0
+        lolz = (time, retries) ->
+            return timeout(time).then () ->
+                if (retries > 100)
+                    return
+                retries = retries + 1
+                if (window.requesting == 1)
+                    #console.log('retrying', lastrun_myself)
+                    return lolz(time, retries)
+                if window.lastrun == lastrun_myself
+                    console.log('match! doing another request', lastrun_myself)
+                    window.requesting = 0
+                    return dis.getSuggestions(options)
+                return lolz(time, retries)
+
+        if window.requesting == 1
+            return lolz(5, 0)
+        window.requesting = 1
+
         if not atom.config.get('pg-hoff.autocompletionEnabled')
             return []
         if not atom.workspace.getActivePaneItem().alias
@@ -33,9 +62,9 @@ class PgHoffAutocompleteProvider
             pos: pos
             query: text
             alias: atom.workspace.getActivePaneItem().alias
-
         return PgHoffServerRequest.Post('completions', request)
             .then (response) ->
+                window.requesting = 0
                 pascalize = atom.config.get('pg-hoff.pascaliseAutocompletions')
                 unQuoteFunctionNames = atom.config.get('pg-hoff.unQuoteFunctionNames')
                 suggestions = response.map (value) ->
