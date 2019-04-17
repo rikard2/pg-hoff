@@ -430,7 +430,8 @@ module.exports = PgHoff =
 
     connect: ->
         paneItem = atom.workspace.getActivePaneItem()
-
+        pane = atom.workspace.getActivePane()
+        
         if @listServersViewPanel.isVisible()
             @listServersViewPanel.hide()
             return
@@ -467,6 +468,7 @@ module.exports = PgHoff =
                 throw(err)
             .finally =>
                 @listServersViewPanel.hide()
+                pane.activate()
 
     renderResults: (resultset, complete) ->
         if not resultset.complete?
