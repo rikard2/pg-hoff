@@ -41,7 +41,6 @@ class PgHoffAutocompleteProvider
 
         if window.requesting == 1
             return lolz(5, 0)
-        window.requesting = 1
 
         if not atom.config.get('pg-hoff.autocompletionEnabled')
             return []
@@ -52,6 +51,7 @@ class PgHoffAutocompleteProvider
             else
               return []
 
+        window.requesting = 1
         text = atom.workspace.getActiveTextEditor().getText()
         before = options.editor.getTextInBufferRange([[0, 0], options.bufferPosition])
         pos = before.length
