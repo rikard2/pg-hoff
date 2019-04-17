@@ -6,6 +6,7 @@ window.jQuery                       = require 'jquery'
 TableView                           = require '../slickgrid/table-view'
 OutputView                          = require './output-view'
 SlickFormatting                     = require '../slickgrid/formatting'
+DataView                            = require '../slickgrid/data-view'
 
 class ResultsPaneView extends DockPaneView
     @table: null
@@ -71,7 +72,7 @@ class ResultsPaneView extends DockPaneView
             multiColumnSort: false
             forceFitColumns: false
             fullWidthRows: false
-            rowHeight:20
+            rowHeight:23
             headerRowHeight: 30
             asyncPostRenderDelay: 500
             syncColumnCellResize: true
@@ -106,9 +107,16 @@ class ResultsPaneView extends DockPaneView
             $(table.table).height(''.concat(table.nrrows * 30 + 30, 'px'))
         table = new TableView options, resultset.rows, resultset.columns , height
         @tables.push {table:table, queryid:resultset['queryid'], nrrows: resultset.rowcount, pinned:false, querynumber: @querynumber}
-        @append table
-        if resultset.onlyOne and resultset.rowcount == 1 and resultset.columns.length == 1
-            @expandColumns(resultset.queryid)
+        if (false)
+            @append table
+        else
+            if not @outputView
+                @outputView = new DataView resultset
+                @append @outputView
+            else
+                @outputView.setData(resultset)
+        #if resultset.onlyOne and resultset.rowcount == 1 and resultset.columns.length == 1
+        #    @expandColumns(resultset.queryid)
 
     initialize: ->
         super()
