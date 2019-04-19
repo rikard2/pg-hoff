@@ -100,9 +100,10 @@ class HoffTableView extends View
         @options.transpose = false
 
     resize: () =>
-        @grid.resizeCanvas()
-        @grid.autosizeColumns()
-        @grid.resizeCanvas()
+        if @grid
+            @grid.resizeCanvas()
+            @grid.autosizeColumns()
+            @grid.resizeCanvas()
 
     sortData: () =>
         cols = @grid.getSortColumns()

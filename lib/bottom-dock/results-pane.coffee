@@ -57,6 +57,10 @@ class ResultsPaneView extends DockPaneView
         $('.indicator').slideUp 100, ->
             @remove()
 
+    onResize: () ->
+        console.log 'resize @outputView', @outputView
+        @outputView.resize() if @outputView
+
     render: (resultset) ->
         for x in @tables when x.queryid == resultset.queryid
             x.table.appendData(resultset.rows)
