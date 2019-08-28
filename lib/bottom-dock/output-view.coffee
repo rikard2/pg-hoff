@@ -59,9 +59,14 @@ class OutputView extends View
               @outputContainer.append notice
       if resultset.messages?.length > 0
           for n in resultset.messages
-              message = document.createElement('pre')
+              message = document.createElement('textarea')
+              message.style.width = '200px';
+              message.style.height = '200px';
               message.classList.add 'messages'
               message.textContent = n
+              message.onkeydown = (key, x) ->
+                  #key.preventDefault();
+                  console.log('key', message.getSelection())
               @outputContainer.append message
 
   clear: ->

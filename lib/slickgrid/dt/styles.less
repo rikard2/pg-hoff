@@ -5,10 +5,15 @@
 @dataview-cell-background-color: @tree-view-background-color;
 @dataview-cell-border-color: @tab-bar-border-color;
 @dataview-cell-text-color: @text-color-selected;
+
+@dataview-cell-background-color-selected: @background-color-info;
+@dataview-cell-text-color-selected: contrast(@dataview-cell-background-color-selected);
+
 .dataview-inner_container {
 
 }
 .dataview-columns {
+    background: none !important;
     border: none !important;
 }
 .dataview-columns_inner {
@@ -28,13 +33,12 @@
 
 }
 .dataview-viewport {
-
+    border: 1px solid @dataview-cell-border-color !important;
 }
 .dataview-row_container {
     border-bottom: 1px solid @dataview-border-color !important;
 }
 .dataview-inside_div {
-    color: @dataview-text-color !important;
 }
 .col-resize {
 
@@ -47,9 +51,16 @@
     font-family: Menlo !important;
 }
 .dataview-outer_div {
-
+    color: @dataview-text-color !important;
+    border-right: 1px solid @dataview-cell-border-color !important;
+    &.selected {
+        background: @dataview-cell-background-color-selected !important;
+        color: @dataview-cell-text-color-selected !important;
+    }
 }
-
+.dataview-row_container {
+    border-bottom: 1px solid @dataview-cell-border-color !important;
+}
 /*
 
 @text-color: #333;

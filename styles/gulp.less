@@ -170,7 +170,7 @@ autocomplete-suggestion-list {
     .statusmessage .runtime_instant {
         border-right: 2px solid @background-color-info;
         background: darken(@button-background-color, 8%);
-        color: lighten(@button-background-color, 2%);
+        color: contrast(@button-background-color);
         letter-spacing: 0px;
         font-size: 10px;
         vertical-align: middle;
@@ -821,3 +821,12 @@ atom-text-editor {
 
 .result-html table tbody tr.sp td.n,
 .result-html table tbody tr.ip td.n {background-image:none}
+.tab-container {
+    .tab-button {
+        line-height: normal !important;
+        &.selected {
+            background: @background-color-info !important;
+            color: contrast(@background-color-info) !important;
+        }
+    }
+}
