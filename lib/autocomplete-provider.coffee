@@ -85,14 +85,35 @@ class PgHoffAutocompleteProvider
 
                     replacementPrefix = switch before[-1..-1]
                         when '*' then '*'
+                    longest_parameter_length = null
+                    if value.type == 'function'
+                        params = value.text.match(/\w+\s+:=/g)
+                        if params
+                            matches = params.map((x) ->
+                                return x.replace(/\s+:=/, '')
+                            )
+                            longest_parameter_length = Math.max.apply(null, matches.map((x) ->
+                                return x.length
+                            ))
 
+                    value.text = value.text.replace(/([(])([_])/g, '$1\n\t$2')
+                    value.text = value.text.replace(/([}])([)])/g, '$1\n$2')
+                    value.text = value.text.replace(/([,])\s+([_])/g, '$1\n\t$2')
+                    markdownText = value.text
+                    if longest_parameter_length
+                        replace_callback = (x) ->
+                            y = x.replace(/\s+:=/g, '')
+                            return x unless y
+                            return y + ' '.repeat(longest_parameter_length - y.length + 1) + ':='
+                        markdownText = value.text.replace(/\w+\s+:=/g, replace_callback)
                     suggestion =
+                        className: 'pghoffsuggestionlist'
                         snippet: value.text
                         displayText: value.displayText
                         iconHTML: iconHTML
                         rightLabel: value.type
                         replacementPrefix: replacementPrefix
-                        #description: 'this would be nice'
+                        descriptionMarkdown: '```\n' + markdownText + '\n```' if value.type == 'function' or value.text.length > 60
                         type: type
                     return suggestion
                 return suggestions
@@ -102,6 +123,7 @@ class PgHoffAutocompleteProvider
                     console.error 'Cannot autocomplete because of connection refused.'
                 else if new RegExp(/Cannot read property/).test(err)
                     console.error 'Cannot autocomplete probably because you are not connected to any servers.'
+                    console.debug 'Could be wrong version of pgcli (try pip install pgcli==1.8.1 --force-reinstall)'
                 else
                     console.error 'Cannot autocomplete because', err
 
