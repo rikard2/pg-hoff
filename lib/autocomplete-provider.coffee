@@ -87,27 +87,22 @@ class PgHoffAutocompleteProvider
                         when '*' then '*'
                     longest_parameter_length = null
                     if value.type == 'function'
-                        params = value.text.match(/\w+\s+:=/g)
+                        params = value.text.match /\w+\s+:=/g
                         if params
-                            matches = params.map((x) ->
-                                return x.replace(/\s+:=/, '')
-                            )
-                            longest_parameter_length = Math.max.apply(null, matches.map((x) ->
-                                return x.length
-                            ))
+                            matches = params.map (x) -> return x.replace(/\s+:=/, '')
+                            longest_parameter_length = Math.max.apply(null, matches.map (x) -> return x.length)
 
-                    value.text = value.text.replace(/([(])([_])/g, '$1\n\t$2')
-                    value.text = value.text.replace(/([}])([)])/g, '$1\n$2')
-                    value.text = value.text.replace(/([,])\s+([_])/g, '$1\n\t$2')
+                    value.text = value.text.replace /([(])([_])/g   ,   '$1\n\t$2'
+                    value.text = value.text.replace /([}])([)])/g   ,   '$1\n$2'
+                    value.text = value.text.replace /([,])\s+([_])/g,   '$1\n\t$2'
                     markdownText = value.text
                     if longest_parameter_length
-                        replace_callback = (x) ->
+                        # Align parameters with spaces
+                        markdownText = value.text.replace /\w+\s+:=/g, (x) ->
                             y = x.replace(/\s+:=/g, '')
                             return x unless y
                             return y + ' '.repeat(longest_parameter_length - y.length + 1) + ':='
-                        markdownText = value.text.replace(/\w+\s+:=/g, replace_callback)
                     suggestion =
-                        className: 'pghoffsuggestionlist'
                         snippet: value.text
                         displayText: value.displayText
                         iconHTML: iconHTML
