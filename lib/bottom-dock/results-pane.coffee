@@ -109,16 +109,13 @@ class ResultsPaneView extends DockPaneView
 
         for table in @tables when table.pinned and table.nrrows <= 100
             $(table.table).height(''.concat(table.nrrows * 30 + 30, 'px'))
-        table = new TableView options, resultset.rows, resultset.columns , height
-        @tables.push {table:table, queryid:resultset['queryid'], nrrows: resultset.rowcount, pinned:false, querynumber: @querynumber}
-        if (false)
-            @append table
+
+        if not @outputView
+            console.log('resultset', resultset);
+            @outputView = new DataView resultset
+            @append @outputView
         else
-            if not @outputView
-                @outputView = new DataView resultset
-                @append @outputView
-            else
-                @outputView.setData(resultset)
+            @outputView.setData(resultset)
         #if resultset.onlyOne and resultset.rowcount == 1 and resultset.columns.length == 1
         #    @expandColumns(resultset.queryid)
 
