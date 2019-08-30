@@ -15,6 +15,10 @@ class ResultsPaneView extends DockPaneView
     @content: ->
         @div class: 'gulp-pane', outlet: 'pane', style: 'overflow: auto !important; font-family:menlo', =>
 
+    onResize: () ->
+        console.log 'resize @outputView', @outputView
+        @outputView.resize() if @outputView
+
     reset: () ->
         marker.destroy() for marker in @errorMarkers
         table.table.remove() for table in @tables when not table.pinned

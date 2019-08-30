@@ -354,6 +354,10 @@ module.exports = PgHoff =
         @bottomDock.addPane @resultsPane, 'Results', isInitial
         @bottomDock.addPane @historyPane, 'History', isInitial
 
+        @bottomDock.onDidFinishResizing =>
+            console.log 'onDidFinishResizing', @resultsPane.active, @bottomDock.isActive()
+            @resultsPane.onResize() if @resultsPane.active && @bottomDock.isActive()
+
         @bottomDock.onDidToggle =>
             @resultsPane.resize() if @resultsPane.active && @bottomDock.isActive()
 
@@ -431,7 +435,7 @@ module.exports = PgHoff =
     connect: ->
         paneItem = atom.workspace.getActivePaneItem()
         pane = atom.workspace.getActivePane()
-        
+
         if @listServersViewPanel.isVisible()
             @listServersViewPanel.hide()
             return

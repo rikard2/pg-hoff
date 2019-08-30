@@ -11,6 +11,11 @@ class HoffDataView extends View
 
         @setData(data)
 
+    resize: () =>
+        console.log('dt resize');
+        if @dt
+            @dt.invalidate()
+
     setData: (data) ->
         if (data.rows.length > 0)
             columns = Object.keys(data.rows[0]).map (x) ->
