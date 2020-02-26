@@ -2,30 +2,34 @@ module.exports = class JSONModal
     @Show: (json) ->
         unless typeof(json) == 'object'
             try
-                json = JSON.parse(json)
+                json = JSON.stringify JSON.parse(json), null, '  '
             catch
-                json = "\"#{json}\""
-                try
-                    json = JSON.parse(json)
-                catch
-                    console.error 'could not parse json'
-                    return
+                json = json
 
         return new Promise((fulfil, reject) ->
             element = document.createElement('div')
             element.classList.add('hoff-dialog')
             element.classList.add('native-key-bindings')
-            jsonElement = element.appendChild document.createElement('pre')
+            jsonElement = element.appendChild document.createElement('textarea')
             jsonElement.classList.add('native-key-bindings')
             jsonElement.style['overflow'] = 'auto'
+            jsonElement.style['width'] = '100%'
+            jsonElement.style['height'] = '600px'
+            jsonElement.style['font-family'] = 'Menlo'
+            jsonElement.style['border'] = 'none'
+            jsonElement.style['background'] = 'transparent'
+            jsonElement.style['white-space'] = 'pre'
+            jsonElement.style['overflow-wrap'] = 'normal'
+            jsonElement.style['overflow-x'] = 'scroll'
+            jsonElement.wrap = 'soft'
             jsonElement.classList.add 'force-select'
-            jsonElement.textContent = JSON.stringify json, null, '  '
+            jsonElement.value = json
             modal = atom.workspace.addModalPanel(item: element, visible: true)
 
-            listener = (e) =>
-                if e.keyCode == 27
-                    document.body.removeEventListener 'keydown', listener
+            atom.commands.add(jsonElement, {
+                'core:cancel': (event) =>
                     modal.destroy()
-
-            document.body.addEventListener 'keydown', listener
+                    event.stopPropagation()
+            })
+            jsonElement.focus()
         )
