@@ -1,6 +1,7 @@
 @import "ui-variables";
 @import "octicon-mixins";
 
+@pg-hoff-notice-text-color: @text-color-highlight;
 autocomplete-suggestion-list {
   width: 700px !important;
   .word {
@@ -170,7 +171,7 @@ autocomplete-suggestion-list {
     .statusmessage .runtime_instant {
         border-right: 2px solid @background-color-info;
         background: darken(@button-background-color, 8%);
-        color: lighten(@button-background-color, 2%);
+        color: @pg-hoff-notice-text-color;
         letter-spacing: 0px;
         font-size: 10px;
         vertical-align: middle;
@@ -184,7 +185,7 @@ autocomplete-suggestion-list {
     .statusmessage .runtime_short {
         border-right: 2px solid @background-color-info;
         background: darken(@button-background-color, 8%);
-        color: lighten(@button-background-color, 2%);
+        color: @pg-hoff-notice-text-color;
         letter-spacing: 0px;
         font-size: 10px;
         vertical-align: middle;
@@ -207,7 +208,7 @@ autocomplete-suggestion-list {
     .statusmessage .runtime_medium {
         border-right: 2px solid @background-color-info;
         background: darken(@button-background-color, 8%);
-        color: lighten(@button-background-color, 2%);
+        color: @pg-hoff-notice-text-color;
         letter-spacing: 0px;
         font-size: 10px;
         vertical-align: middle;
@@ -230,7 +231,7 @@ autocomplete-suggestion-list {
     .statusmessage .runtime_long {
         border-right: 2px solid @background-color-info;
         background: darken(@button-background-color, 8%);
-        color: lighten(@button-background-color, 2%);
+        color: @pg-hoff-notice-text-color;
         letter-spacing: 0px;
         font-size: 10px;
         vertical-align: middle;
@@ -291,7 +292,7 @@ autocomplete-suggestion-list {
     .error .errorheader {
         border-right: 2px solid @background-color-error;
         background: darken(@button-background-color, 8%);
-        color: @text-color;
+        color: @pg-hoff-notice-text-color;
         letter-spacing: 0px;
         font-size: 11px;
         font-weight: bold;
