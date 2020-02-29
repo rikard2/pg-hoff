@@ -71,7 +71,7 @@ class ResultsPaneView extends DockPaneView
             multiColumnSort: false
             forceFitColumns: false
             fullWidthRows: false
-            rowHeight:20
+            rowHeight:25
             headerRowHeight: 30
             asyncPostRenderDelay: 500
             syncColumnCellResize: true

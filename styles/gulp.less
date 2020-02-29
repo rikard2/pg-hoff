@@ -173,7 +173,7 @@ autocomplete-suggestion-list {
         background: darken(@button-background-color, 8%);
         color: @pg-hoff-notice-text-color;
         letter-spacing: 0px;
-        font-size: 10px;
+        font-size: 11px;
         vertical-align: middle;
         padding-left: 5px;
         padding-top: 8px;
@@ -187,7 +187,7 @@ autocomplete-suggestion-list {
         background: darken(@button-background-color, 8%);
         color: @pg-hoff-notice-text-color;
         letter-spacing: 0px;
-        font-size: 10px;
+        font-size: 11px;
         vertical-align: middle;
         padding-left: 5px;
         padding-top: 8px;
@@ -210,7 +210,7 @@ autocomplete-suggestion-list {
         background: darken(@button-background-color, 8%);
         color: @pg-hoff-notice-text-color;
         letter-spacing: 0px;
-        font-size: 10px;
+        font-size: 11px;
         vertical-align: middle;
         padding-left: 5px;
         padding-top: 8px;
@@ -233,7 +233,7 @@ autocomplete-suggestion-list {
         background: darken(@button-background-color, 8%);
         color: @pg-hoff-notice-text-color;
         letter-spacing: 0px;
-        font-size: 10px;
+        font-size: 11px;
         vertical-align: middle;
         padding-left: 5px;
         padding-top: 8px;
@@ -455,7 +455,7 @@ autocomplete-suggestion-list {
       padding: 5px;
 
       span {
-        font-size: 12px;
+        font-size: 14px;
         padding-right: 4px;
       }
     }
@@ -470,19 +470,22 @@ autocomplete-suggestion-list {
   }
 &.row-numbers {
     .l0 {
-        font-size: 11px;
         background: darken(@button-background-color, 8%);
         color: @text-color-subtle;
         letter-spacing: 0px;
-        font-size: 10px;
+        font-size: 11px;
         vertical-align: middle;
         border-bottom: none;
-        padding-top: 2px;
+        padding-top: 5px;
         text-align: right;
         padding-right: 8px;
     }
 }
-
+.gulp-pane .slick-header-column {
+  font-size: 13px !important;
+  height: 20px !important;
+  padding-top: 5px !important;
+}
 &.transpose {
     .l0 {
         font-size: 11px;
@@ -520,8 +523,14 @@ autocomplete-suggestion-list {
 .slick-header-column:hover {
     color: @text-color !important;
 }
+.slick-header-column {
+    font-size: 13px;
+    height: 20px;
+    padding-top: 6px;
+    padding-left: 6px;
+}
 .slick-cell, .slick-headerrow-column {
-    font-size: 12px;
+    font-size: 13px;
     position: absolute;
     border: 1px solid transparent;
     border-right: 1px dotted @base-border-color;
@@ -531,6 +540,7 @@ autocomplete-suggestion-list {
     text-overflow: ellipsis;
     vertical-align: top !important;
     z-index: 1;
+    padding-top: 3px;
     padding-bottom: 2px;
     padding-left: 5px;
 
