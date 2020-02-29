@@ -19,6 +19,8 @@ class OutputView extends View
       if resultset.statusmessage?.length > 0
           statusmessage = document.createElement('pre')
           statusmessage.classList.add 'statusmessage'
+          statusmessage.classList.add 'notice-bar'
+          @listenCopy(statusmessage, resultset.statusmessage)
           statusmessage.setAttribute 'title', resultset.query
           message = document.createElement('span')
           message.classList.add 'message'
@@ -35,11 +37,14 @@ class OutputView extends View
           else
               runtime.classList.add 'runtime_instant'
               runtime.textContent =  'instant'
+          message.style['min-width'] = '200px'
           statusmessage.appendChild runtime
           statusmessage.appendChild message
           @outputContainer.append statusmessage
       if resultset.error
           error = document.createElement('pre')
+          @listenCopy(error, resultset.error)
+          error.classList.add 'notice-bar'
           error.classList.add 'error'
           errorHeader = document.createElement('span')
           errorHeader.classList.add 'errorheader'
@@ -53,16 +58,41 @@ class OutputView extends View
           @outputContainer.append error
       if resultset.notices?.length > 0
           for n in resultset.notices
-              notice = document.createElement('pre')
-              notice.classList.add 'notice'
-              notice.textContent = n.substr(9)
+              notice = @notice('notice', n.substr(9))
+
               @outputContainer.append notice
       if resultset.messages?.length > 0
           for n in resultset.messages
-              message = document.createElement('pre')
-              message.classList.add 'messages'
-              message.textContent = n
+              message = @notice('messages', n)
               @outputContainer.append message
+
+  listenCopy: (element, text) ->
+      element.addEventListener 'click', () ->
+          element.classList.add 'notice-bar-flash'
+          setTimeout(
+            () ->
+                element.classList.remove 'notice-bar-flash',
+            500
+          )
+          atom.clipboard.write(text)
+
+  notice: (type, text) ->
+      div = document.createElement('div')
+      @listenCopy(div, text)
+      div.classList.add 'notice-bar'
+      notice = document.createElement('pre')
+      notice.classList.add type
+      notice.textContent = text
+      notice.style['float'] = 'left'
+      notice.style['min-width'] = '300px'
+
+      clear = document.createElement('div')
+      clear.style['clear'] = 'both'
+
+      div.appendChild(notice)
+      div.appendChild(clear)
+
+      return div
 
   clear: ->
     @outputContainer.empty()
