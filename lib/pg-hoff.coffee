@@ -431,7 +431,7 @@ module.exports = PgHoff =
     connect: ->
         paneItem = atom.workspace.getActivePaneItem()
         pane = atom.workspace.getActivePane()
-        
+
         if @listServersViewPanel.isVisible()
             @listServersViewPanel.hide()
             return
@@ -586,6 +586,7 @@ module.exports = PgHoff =
                 gotErrors = false
                 gotNotices = false
                 newBatch = true
+                rowcount = null
                 NumberOfQueries = response.queryids.length
                 return unless response.queryids.length >= 1
                 queryCount = response.queryids.length
@@ -606,9 +607,9 @@ module.exports = PgHoff =
                 boom = () =>
                     return getResult()
                         .then (result) =>
-                            gotResults = result.has_result
-                            gotNotices = result.has_notices
-                            gotErrors = result.has_error
+                            gotResults = true if result.has_result
+                            gotNotices = true if result.has_notices
+
                             if queryCount == 1 and result.has_queryplan
                                 gotQueryplan = true
                             else
@@ -622,6 +623,8 @@ module.exports = PgHoff =
                             fetchPartialResult = () =>
                                 return PgHoffServerRequest.Get(url + currentpage + '/' + (currentpage + pagesize), true)
                                 .then (result) =>
+                                    gotErrors = true if result.error? and not result.error.match /can\'t execute an empty query/
+
                                     if result.errormessage?
                                         throw("#{result.errormessage}")
                                     if result.error?
