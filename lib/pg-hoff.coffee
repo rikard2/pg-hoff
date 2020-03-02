@@ -96,6 +96,10 @@ module.exports = PgHoff =
             type: 'string'
             default: ''
             order: 1
+        hoffServerPythonCommand:
+            type: 'string'
+            default: 'python'
+            order: 1
         quoteValues:
             description: 'Quote non-numerics when copying'
             type: 'boolean'
