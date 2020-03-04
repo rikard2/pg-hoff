@@ -9,7 +9,7 @@ JSONModal                           = require '../modals/json-modal'
 
 class HoffTableView extends View
     @content: (options, data, columns, height, selectionmodel) ->
-        @div style: 'width: 100% !important;height:'.concat(height, ';overflow: auto !important;'), ->
+        @div style: 'width:  100% !important;height:'.concat(height, ';overflow: auto !important;'), ->
 
     initialize: (@options, @data, @columns, height, selectionModel) ->
         @emitter = new Emitter()
@@ -48,15 +48,16 @@ class HoffTableView extends View
                     for l in d[c["field"]].toString().trim().split('\n')
                         rows += 1
                         if l.length * 9 > max
-                            max = l.length * 9
+                            max = l.length * 7.9
                     if rows > maxrows
                         maxrows = rows
-                max = Math.max(max, Math.round((c["name"].length * 8.4) + 12))
+                    max += 10
+                max = parseInt(Math.max(max, Math.round((c["name"].length * 9) + 10)))
             width = max
             c['width'] = width
-        lineHeight = 17
-        padding = 3
-        @options.rowHeight = maxrows * lineHeight + padding
+        lineHeight = 18
+        padding = 8
+        @options.rowHeight = parseInt(Math.max(maxrows * lineHeight + padding, 25))
         @options.whitespace = 'pre'
         @grid.setOptions(@options);
         @grid.setColumns(@columns);
@@ -77,7 +78,7 @@ class HoffTableView extends View
         @columns = @normalColumns.slice()
 
         if @options.rowNumberColumn
-            rowNumberWidth = @options.rowcount.toString().length * 11.5
+            rowNumberWidth = @options.rowcount.toString().length * 12
             rowNumberColumn =
                 defaultSortAsc:true
                 field:"rownr"
