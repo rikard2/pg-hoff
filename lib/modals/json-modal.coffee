@@ -33,6 +33,5 @@ module.exports = class JSONModal
             })
             jsonElement.focus()
             jsonElement.addEventListener 'blur', () ->
-                console.log 'blur'
-                #modal.destroy()
+                modal.destroy()
         )
