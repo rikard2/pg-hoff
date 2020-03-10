@@ -1,5 +1,7 @@
 ValuesCopyModel                 = require './values-copy-model'
 JsonCopyModel                   = require './json-copy-model'
+PlainTextCopyModel               = require './plaintext-copy-model'
+
 PgHoffDialog                    = require('../../dialog')
 
 module.exports = class CopyModel
@@ -8,6 +10,7 @@ module.exports = class CopyModel
         models = []
         models.push new ValuesCopyModel
         models.push new JsonCopyModel
+        models.push new PlainTextCopyModel
         for model in models
             model.name = model.getName()
             model.value = model
