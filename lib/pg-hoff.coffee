@@ -245,9 +245,7 @@ module.exports = PgHoff =
         @resultsPane.removeResult(queryid)
 
     cancel: () ->
-        if @bottomDock.isActive()
-            @bottomDock.toggle() if @bottomDock
-            atom.workspace.getActivePane().activate()
+        atom.workspace.getBottomDock().hide()
 
     transpose: (event) ->
         uid = $(event.target).attr('uid')
@@ -259,18 +257,7 @@ module.exports = PgHoff =
         @resultsPane.expandColumns(queryid)
 
     changeToResultsPane: () ->
-        return unless @bottomDock
-        if @bottomDock.isActive()
-            if @bottomDock.getCurrentPane().getId() == 'results'
-                @bottomDock.toggle()
-                atom.workspace.getActivePane().activate()
-            else
-                @bottomDock.changePane('results')
-                @resultsPane.focusFirstResult()
-        else
-            @bottomDock.toggle()
-            @bottomDock.changePane('results')
-            @resultsPane.focusFirstResult()
+        atom.workspace.getBottomDock().toggle()
 
     changeToOutputPane: () ->
         return unless @bottomDock
@@ -371,11 +358,6 @@ module.exports = PgHoff =
 
         atom.workspace.getBottomDock().getActivePane().addItem(resultsPaneItem)
         atom.workspace.getBottomDock().getActivePane().addItem(outputPaneItem)
-        atom.views.getView(atom.workspace).onkeydown = (e) ->
-            if e.code == 'Escape'
-                atom.workspace.getBottomDock().hide()
-            if e.ctrlKey && e.code == 'KeyR'
-                atom.workspace.getBottomDock().toggle()
 
         #@bottomDock.addPane @outputPane, 'Output', isInitial
         #@bottomDock.addPane @resultsPane, 'Results', isInitial
