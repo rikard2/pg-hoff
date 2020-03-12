@@ -327,6 +327,53 @@ module.exports = PgHoff =
                 .catch (error) ->
                     console.log 'error', error
 
+    openDock: () ->
+        addResult = true
+        addOutput = true
+        if atom.workspace.getBottomDock().getPanes().length < 2
+            if atom.workspace.getBottomDock().getPanes()[0].getItems().length < 2 && atom.workspace.getBottomDock().getPanes()[0].getItems().length > 0
+                if atom.workspace.getBottomDock().getPanes()[0].getItems()[0].getTitle() == 'Output'
+                    addOutput = false
+                if atom.workspace.getBottomDock().getPanes()[0].getItems()[0].getTitle() == 'Result'
+                    addResult = false
+        else
+            return
+
+        if addResult
+            resultsPaneItem = {
+                element: @resultsPane.element,
+                getTitle: () => 'Result',
+                getURI: () => 'atom://my-package/result-view',
+                getDefaultLocation: () => 'center'
+            };
+            if addOutput
+                atom.workspace.getBottomDock().getActivePane().addItem(resultsPaneItem)
+            else
+                pane = atom.workspace.getBottomDock().getActivePane().splitRight({
+                    items: [resultsPaneItem]
+                })
+                atom.workspace.getBottomDock().getActivePane().setFlexScale(2.5)
+
+        if addOutput
+            outputPaneItem = {
+                element: @outputPane.element,
+                getTitle: () => 'Output',
+                getURI: () => 'atom://my-package/output-view',
+                getDefaultLocation: () => 'left'
+            };
+            pane = atom.workspace.getBottomDock().getActivePane().splitLeft({
+                items: [outputPaneItem]
+            })
+            atom.workspace.getBottomDock().getActivePane().setFlexScale(0.4)
+
+        resizeTimeout = null
+        obs = new ResizeObserver (r) =>
+            clearTimeout(resizeTimeout)
+            resizeTimeout = setTimeout(() =>
+                pane.resize() for pane in @hoffPanes
+            , 50)
+        obs.observe(@resultsPane.element)
+
     add: (isInitial) ->
         return unless @bottomDock
 
@@ -337,33 +384,7 @@ module.exports = PgHoff =
         @hoffPanes.push @outputPane
         @hoffPanes.push @historyPane
 
-        resultsPaneItem = {
-            element: @resultsPane.element,
-            getTitle: () => 'Result',
-            getURI: () => 'atom://my-package/result-view',
-            getDefaultLocation: () => 'center'
-        };
-        outputPaneItem = {
-            element: @outputPane.element,
-            getTitle: () => 'Output',
-            getURI: () => 'atom://my-package/output-view',
-            getDefaultLocation: () => 'left'
-        };
-        resizeTimeout = null
-        obs = new ResizeObserver (r) =>
-            clearTimeout(resizeTimeout)
-            resizeTimeout = setTimeout(() =>
-                pane.resize() for pane in @hoffPanes
-            , 50)
-        obs.observe(@resultsPane.element)
-
-        atom.workspace.getBottomDock().getActivePane().addItem(resultsPaneItem)
-        pane = atom.workspace.getBottomDock().getActivePane().splitLeft({
-            items: [
-                outputPaneItem
-            ]
-        })
-        atom.workspace.getBottomDock().getActivePane().setFlexScale(0.4)
+        @openDock()
 
 
         #@bottomDock.addPane @outputPane, 'Output', isInitial
@@ -678,6 +699,7 @@ module.exports = PgHoff =
                 , 1000)
                 return boom()
                     .then () =>
+                        @openDock()
                         if gotErrors or not gotResults or (gotResults and gotNotices)
                             atom.workspace.getBottomDock().getActivePane().activateItemForURI('atom://my-package/output-view')
                         else if gotResults
