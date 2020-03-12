@@ -349,17 +349,35 @@ module.exports = PgHoff =
         @hoffPanes.push @outputPane
         @hoffPanes.push @historyPane
 
-        config =
-          name: 'YOLOPANE'
-          id: @resultsPane.getId()
-          active: true
+        resultsPaneItem = {
+            element: @resultsPane.element,
+            getTitle: () => 'Result',
+            getURI: () => 'atom://my-package/my-item',
+            getDefaultLocation: () => 'right'
+        };
+        outputPaneItem = {
+            element: @outputPane.element,
+            getTitle: () => 'Output',
+            getURI: () => 'atom://my-package/my-item',
+            getDefaultLocation: () => 'right'
+        };
+        resizeTimeout = null
+        obs = new ResizeObserver (r) =>
+            clearTimeout(resizeTimeout)
+            resizeTimeout = setTimeout(() =>
+                pane.resize() for pane in @hoffPanes
+            , 50)
+        obs.observe(@resultsPane.element)
+        atom.workspace.getBottomDock().getActivePane().addItem(resultsPaneItem)
+        atom.workspace.getBottomDock().getActivePane().addItem(outputPaneItem)
 
-        @bottomDock.addPane @outputPane, 'Output', isInitial
-        @bottomDock.addPane @resultsPane, 'Results', isInitial
-        @bottomDock.addPane @historyPane, 'History', isInitial
 
-        @bottomDock.onDidToggle =>
-            @resultsPane.resize() if @resultsPane.active && @bottomDock.isActive()
+        #@bottomDock.addPane @outputPane, 'Output', isInitial
+        #@bottomDock.addPane @resultsPane, 'Results', isInitial
+        #@bottomDock.addPane @historyPane, 'History', isInitial
+
+        #@bottomDock.onDidToggle =>
+        #    @resultsPane.resize() if @resultsPane.active && @bottomDock.isActive()
 
     consumeBottomDock: (@bottomDock) ->
       @subscriptions.add @bottomDock.onDidFinishResizing =>
