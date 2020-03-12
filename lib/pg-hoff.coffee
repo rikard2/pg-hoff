@@ -368,9 +368,14 @@ module.exports = PgHoff =
                 pane.resize() for pane in @hoffPanes
             , 50)
         obs.observe(@resultsPane.element)
+
         atom.workspace.getBottomDock().getActivePane().addItem(resultsPaneItem)
         atom.workspace.getBottomDock().getActivePane().addItem(outputPaneItem)
-
+        atom.views.getView(atom.workspace).onkeydown = (e) ->
+            if e.code == 'Escape'
+                atom.workspace.getBottomDock().hide()
+            if e.ctrlKey && e.code == 'KeyR'
+                atom.workspace.getBottomDock().toggle()
 
         #@bottomDock.addPane @outputPane, 'Output', isInitial
         #@bottomDock.addPane @resultsPane, 'Results', isInitial
