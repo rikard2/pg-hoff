@@ -257,8 +257,9 @@ module.exports = PgHoff =
         @resultsPane.expandColumns(queryid)
 
     changeToResultsPane: () ->
-        atom.workspace.getBottomDock().toggle()
-
+        atom.workspace.getBottomDock().activate()
+        atom.workspace.getBottomDock().getActivePane().activateItemForURI('atom://my-package/result-view')
+        atom.workspace.getActivePane().activate()
     changeToOutputPane: () ->
         return unless @bottomDock
         if @bottomDock.isActive()
@@ -339,14 +340,14 @@ module.exports = PgHoff =
         resultsPaneItem = {
             element: @resultsPane.element,
             getTitle: () => 'Result',
-            getURI: () => 'atom://my-package/my-item',
-            getDefaultLocation: () => 'right'
+            getURI: () => 'atom://my-package/result-view',
+            getDefaultLocation: () => 'center'
         };
         outputPaneItem = {
             element: @outputPane.element,
             getTitle: () => 'Output',
-            getURI: () => 'atom://my-package/my-item',
-            getDefaultLocation: () => 'right'
+            getURI: () => 'atom://my-package/output-view',
+            getDefaultLocation: () => 'left'
         };
         resizeTimeout = null
         obs = new ResizeObserver (r) =>
@@ -672,9 +673,9 @@ module.exports = PgHoff =
                 return boom()
                     .then () =>
                         if gotErrors or not gotResults or (gotResults and gotNotices)
-                            @bottomDock.changePane(@outputPane.getId())
+                            atom.workspace.getBottomDock().getActivePane().activateItemForURI('atom://my-package/output-view')
                         else if gotResults
-                            @bottomDock.changePane(@resultsPane.getId())
+                            atom.workspace.getBottomDock().getActivePane().activateItemForURI('atom://my-package/result-view')
                             @resultsPane.focusFirstResult()
                     .finally () =>
                         @resultsPane.stopLoadIndicator()
