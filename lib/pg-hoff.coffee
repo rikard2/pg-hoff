@@ -358,7 +358,13 @@ module.exports = PgHoff =
         obs.observe(@resultsPane.element)
 
         atom.workspace.getBottomDock().getActivePane().addItem(resultsPaneItem)
-        atom.workspace.getBottomDock().getActivePane().addItem(outputPaneItem)
+        pane = atom.workspace.getBottomDock().getActivePane().splitLeft({
+            items: [
+                outputPaneItem
+            ]
+        })
+        atom.workspace.getBottomDock().getActivePane().setFlexScale(0.4)
+
 
         #@bottomDock.addPane @outputPane, 'Output', isInitial
         #@bottomDock.addPane @resultsPane, 'Results', isInitial
