@@ -57,6 +57,8 @@ module.exports = PgHoff =
                 @fetchMetadata(editor, markerLayer)
             )
 
+        atom.commands.add '[data-type="ResultsPaneItem"]', 'pg-hoff:keep-result-tab': (event) => @keepResultTab(event)
+
         atom.commands.add '.hamburgler', 'pg-hoff:pin-toggle-result': (event) => @pinToggleResult(event)
         atom.commands.add '.hamburgler', 'pg-hoff:transpose': (event) => @transpose(event)
         atom.commands.add '.hamburgler', 'pg-hoff:open-scripts': (event) => @openScripts(event)
@@ -68,6 +70,9 @@ module.exports = PgHoff =
         atom.commands.add '.hamburgler', 'pg-hoff:expand-columns': (event) => @expandColumns(event)
 
         atom.contextMenu.add {
+          '[data-type="ResultsPaneItem"]': [
+              { label: 'Keep result', command: 'pg-hoff:keep-result-tab' }
+          ],
           '.hamburgler': [
               { label: 'Pin', command: 'pg-hoff:pin-toggle-result', shouldDisplay: @pinVisible },
               { label: 'Unpin', command: 'pg-hoff:pin-toggle-result', shouldDisplay: @unpinVisible },
@@ -309,6 +314,9 @@ module.exports = PgHoff =
         else
             $(event.target).addClass('pinned')
             @resultsPane.pinTable(queryid)
+
+    keepResultTab: (event) ->
+        console.log($(event.target))
 
     createDynamicTable: (event) ->
         alias = @getActiveAlias()
