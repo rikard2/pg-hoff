@@ -57,6 +57,12 @@ class ResultsPaneItem extends View
         $('.indicator').slideUp 100, ->
             @remove()
 
+    uuidv4: () ->
+        'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace /[xy]/g, (c) ->
+            r = Math.random() * 16 | 0
+            v = if c == 'x' then r else r & 0x3 | 0x8
+            v.toString 16
+
     render: (resultset) ->
         for x in @tables when x.queryid == resultset.queryid
             x.table.appendData(resultset.rows)
@@ -80,7 +86,8 @@ class ResultsPaneItem extends View
             cellFlashingCssClass: "flashcell"
             rowNumberColumn: true
             queryid: resultset['queryid']
-            querynumber:@querynumber
+            querynumber: @querynumber
+            gridid: @uuidv4()
             rowcount: resultset.rowcount
             whitespace: "nowrap"
         for c in resultset.columns

@@ -121,7 +121,7 @@ var Slick = require('./core');
     var initialized = false;
     var $container;
     var uid = "slickgrid_" + Math.round(1000000 * Math.random());
-    var uid = "slickgrid_" + options['querynumber'];
+    var uid = "slickgrid_" + options['gridid'];
     var queryid = options['queryid'];
     var self = this;
     var $focusSink, $focusSink2;
