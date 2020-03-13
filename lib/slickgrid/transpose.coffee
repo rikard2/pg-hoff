@@ -22,7 +22,7 @@ module.exports = class TransposeSlickData
                 for key, value of row
                     obj["row_#{rowIndex}"] = row[key] if key == column.field
             return obj
-        newColumns = [ 
+        newColumns = [
             defaultSortAsc:true
             field:"column"
             headerCssClass:'row-number'

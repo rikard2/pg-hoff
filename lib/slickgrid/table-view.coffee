@@ -1,9 +1,8 @@
+{Emitter, Disposable}               = require 'atom'
 {View, $}                           = require 'space-pen'
-window.jQuery                       = $
 SlickGrid                           = require '../../extlib/bd-slickgrid/grid'
 WinningSelectionModel               = require './selection-models/winning-selectionmodel'
 TransposeSlickData                  = require './transpose'
-{Emitter, Disposable}               = require 'atom'
 JSONModal                           = require '../modals/json-modal'
 {showOpenScripts, openScripts, showWriteScripts, writeScripts, showWriteAndOpenScripts, writeAndOpenScripts}      = require '../open-scripts'
 
@@ -101,6 +100,8 @@ class HoffTableView extends View
         @options.transpose = false
 
     resize: () =>
+        return unless @grid
+
         @grid.resizeCanvas()
         @grid.autosizeColumns()
         @grid.resizeCanvas()

@@ -141,7 +141,6 @@ module.exports = PgHoff =
                 @fetchMetadata(editor, markerLayer)
             )
 
-        #@subscriptions.add atom.commands.add '.hamburgler', 'pg-hoff:create-dynamic-table': => @createDynamicTable(event)
         atom.commands.add '.hamburgler', 'pg-hoff:pin-toggle-result': (event) => @pinToggleResult(event)
         atom.commands.add '.hamburgler', 'pg-hoff:transpose': (event) => @transpose(event)
         atom.commands.add '.hamburgler', 'pg-hoff:open-scripts': (event) => @openScripts(event)
@@ -153,61 +152,42 @@ module.exports = PgHoff =
         atom.commands.add '.hamburgler', 'pg-hoff:expand-columns': (event) => @expandColumns(event)
 
         atom.contextMenu.add {
-          '.hamburgler': [{label: 'Pin', command: 'pg-hoff:pin-toggle-result', shouldDisplay: @pinVisible}]
-        }
-        atom.contextMenu.add {
-          '.hamburgler': [{label: 'Unpin', command: 'pg-hoff:pin-toggle-result', shouldDisplay: @unpinVisible}]
-        }
-
-        atom.contextMenu.add {
-          '.hamburgler': [{label: 'Toggle transpose', command: 'pg-hoff:transpose'}]
-        }
-        atom.contextMenu.add {
-          '.hamburgler': [{label: 'Expand columns', command: 'pg-hoff:expand-columns'}]
-        }
-        atom.contextMenu.add {
-          '.hamburgler': [{label: 'Create dynamic table', command: 'pg-hoff:create-dynamic-table'}]
-        }
-        atom.contextMenu.add {
-          '.hamburgler': [{label: 'Export to CSV', command: 'pg-hoff:export-to-csv'}]
-        }
-        atom.contextMenu.add {
-          '.hamburgler': [{label: 'Remove', command: 'pg-hoff:remove-result'}]
-        }
-        atom.contextMenu.add {
-            '.hamburgler': [{
-                label: 'Open scripts',
-                command: 'pg-hoff:open-scripts',
-                shouldDisplay: (event) ->
-                    uid = $(event.target).attr('uid')
-                    grid = $(".#{uid}")[0];
-                    grid.showOpenScripts()
-            }]
-        }
-        atom.contextMenu.add {
-            '.hamburgler': [{
-                label: 'Write scripts',
-                command: 'pg-hoff:write-scripts',
-                shouldDisplay: (event) ->
-                    uid = $(event.target).attr('uid')
-                    grid = $(".#{uid}")[0];
-                    grid.showWriteScripts()
-            }]
-        }
-        atom.contextMenu.add {
-            '.hamburgler': [{
-                label: 'Write+open scripts',
-                command: 'pg-hoff:write-and-open-scripts',
-                shouldDisplay: (event) ->
-                    uid = $(event.target).attr('uid')
-                    grid = $(".#{uid}")[0];
-                    grid.showWriteAndOpenScripts()
-            }]
+          '.hamburgler': [
+              { label: 'Pin', command: 'pg-hoff:pin-toggle-result', shouldDisplay: @pinVisible },
+              { label: 'Unpin', command: 'pg-hoff:pin-toggle-result', shouldDisplay: @unpinVisible },
+              { label: 'Toggle transpose', command: 'pg-hoff:transpose' },
+              { label: 'Expand columns', command: 'pg-hoff:expand-columns' },
+              { label: 'Create dynamic table', command: 'pg-hoff:create-dynamic-table' },
+              { label: 'Export to CSV', command: 'pg-hoff:export-to-csv' },
+              { label: 'Remove', command: 'pg-hoff:remove-result' },
+              {
+                  label: 'Open scripts',
+                  command: 'pg-hoff:open-scripts',
+                  shouldDisplay: (event) ->
+                      uid = $(event.target).attr('uid')
+                      grid = $(".#{uid}")[0];
+                      grid.showOpenScripts()
+              },
+              {
+                  label: 'Write scripts',
+                  command: 'pg-hoff:write-scripts',
+                  shouldDisplay: (event) ->
+                      uid = $(event.target).attr('uid')
+                      grid = $(".#{uid}")[0];
+                      grid.showWriteScripts()
+              },
+              {
+                  label: 'Write+open scripts',
+                  command: 'pg-hoff:write-and-open-scripts',
+                  shouldDisplay: (event) ->
+                      uid = $(event.target).attr('uid')
+                      grid = $(".#{uid}")[0];
+                      grid.showWriteAndOpenScripts()
+              }
+          ]
         }
 
-        packageFound = atom.packages.getAvailablePackageNames()
-            .indexOf('bottom-dock') != -1
-
+        packageFound = atom.packages.getAvailablePackageNames().indexOf('bottom-dock') != -1
         unless packageFound
             atom.notifications.addError 'Could not find Bottom-Dock',
                 detail: 'Pg-Hoff: The bottom-dock package is a dependency. \n
@@ -273,8 +253,6 @@ module.exports = PgHoff =
             @bottomDock.changePane('output')
             @resultsPane.focusFirstResult()
 
-    onDidChangeActivePane: () ->
-        #console.log 'onDidChangeActivePane'
     consumeStatusBar: (statusBar) ->
         @statusBarTile = statusBar.addRightTile item: new PgHoffStatus , priority: 2
         @statusBarTile.item.alias = @getAliasForPane()
@@ -285,9 +263,6 @@ module.exports = PgHoff =
             @statusBarTile.item.alias = alias
             @statusBarTile.item.renderText()
         )
-
-        @subscriptions.add @statusBarTile.item.onDidToggle =>
-            #console.log 'toggle?'
 
     getAliasForPane: (pane) =>
         if not pane?
