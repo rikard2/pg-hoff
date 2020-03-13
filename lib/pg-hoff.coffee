@@ -7,10 +7,10 @@ PgHoffAutocompleteProvider  = require('./autocomplete-provider')
 PgHoffDialog                = require('./dialog')
 PgHoffStatus                = require('./status')
 {BasicTabButton}            = require 'atom-bottom-dock'
-ResultsPaneView             = require './bottom-dock/results-pane'
-OutputPaneView              = require './bottom-dock/output-pane'
-HistoryPaneView             = require './bottom-dock/history-pane'
-AnalyzePaneView             = require './bottom-dock/analyze-pane'
+ResultsPaneItem             = require './pane-items/results'
+OutputPaneItem              = require './pane-items/output'
+HistoryPaneItem             = require './pane-items/history'
+AnalyzePaneItem             = require './pane-items/analyze'
 {$}                         = require 'space-pen'
 
 module.exports = PgHoff =
@@ -343,7 +343,7 @@ module.exports = PgHoff =
             index = @hoffPanes.indexOf @resultsPane
             @hoffPanes.splice index, 1 if index isnt -1
 
-            @resultsPane = new ResultsPaneView()
+            @resultsPane = new ResultsPaneItem()
             @hoffPanes.push @resultsPane
 
             resultsPaneItem = {
@@ -384,8 +384,8 @@ module.exports = PgHoff =
         return unless @bottomDock
 
 
-        @outputPane = new OutputPaneView()
-        @historyPane = new HistoryPaneView()
+        @outputPane = new OutputPaneItem()
+        @historyPane = new HistoryPaneItem()
         @hoffPanes.push @outputPane
         @hoffPanes.push @historyPane
 
@@ -732,7 +732,7 @@ module.exports = PgHoff =
                 explain = div.querySelector(".result-html");
 
                 unless @analyzePane in @hoffPanes
-                    @analyzePane = new AnalyzePaneView()
+                    @analyzePane = new AnalyzePaneItem()
                     @hoffPanes.push @analyzePane
                     @bottomDock.addPane @analyzePane, 'Analyze', true
 

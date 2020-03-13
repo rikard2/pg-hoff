@@ -1,33 +1,38 @@
 {Emitter, CompositeDisposable}      = require 'atom'
-{DockPaneView, TableView, Toolbar}  = require 'atom-bottom-dock'
-{$}                                 = require 'space-pen'
+{$, View}                           = require 'space-pen'
 window.jQuery                       = require 'jquery'
+OutputPaneItemContent               = require './output-content'
 TableView                           = require '../slickgrid/table-view'
 
-class AnalyzePaneView extends DockPaneView
+class OutputPaneItem extends View
     @table: null
+
     @content: ->
         @div class: 'gulp-pane', style: 'overflow: auto !important; font-family:menlo', =>
 
-    load: (explain) ->
-        @empty()
-        @append explain
+    render: (resultset) ->
+        if not @outputView
+            @outputView = new OutputPaneItemContent resultset
+            @append @outputView
+        else
+            @outputView.append(resultset)
 
-    initialize: () ->
-        super()
+    initialize: ->
         @emitter = new Emitter()
         @subscriptions = new CompositeDisposable()
 
     refresh: =>
-        @table.resize()
+        @outputView.refresh()
+
     stop: =>
         @outputView.stop()
 
     clear: =>
-        @outputView.clear()
+        if @outputView
+            @outputView.clear()
 
     destroy: ->
         @subscriptions.dispose()
         @remove()
 
-module.exports = AnalyzePaneView
+module.exports = OutputPaneItem

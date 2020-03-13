@@ -3,10 +3,9 @@
 parseInterval                                = require 'postgres-interval'
 window.jQuery                                = require 'jquery'
 TableView                                    = require '../slickgrid/table-view'
-OutputView                                   = require './output-view'
 SlickFormatting                              = require '../slickgrid/formatting'
 
-class ResultsPaneView extends View
+class ResultsPaneItem extends View
     @table: null
     processedQueries: []
     getId: () -> 'results'
@@ -116,6 +115,7 @@ class ResultsPaneView extends View
         @selectedquery = 0
         @emitter = new Emitter()
         @subscriptions = new CompositeDisposable()
+
         @subscriptions.add atom.commands.add 'body', 'core:cancel': => @clear()
 
     updateNotComplete: (newBatch, result, queryNumber, bufferRange) ->
@@ -238,4 +238,4 @@ class ResultsPaneView extends View
         @subscriptions.dispose()
         @remove()
 
-module.exports = ResultsPaneView
+module.exports = ResultsPaneItem

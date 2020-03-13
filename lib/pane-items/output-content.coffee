@@ -1,9 +1,8 @@
 {View, $}                           = require 'space-pen'
 {Emitter, CompositeDisposable}      = require 'atom'
 Converter                           = require 'ansi-to-html'
-OutputView                          = require './output-view'
 
-class OutputView extends View
+class OutputPaneItemContent extends View
   @content: ->
     @div class: 'output-view', style: 'display:flex;', =>
       @div class: 'content-container', =>
@@ -98,4 +97,4 @@ class OutputView extends View
 
   destroy: ->
 
-module.exports = OutputView
+module.exports = OutputPaneItemContent

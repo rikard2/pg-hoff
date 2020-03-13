@@ -1,14 +1,12 @@
 {Emitter, CompositeDisposable}      = require 'atom'
-{DockPaneView, TableView, Toolbar}  = require 'atom-bottom-dock'
-{$}                                 = require 'space-pen'
+{$, View}                           = require 'space-pen'
 parseInterval                       = require 'postgres-interval'
 window.jQuery                       = require 'jquery'
-OutputView                          = require './output-view'
 PgHoffServerRequest                 = require '../server-request'
 TableView                           = require '../slickgrid/table-view'
 RowSelectionModel                   = require '../slickgrid/selection-models/row-selection-model'
 
-class HistoryPaneView extends DockPaneView
+class HistoryPaneItem extends View
     @table: null
     @content: ->
         @div class: 'gulp-pane', style: 'overflow: auto !important; font-family:menlo', =>
@@ -67,20 +65,14 @@ class HistoryPaneView extends DockPaneView
         @append @table
 
     initialize: ->
-        super()
         @emitter = new Emitter()
         @subscriptions = new CompositeDisposable()
 
     refresh: =>
         @table.resize()
-    stop: =>
-        @outputView.stop()
-
-    clear: =>
-        @outputView.clear()
 
     destroy: ->
         @subscriptions.dispose()
         @remove()
 
-module.exports = HistoryPaneView
+module.exports = HistoryPaneItem
