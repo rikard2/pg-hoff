@@ -1,13 +1,12 @@
-{Point, Range, Emitter, CompositeDisposable}      = require 'atom'
-{$}                                 = require 'space-pen'
-parseInterval                       = require 'postgres-interval'
-window.jQuery                       = require 'jquery'
-{DockPaneView, TableView, Toolbar}  = require 'atom-bottom-dock'
-TableView                           = require '../slickgrid/table-view'
-OutputView                          = require './output-view'
-SlickFormatting                     = require '../slickgrid/formatting'
+{Point, Range, Emitter, CompositeDisposable} = require 'atom'
+{$, View}                                    = require 'space-pen'
+parseInterval                                = require 'postgres-interval'
+window.jQuery                                = require 'jquery'
+TableView                                    = require '../slickgrid/table-view'
+OutputView                                   = require './output-view'
+SlickFormatting                              = require '../slickgrid/formatting'
 
-class ResultsPaneView extends DockPaneView
+class ResultsPaneView extends View
     @table: null
     processedQueries: []
     getId: () -> 'results'
@@ -111,7 +110,6 @@ class ResultsPaneView extends DockPaneView
             @expandColumns(resultset.queryid)
 
     initialize: ->
-        super()
         @errorMarkers = []
         @tables = []
         @querynumber = 0
