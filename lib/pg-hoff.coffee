@@ -359,7 +359,8 @@ module.exports = PgHoff =
                     items: [resultsPaneItem]
                 })
                 atom.workspace.getBottomDock().getActivePane().setFlexScale(2.5)
-
+        else
+            @resultsPane.reset()
         if addOutput
             outputPaneItem = {
                 element: @outputPane.element,
@@ -388,8 +389,6 @@ module.exports = PgHoff =
         @historyPane = new HistoryPaneItem()
         @hoffPanes.push @outputPane
         @hoffPanes.push @historyPane
-
-        @openDock()
 
         #@bottomDock.addPane @outputPane, 'Output', isInitial
         #@bottomDock.addPane @resultsPane, 'Results', isInitial
@@ -580,19 +579,16 @@ module.exports = PgHoff =
             atom.notifications.addWarning('Execution in progress, hold on!')
             return
         @processingBatch = true
-        @resultsPane.reset()
+        @openDock()
         if @outputPane and @statusBarTile.item.transactionStatus == 'IDLE'
             @outputPane.clear()
-
-        if not @bottomDock?.isActive()
-            @bottomDock.toggle()
 
         selectedBufferRange = atom.workspace.getActiveTextEditor().getSelectedBufferRange()
 
         if not selectedText?
             selectedText = atom.workspace.getActiveTextEditor().getSelectedText().trim()
         if not alias?
-            alias = atom.workspace.getActivePaneItem().alias
+            alias = atom.workspace.getActiveTextEditor().alias
 
         if selectedText.trim().length == 0
             if atom.config.get('pg-hoff.executeAllWhenNothingSelected')
@@ -703,7 +699,6 @@ module.exports = PgHoff =
                 , 1000)
                 return boom()
                     .then () =>
-                        @openDock()
                         if gotErrors or not gotResults or (gotResults and gotNotices)
                             atom.workspace.getBottomDock().getActivePane().activateItemForURI('atom://my-package/output-view')
                         else if gotResults
