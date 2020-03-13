@@ -340,6 +340,12 @@ module.exports = PgHoff =
             return
 
         if addResult
+            index = @hoffPanes.indexOf @resultsPane
+            @hoffPanes.splice index, 1 if index isnt -1
+
+            @resultsPane = new ResultsPaneView()
+            @hoffPanes.push @resultsPane
+
             resultsPaneItem = {
                 element: @resultsPane.element,
                 getTitle: () => 'Result',
@@ -377,15 +383,13 @@ module.exports = PgHoff =
     add: (isInitial) ->
         return unless @bottomDock
 
-        @resultsPane = new ResultsPaneView()
+
         @outputPane = new OutputPaneView()
         @historyPane = new HistoryPaneView()
-        @hoffPanes.push @resultsPane
         @hoffPanes.push @outputPane
         @hoffPanes.push @historyPane
 
         @openDock()
-
 
         #@bottomDock.addPane @outputPane, 'Output', isInitial
         #@bottomDock.addPane @resultsPane, 'Results', isInitial
