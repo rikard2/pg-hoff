@@ -1,17 +1,17 @@
 {CompositeDisposable, Disposable} = require 'atom'
-PgHoffServerRequest         = require './server-request'
-PgHoffConnection            = require './connection'
-PgHoffQuery                 = require './query'
-PgHoffGotoDeclaration       = require './goto-declaration'
-PgHoffAutocompleteProvider  = require('./autocomplete-provider')
-PgHoffDialog                = require('./dialog')
-PgHoffStatus                = require('./status')
-{BasicTabButton}            = require 'atom-bottom-dock'
-ResultsPaneItem             = require './pane-items/results'
-OutputPaneItem              = require './pane-items/output'
-HistoryPaneItem             = require './pane-items/history'
-AnalyzePaneItem             = require './pane-items/analyze'
-{$}                         = require 'space-pen'
+{$}                               = require 'space-pen'
+Config                            = require './config'
+PgHoffServerRequest               = require './server-request'
+PgHoffConnection                  = require './connection'
+PgHoffQuery                       = require './query'
+PgHoffGotoDeclaration             = require './goto-declaration'
+PgHoffAutocompleteProvider        = require './autocomplete-provider'
+PgHoffDialog                      = require './dialog'
+PgHoffStatus                      = require './status'
+ResultsPaneItem                   = require './pane-items/results'
+OutputPaneItem                    = require './pane-items/output'
+HistoryPaneItem                   = require './pane-items/history'
+AnalyzePaneItem                   = require './pane-items/analyze'
 
 module.exports = PgHoff =
     provider: null
@@ -20,91 +20,7 @@ module.exports = PgHoff =
     listServersViewPanel: null
     resultsPane: null
 
-    config:
-        host:
-            type: 'string'
-            default: 'http://unix:/tmp/pghoffserver.sock:/'
-            order: 1
-        pollInterval:
-            type: 'integer',
-            description: 'Poll interval in milliseconds.'
-            minimum: 10
-            maximum: 10000
-            default: 100
-            order: 2
-        displayQueryExecutionTime:
-            type: 'boolean'
-            description: 'Display query execution time after the query is finished.'
-            default: true
-            order: 3
-        autocompletionEnabled:
-            type: 'boolean'
-            default: true
-            order: 4
-        pascaliseAutocompletions:
-            type: 'boolean'
-            default: false
-            description: 'user_name becomes User_Name'
-            order: 5
-        unQuoteFunctionNames:
-            type: 'boolean'
-            default: true
-            description: '"sum"() becomes sum()'
-            order: 6
-        maximumCellValueLength:
-            type: 'integer'
-            minimum: 5
-            maximum: 10000
-            default: 40
-            description: 'How long a cell value can be until you have to expand it.'
-            order: 6
-        locale:
-            type: 'string'
-            default: 'sv-SE'
-            order: 7
-        executeAllWhenNothingSelected:
-            type: 'boolean'
-            description: 'Execute all text in editor when no text is selected'
-            default: true,
-            order: 8
-        formatColumns:
-            type: 'boolean'
-            description: 'This can possibly be slow'
-            default: true
-            order: 9
-        defaultConnection:
-            type: 'string'
-            description: 'Alias of database connection to use for new tabs</br>Leave blank for no automatic connection'
-            default: ''
-            order: 10
-        nullString:
-            type: 'string'
-            description: 'Representation of null values'
-            default: 'NULL'
-            order: 11
-        autoTranspose:
-            type: 'boolean'
-            description: 'Auto transpose'
-            default: true
-            order: 12
-        startServerAutomatically:
-            type: 'boolean'
-            description: 'Start server automatically'
-            default: true
-            order: 1
-        hoffServerPath:
-            type: 'string'
-            default: ''
-            order: 1
-        hoffServerPythonCommand:
-            type: 'string'
-            default: 'python'
-            order: 1
-        quoteValues:
-            description: 'Quote non-numerics when copying'
-            type: 'boolean'
-            default: true
-            order: 37
+    config: Config
 
     activate: (state) ->
         console.debug 'Activating the greatest plugin ever..'
@@ -240,6 +156,7 @@ module.exports = PgHoff =
         atom.workspace.getBottomDock().activate()
         atom.workspace.getBottomDock().getActivePane().activateItemForURI('atom://my-package/result-view')
         atom.workspace.getActivePane().activate()
+
     changeToOutputPane: () ->
         return unless @bottomDock
         if @bottomDock.isActive()
@@ -322,17 +239,11 @@ module.exports = PgHoff =
             @resultsPane = new ResultsPaneItem()
             @hoffPanes.push @resultsPane
 
-            resultsPaneItem = {
-                element: @resultsPane.element,
-                getTitle: () => 'Result',
-                getURI: () => 'atom://my-package/result-view',
-                getDefaultLocation: () => 'center'
-            };
             if addOutput
-                atom.workspace.getBottomDock().getActivePane().addItem(resultsPaneItem)
+                atom.workspace.getBottomDock().getActivePane().addItem(@resultsPane)
             else
                 pane = atom.workspace.getBottomDock().getActivePane().splitRight({
-                    items: [resultsPaneItem]
+                    items: [@resultsPane]
                 })
                 atom.workspace.getBottomDock().getActivePane().setFlexScale(2.5)
         if addOutput
@@ -342,14 +253,8 @@ module.exports = PgHoff =
             @outputPane = new OutputPaneItem()
             @hoffPanes.push @outputPane
 
-            outputPaneItem = {
-                element: @outputPane.element,
-                getTitle: () => 'Output',
-                getURI: () => 'atom://my-package/output-view',
-                getDefaultLocation: () => 'left'
-            };
             pane = atom.workspace.getBottomDock().getActivePane().splitLeft({
-                items: [outputPaneItem]
+                items: [@outputPane]
             })
             atom.workspace.getBottomDock().getActivePane().setFlexScale(0.4)
             if !addResult

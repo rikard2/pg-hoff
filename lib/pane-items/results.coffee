@@ -8,7 +8,10 @@ SlickFormatting                              = require '../slickgrid/formatting'
 class ResultsPaneItem extends View
     @table: null
     processedQueries: []
-    getId: () -> 'results'
+    getTitle: () => 'Result',
+    getURI: () => 'atom://my-package/result-view',
+    getDefaultLocation: () => 'center'
+
     @content: ->
         @div class: 'gulp-pane', outlet: 'pane', style: 'overflow: auto !important; font-family:menlo', =>
 

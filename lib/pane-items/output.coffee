@@ -10,22 +10,16 @@ class OutputPaneItem extends View
     @content: ->
         @div class: 'gulp-pane', style: 'overflow: auto !important; font-family:menlo', =>
 
+    getTitle: () => 'Output',
+    getURI: () => 'atom://my-package/output-view',
+    getDefaultLocation: () => 'left'
+
     render: (resultset) ->
         if not @outputView
             @outputView = new OutputPaneItemContent resultset
             @append @outputView
         else
             @outputView.append(resultset)
-
-    initialize: ->
-        @emitter = new Emitter()
-        @subscriptions = new CompositeDisposable()
-
-    refresh: =>
-        @outputView.refresh()
-
-    stop: =>
-        @outputView.stop()
 
     clear: =>
         if @outputView
