@@ -336,6 +336,12 @@ module.exports = PgHoff =
                 })
                 atom.workspace.getBottomDock().getActivePane().setFlexScale(2.5)
         if addOutput
+            index = @hoffPanes.indexOf @outputPane
+            @hoffPanes.splice index, 1 if index isnt -1
+
+            @outputPane = new OutputPaneItem()
+            @hoffPanes.push @outputPane
+
             outputPaneItem = {
                 element: @outputPane.element,
                 getTitle: () => 'Output',
@@ -346,6 +352,8 @@ module.exports = PgHoff =
                 items: [outputPaneItem]
             })
             atom.workspace.getBottomDock().getActivePane().setFlexScale(0.4)
+            if !addResult
+                @resultsPane.reset()
 
         resizeTimeout = null
         obs = new ResizeObserver (r) =>
@@ -359,9 +367,7 @@ module.exports = PgHoff =
         return unless @bottomDock
 
 
-        @outputPane = new OutputPaneItem()
         @historyPane = new HistoryPaneItem()
-        @hoffPanes.push @outputPane
         @hoffPanes.push @historyPane
 
         #@bottomDock.addPane @outputPane, 'Output', isInitial
