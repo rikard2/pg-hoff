@@ -6,7 +6,7 @@ TableView                                    = require '../slickgrid/table-view'
 SlickFormatting                              = require '../slickgrid/formatting'
 
 class ResultsPaneItem extends View
-    @table: null
+    table: null
     processedQueries: []
     getTitle: () => 'Result',
     getURI: () => 'atom://my-package/result-view',
