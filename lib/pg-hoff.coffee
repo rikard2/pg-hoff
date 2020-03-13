@@ -271,16 +271,8 @@ module.exports = PgHoff =
     add: (isInitial) ->
         return unless @bottomDock
 
-
         @historyPane = new HistoryPaneItem()
         @hoffPanes.push @historyPane
-
-        #@bottomDock.addPane @outputPane, 'Output', isInitial
-        #@bottomDock.addPane @resultsPane, 'Results', isInitial
-        #@bottomDock.addPane @historyPane, 'History', isInitial
-
-        #@bottomDock.onDidToggle =>
-        #    @resultsPane.resize() if @resultsPane.active && @bottomDock.isActive()
 
     consumeBottomDock: (@bottomDock) ->
       @subscriptions.add @bottomDock.onDidFinishResizing =>
