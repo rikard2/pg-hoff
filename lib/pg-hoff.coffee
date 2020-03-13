@@ -312,6 +312,7 @@ module.exports = PgHoff =
                 if atom.workspace.getBottomDock().getPanes()[0].getItems()[0].getTitle() == 'Result'
                     addResult = false
         else
+            @resultsPane.reset()
             return
 
         if addResult
@@ -334,8 +335,6 @@ module.exports = PgHoff =
                     items: [resultsPaneItem]
                 })
                 atom.workspace.getBottomDock().getActivePane().setFlexScale(2.5)
-        else
-            @resultsPane.reset()
         if addOutput
             outputPaneItem = {
                 element: @outputPane.element,
