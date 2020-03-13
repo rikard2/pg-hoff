@@ -126,7 +126,7 @@ module.exports = PgHoff =
         @resultsPane.cycleResults()
 
     fetchMetadata: (editor, markerLayer) ->
-        return unless @getAliasForPane()
+        return unless @getActiveAlias()
         PgHoffServerRequest
             .Post('get_metadata', { sql: editor.getText().trim() })
             .then (response) =>
@@ -166,26 +166,27 @@ module.exports = PgHoff =
 
     consumeStatusBar: (statusBar) ->
         @statusBarTile = statusBar.addRightTile item: new PgHoffStatus , priority: 2
-        @statusBarTile.item.alias = @getAliasForPane()
+        @statusBarTile.item.alias = @getActiveAlias()
         @statusBarTile.item.renderText()
 
         atom.workspace.onDidChangeActivePaneItem((pane) =>
-            alias = @getAliasForPane(pane)
+            alias = @getActiveAlias()
             @statusBarTile.item.alias = alias
             @statusBarTile.item.renderText()
         )
 
-    getAliasForPane: (pane) =>
-        if not pane?
-            pane = atom.workspace.getActivePaneItem()
-        return unless pane?
-        if pane?.alias?
-            return pane.alias
+    getActiveAlias: () =>
+        textEditor = atom.workspace.getActiveTextEditor()
 
-        return null
+        return textEditor.alias if textEditor?.alias?
+
+    setActiveAlias: (alias) =>
+        textEditor = atom.workspace.getActiveTextEditor()
+
+        textEditor.alias = alias if textEditor?
 
     toggleAliases: ->
-        alias = @getAliasForPane()
+        alias = @getActiveAlias()
         if alias? or true
             return PgHoffServerRequest
                 .Post('get_settings', { alias: alias })
@@ -275,7 +276,7 @@ module.exports = PgHoff =
       @add true
 
     searchHistoryWithConnect: () ->
-        alias = @getAliasForPane()
+        alias = @getActiveAlias()
         if alias?
             @searchHistory()
         else
@@ -309,7 +310,7 @@ module.exports = PgHoff =
             @resultsPane.pinTable(queryid)
 
     createDynamicTable: (event) ->
-        alias = @getAliasForPane()
+        alias = @getActiveAlias()
         globalName = null
         PgHoffDialog
             .Prompt('Enter name')
@@ -341,7 +342,6 @@ module.exports = PgHoff =
                 console.debug err
 
     connect: ->
-        paneItem = atom.workspace.getActivePaneItem()
         pane = atom.workspace.getActivePane()
 
         if @listServersViewPanel.isVisible()
@@ -355,8 +355,8 @@ module.exports = PgHoff =
                 else
                     atom.notifications.addSuccess('Connected to ' + server.alias)
 
-                paneItem.alias = server.alias
-                @statusBarTile.item.alias = @getAliasForPane(paneItem)
+                @setActiveAlias(server.alias)
+                @statusBarTile.item.alias = @getActiveAlias()
                 @statusBarTile.item.transactionStatus = null
                 @statusBarTile.item.renderText()
 
@@ -405,7 +405,7 @@ module.exports = PgHoff =
         grid.writeAndOpenScripts()
 
     refreshDefinitions: ->
-        alias = @getAliasForPane()
+        alias = @getActiveAlias()
         if alias?
             PgHoffServerRequest.Post('refresh_definitions', {alias:alias})
             .then (response) ->
@@ -424,7 +424,7 @@ module.exports = PgHoff =
          pane = null
 
     executeQueryWithConnect: (onlyCurrentQuery) ->
-        alias = @getAliasForPane()
+        alias = @getActiveAlias()
         cursor_pos = null
         if onlyCurrentQuery
             editor = atom.workspace.getActiveTextEditor()
@@ -459,8 +459,7 @@ module.exports = PgHoff =
 
         if not selectedText?
             selectedText = atom.workspace.getActiveTextEditor().getSelectedText().trim()
-        if not alias?
-            alias = atom.workspace.getActiveTextEditor().alias
+        alias = @getActiveAlias() unless alias?
 
         if selectedText.trim().length == 0
             if atom.config.get('pg-hoff.executeAllWhenNothingSelected')
@@ -539,7 +538,7 @@ module.exports = PgHoff =
                                     if result.error?
                                         @resultsPane.markQueryError(result)
                                         if result.error == 'connection already closed'
-                                            atom.editor.getActivePaneItem().alias = null
+                                            @setActiveAlias(null)
                                             throw("#{result.error}")
                                     if queryCount == 1
                                         result.onlyOne = true
@@ -580,7 +579,7 @@ module.exports = PgHoff =
                         @resultsPane.stopLoadIndicator()
                         clearTimeout(@resultsPane.loadingTimeout)
             .catch (err) =>
-                atom.workspace.getActivePaneItem().alias = null
+                @setActiveAlias(null)
                 atom.notifications.addError(err)
             .finally =>
                 @processingBatch = false
