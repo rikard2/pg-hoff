@@ -214,6 +214,7 @@ module.exports = PgHoff =
                     console.log 'error', error
 
     openDock: () ->
+        atom.workspace.getBottomDock().activate()
         addResult = true
         addOutput = true
         if atom.workspace.getBottomDock().getPanes().length < 2
