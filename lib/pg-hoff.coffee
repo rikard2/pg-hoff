@@ -217,13 +217,14 @@ module.exports = PgHoff =
         atom.workspace.getBottomDock().activate()
         addResult = true
         addOutput = true
-        if atom.workspace.getBottomDock().getPanes().length < 2
-            if atom.workspace.getBottomDock().getPanes()[0].getItems().length < 2 && atom.workspace.getBottomDock().getPanes()[0].getItems().length > 0
-                if atom.workspace.getBottomDock().getPanes()[0].getItems()[0].getTitle() == 'Output'
-                    addOutput = false
-                if atom.workspace.getBottomDock().getPanes()[0].getItems()[0].getTitle() == 'Result'
+        for pane in atom.workspace.getBottomDock().getPanes()
+            for item in pane.getItems()
+                if @resultsPane && item.getId() == @resultsPane.getId()
                     addResult = false
-        else
+                if @outputPane && item.getId() == @outputPane.getId()
+                    addOutput = false
+
+        if !addResult && !addOutput
             @resultsPane.reset()
             return
 

@@ -8,7 +8,9 @@ SlickFormatting                              = require '../slickgrid/formatting'
 class ResultsPaneItem extends View
     table: null
     processedQueries: []
+    id: null
     getTitle: () => 'Result',
+    getId: () => @id,
     getURI: () => 'atom://my-package/result-view',
     getDefaultLocation: () => 'center'
 
@@ -123,6 +125,7 @@ class ResultsPaneItem extends View
         @tables = []
         @querynumber = 0
         @selectedquery = 0
+        @id = @uuidv4()
         @emitter = new Emitter()
         @subscriptions = new CompositeDisposable()
 

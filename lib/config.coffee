@@ -82,3 +82,7 @@ module.exports =
         description: 'Quote non-numerics when copying'
         type: 'boolean'
         default: true
+    outputAsPane:
+        description: 'Display query output next to result'
+        type: 'boolean'
+        default: true
