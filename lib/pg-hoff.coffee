@@ -154,21 +154,15 @@ module.exports = PgHoff =
 
     changeToResultsPane: () ->
         atom.workspace.getBottomDock().activate()
-        atom.workspace.getBottomDock().getActivePane().activateItemForURI('atom://my-package/result-view')
+        atom.workspace.getBottomDock().getActivePane().activateItemForURI('atom://pg-hoff/result-view')
         atom.workspace.getActivePane().activate()
+        atom.workspace.getBottomDock().show()
 
     changeToOutputPane: () ->
-        return unless @bottomDock
-        if @bottomDock.isActive()
-            if @bottomDock.getCurrentPane().getId() == 'output'
-                @bottomDock.toggle()
-                atom.workspace.getActivePane().activate()
-            else
-                @bottomDock.changePane('output')
-        else
-            @bottomDock.toggle()
-            @bottomDock.changePane('output')
-            @resultsPane.focusFirstResult()
+        atom.workspace.getBottomDock().activate()
+        atom.workspace.getBottomDock().getActivePane().activateItemForURI('atom://pg-hoff/output-view')
+        atom.workspace.getActivePane().activate()
+        atom.workspace.getBottomDock().show()
 
     consumeStatusBar: (statusBar) ->
         @statusBarTile = statusBar.addRightTile item: new PgHoffStatus , priority: 2
@@ -577,9 +571,9 @@ module.exports = PgHoff =
                 return boom()
                     .then () =>
                         if gotErrors or not gotResults or (gotResults and gotNotices)
-                            atom.workspace.getBottomDock().getActivePane().activateItemForURI('atom://my-package/output-view')
+                            @changeToOutputPane()
                         else if gotResults
-                            atom.workspace.getBottomDock().getActivePane().activateItemForURI('atom://my-package/result-view')
+                            @changeToResultsPane()
                             @resultsPane.focusFirstResult()
                     .finally () =>
                         @resultsPane.stopLoadIndicator()
