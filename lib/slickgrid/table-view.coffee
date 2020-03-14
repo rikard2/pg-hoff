@@ -36,6 +36,14 @@ class HoffTableView extends View
         @grid.updateRowCount()
         @grid.render()
 
+    setData: (data) =>
+        @data = data
+        @grid.setData(@data)
+        @grid.updateRowCount()
+        @grid.invalidate()
+        @grid.render()
+        @resize()
+
     expandColumns: =>
         maxrows = 1
         for c in @columns when c["field"] != 'rownr'
