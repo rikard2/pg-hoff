@@ -32,22 +32,8 @@ class HoffEyePaneItem extends View
         table.table.remove() for table in @tables when table.queryid == queryid
         @tables = (table for table in @tables when table.queryid != queryid)
 
-    pinTable: (queryid) ->
-        x.pinned = true for x in @tables when x.queryid == queryid
-    unPinTable: (queryid) ->
-        x.pinned = false for x in @tables when x.queryid == queryid
-
     expandColumns: (queryid) ->
         x.table.expandColumns() for x in @tables when x.queryid == queryid
-
-    cycleResults: ->
-        if @selectedquery < @tables.length - 1
-            @selectedquery += 1
-        else
-            @selectedquery = 0
-        number = @tables[@selectedquery].querynumber
-        $(@).animate { scrollTop: $('#slickgrid_' + number + 'rownr').offset().top - $(@).offset().top + $(@).scrollTop() }, 650
-
 
     startLoadIndicator: () ->
         @indicator = document.createElement('div')
@@ -64,7 +50,7 @@ class HoffEyePaneItem extends View
             r = Math.random() * 16 | 0
             v = if c == 'x' then r else r & 0x3 | 0x8
             v.toString 16
-
+        
     render: (resultset) ->
         for x in @tables when x.queryid == resultset.queryid
             x.table.setData(resultset.rows)

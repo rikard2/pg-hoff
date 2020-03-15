@@ -20,7 +20,6 @@ module.exports = PgHoff =
     listServersView: null
     listServersViewPanel: null
     resultsPane: null
-
     config: Config
 
     activate: (state) ->
@@ -275,9 +274,11 @@ module.exports = PgHoff =
 
     add: (isInitial) ->
         return unless @bottomDock
-
         @historyPane = new HistoryPaneItem()
         @hoffPanes.push @historyPane
+        #pane = atom.workspace.getRightDock().getActivePane().splitDown({
+        #    items: [@hoffEyePane]
+        #})
 
     consumeBottomDock: (@bottomDock) ->
       @subscriptions.add @bottomDock.onDidFinishResizing =>
@@ -435,14 +436,57 @@ module.exports = PgHoff =
          @bottomDock.deletePane pane.getId()
          pane = null
 
+
+
+    startHoffEye: () ->
+        alias = @getActiveAlias() unless alias?
+        if @hoffEye? && @hoffEye == true
+            return
+        @hoffEye = true
+
+        getResult = () =>
+            request =
+                alias: alias
+            PgHoffServerRequest.Post('hoffeye_result', request)
+                .then (response) =>
+                    return response
+                .then (response) =>
+                    timeout = (ms) ->
+                        return new Promise((fulfil) ->
+                            setTimeout(() ->
+                                fulfil()
+                            , ms)
+                        )
+                    if response
+                        for i in [0..response.length-1]
+                            response[i]['result']['queryid'] = i
+                            if response[i]['result']['new_data']
+                                res = [
+                                     columns: response[i]['result']['columns']
+                                     rows: response[i]['result']['rows']
+                                     notices: response[i]['result']['notices']
+                                     queryid: response[i]['result']['queryid']
+                                     complete: true
+                                     rowcount: response[i]['result']['rows'].length
+                                     statusmessage: response[i]['result']['statusmessage']
+                                ]
+                                for j in [0..res[0]['rows'].length-1]
+                                    res[0]['rows']['rownr'] = j
+                                console.log(i, @hoffEyes, @hoffEyes[i])
+                                @hoffEyes[i].render(res[0])
+                    return timeout(1000)
+                        .then () =>
+                            if @hoffEye == true
+                                return getResult()
+                            else
+                                return
+        getResult()
+
     newHoffEye: () ->
+        hoffEyePane = new HoffEyePaneItem()
+        @hoffEyes.push hoffEyePane
+        atom.workspace.getRightDock().getActivePane().addItem(hoffEyePane)
         atom.workspace.getRightDock().activate()
-        @hoffEyePane = new HoffEyePaneItem()
-        @hoffEyes.push @hoffEyePane
-        #atom.workspace.getRightDock().getActivePane().addItem(@hoffEyePane)
-        pane = atom.workspace.getRightDock().getActivePane().splitDown({
-            items: [@hoffEyePane]
-        })
         alias = @getActiveAlias()
         cursor_pos = null
         editor = atom.workspace.getActiveTextEditor()
@@ -468,42 +512,9 @@ module.exports = PgHoff =
                     else if not response.success
                         throw("Lost connection. Try again!")
                     return response
-
-                getResult = () =>
-                    request =
-                        alias: alias
-                    PgHoffServerRequest.Post('hoffeye_result', request)
-                        .then (response) =>
-                            return response
-                        .then (response) =>
-                            timeout = (ms) ->
-                                return new Promise((fulfil) ->
-                                    setTimeout(() ->
-                                        fulfil()
-                                    , ms)
-                                )
-                            if response && response[0]['result']['new_data']
-                                res = [
-                                     columns: response[0]['result']['columns']
-                                     rows: response[0]['result']['rows']
-                                     notices: response[0]['result']['notices']
-                                     queryid: '123456'
-                                     complete: true
-                                     rowcount: response[0]['result']['rows'].length
-                                     statusmessage: response[0]['result']['statusmessage']
-                                ]
-                                for i in [0..res[0]['rows'].length-1]
-                                    console.log(i)
-                                    res[0]['rows']['rownr'] = i
-                                console.log(res)
-                                @hoffEyePane.render(res[0])
-                            return timeout(1000)
-                                .then () ->
-                                    return getResult()
-            getResult()
-
         else
             @connect()?.then => PgHoffServerRequest.Post('hoffeye_new', request)
+        @startHoffEye()
 
     executeQueryWithConnect: (onlyCurrentQuery) ->
         alias = @getActiveAlias()
