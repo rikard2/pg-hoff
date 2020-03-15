@@ -475,6 +475,7 @@ module.exports = PgHoff =
                 return
 
         newBatch = true
+        @resultsPane.clear()
         query = new DBQuery(selectedText, alias, {
             verbose: true
             onError: (error) => atom.notifications.addError(error.errorCode)

@@ -191,6 +191,7 @@ class ResultsPaneItem extends View
                 editor.decorateMarker(marker, type: 'line-number', class: classType) if marker?
 
                 @setErrorMarker(result, query)
+                @errorMarkers.push(marker)
 
                 setTimeout( () =>
                     marker.destroy()
