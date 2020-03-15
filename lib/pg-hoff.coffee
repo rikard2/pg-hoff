@@ -455,6 +455,11 @@ module.exports = PgHoff =
         #@executePost('hoff_import', request, null)
 
     executeNewQuery: (cursor_pos) ->
+        if @processingBatch? and @processingBatch
+            atom.notifications.addWarning('Execution in progress, hold on!')
+            return
+        @processingBatch = true
+
         @openDock()
 
         @outputPane.clear() if @outputPane and @statusBarTile.item.transactionStatus == 'IDLE'
@@ -510,6 +515,7 @@ module.exports = PgHoff =
                         @resultsPane.startLoadIndicator()
                 , 1000)
             onCompletion: (completion) =>
+                @processingBatch = false
                 @resultsPane.stopLoadIndicator()
                 clearTimeout(@resultsPane.loadingTimeout)
         })
