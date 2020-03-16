@@ -8,6 +8,8 @@ PgHoffGotoDeclaration             = require './goto-declaration'
 PgHoffAutocompleteProvider        = require './autocomplete-provider'
 PgHoffDialog                      = require './dialog'
 PgHoffStatus                      = require './status'
+Query                             = require './query'
+DBQuery                           = require './dbquery'
 ResultsPaneItem                   = require './pane-items/results'
 HoffEyePaneItem                   = require './pane-items/hoffeye'
 OutputPaneItem                    = require './pane-items/output'
@@ -533,157 +535,84 @@ module.exports = PgHoff =
             cursor_pos = editor.getBuffer().characterIndexForPosition(pos)
             cursor_pos = cursor_pos - editor.getBuffer().getText(pos).substr(0, cursor_pos).split(/\r\n|\r|\n/).length
         if alias?
-            @executeQuery(cursor_pos)
+            @executeNewQuery(cursor_pos)
         else
-            @connect()?.then => @executeQuery(cursor_pos)
-
-    executeQuery: (cursor_pos) ->
-        @executePost('query', null, cursor_pos)
+            @connect()?.then => @executeNewQuery(cursor_pos)
 
     executeHoffImport: () ->
         editor = atom.workspace.getActivePaneItem()
         file = editor?.buffer.file
         request =
             hoffimportfile: file['path']
-        @executePost('hoff_import', request, null)
+        #@executePost('hoff_import', request, null)
 
-    executePost: (path, request, cursor_pos) ->
+    executeNewQuery: (cursor_pos) ->
         if @processingBatch? and @processingBatch
             atom.notifications.addWarning('Execution in progress, hold on!')
             return
         @processingBatch = true
+
         @openDock()
-        if @outputPane and @statusBarTile.item.transactionStatus == 'IDLE'
-            @outputPane.clear()
+
+        @outputPane.clear() if @outputPane and @statusBarTile.item.transactionStatus == 'IDLE'
 
         selectedBufferRange = atom.workspace.getActiveTextEditor().getSelectedBufferRange()
-
-        if not selectedText?
-            selectedText = atom.workspace.getActiveTextEditor().getSelectedText().trim()
-        alias = @getActiveAlias() unless alias?
+        selectedText        = atom.workspace.getActiveTextEditor().getSelectedText().trim() unless selectedText?
+        alias               = @getActiveAlias() unless alias?
 
         if selectedText.trim().length == 0
             if atom.config.get('pg-hoff.executeAllWhenNothingSelected')
                 selectedText = atom.workspace.getActiveTextEditor().getText().trim()
             else
                 return
-        request = request ?
-            query: selectedText
-            alias: alias
-        if cursor_pos
-            request.cursor_pos = cursor_pos
-        return PgHoffServerRequest.Post(path, request)
-            .then (response) ->
-                if response.statusCode == 500
-                    throw("/query status code 500")
-                else if not response.success && response.errormessage
-                    throw(response.errormessage)
-                else if not response.success
-                    throw("Lost connection. Try again!")
 
-                return response
-            .then (response) =>
-                timeout = (ms) ->
-                    return new Promise((fulfil) ->
-                        setTimeout(() ->
-                            fulfil()
-                        , ms)
-                    )
-                promises = []
-                first = true
-                gotResults = false
-                gotErrors = false
-                gotNotices = false
-                newBatch = true
-                rowcount = null
-                NumberOfQueries = response.queryids.length
-                return unless response.queryids.length >= 1
-                queryCount = response.queryids.length
-                getResult = (queryid) =>
-                    if not queryid?
-                        queryid = response.queryids.shift()
-                    url = 'query_status/' + queryid
-                    return PgHoffServerRequest.Get(url, true)
-                        .then (result) =>
-                            @resultsPane.updateNotComplete(newBatch, result, NumberOfQueries - response.queryids.length, selectedBufferRange)
-                            if not result.complete
-                                newBatch = false
-                                return timeout(100)
-                                    .then () ->
-                                        return getResult(queryid)
-                            else
-                                return result
-                boom = () =>
-                    return getResult()
-                        .then (result) =>
-                            gotResults = true if result.has_result
-                            gotNotices = true if result.has_notices
+        newBatch = true
+        @resultsPane.clear()
+        query = new DBQuery(selectedText, alias, {
+            verbose: true
+            onError: (error) => atom.notifications.addError(error.errorCode)
+            onPartialQueryStatus: (result) =>
+                @resultsPane.updateNotComplete(
+                    result.newBatch,
+                    result.result,
+                    result.queryNumber,
+                    selectedBufferRange
+                )
+            onQueryStatus: (status) =>
+                unless status.hasQueryPlan
+                    @removeHoffPane(@analyzePane) if @analyzePane in @hoffPanes
 
-                            if queryCount == 1 and result.has_queryplan
-                                gotQueryplan = true
-                            else
-                                if @analyzePane in @hoffPanes
-                                    @removeHoffPane(@analyzePane)
+                @resultsPane.updateRendering(status.result)
+            onPartialResult: (partial) => @renderResults(partial.result, false)
+            onQueryError: (result) =>
+                @resultsPane.markQueryError(result)
+            onResult: (result) =>
+                if @statusBarTile.item.transactionStatus != result.result.transaction_status
+                    @statusBarTile.item.transactionStatus = result.result.transaction_status.toUpperCase()
+                    @statusBarTile.item.renderText()
 
-                            currentpage = 0
-                            pagesize = 10000
-                            @resultsPane.updateRendering(result)
-                            url = 'result/' + result.queryid + '/'
-                            fetchPartialResult = () =>
-                                return PgHoffServerRequest.Get(url + currentpage + '/' + (currentpage + pagesize), true)
-                                .then (result) =>
-                                    gotErrors = true if result.error? and not result.error.match /can\'t execute an empty query/
+                @resultsPane.updateCompleted(result.result)
+                @renderQueryPlan(result.result.rows) if result.gotQueryplan
 
-                                    if result.errormessage?
-                                        throw("#{result.errormessage}")
-                                    if result.error?
-                                        @resultsPane.markQueryError(result)
-                                        if result.error == 'connection already closed'
-                                            @setActiveAlias(null)
-                                            throw("#{result.error}")
-                                    if queryCount == 1
-                                        result.onlyOne = true
-                                    if  result.rowcount > 0 and currentpage + pagesize < result.rowcount
-                                        @renderResults(result, false)
-                                        currentpage += pagesize
-                                        return fetchPartialResult()
-                                    else
-                                        if @statusBarTile.item.transactionStatus != result.transaction_status
-                                            @statusBarTile.item.transactionStatus = result.transaction_status.toUpperCase()
-                                            @statusBarTile.item.renderText()
-                                        @resultsPane.updateCompleted(result)
-                                        if gotQueryplan
-                                            @renderQueryPlan(result.rows)
-                                        @renderResults(result, true)
-                                        if response.queryids.length > 0
-                                            return boom()
-                                        return result
-                                .catch (err) ->
-                                    console.log err
-                                    throw err
-                            first = false
-                            return fetchPartialResult()
-
+                @renderResults(result.result, true)
+            onAllResults: (all) =>
+                if all.gotErrors or not all.gotResults or (all.gotResults and all.gotNotices)
+                    @changeToOutputPane()
+                else if gotResults
+                    @changeToResultsPane()
+                    @resultsPane.focusFirstResult()
+            onQuery: () =>
                 clearTimeout(@resultsPane.loadingTimeout) if @resultsPane.loadingTimeout?
                 @resultsPane.loadingTimeout = setTimeout(
                     () =>
                         @resultsPane.startLoadIndicator()
                 , 1000)
-                return boom()
-                    .then () =>
-                        if gotErrors or not gotResults or (gotResults and gotNotices)
-                            @changeToOutputPane()
-                        else if gotResults
-                            @changeToResultsPane()
-                            @resultsPane.focusFirstResult()
-                    .finally () =>
-                        @resultsPane.stopLoadIndicator()
-                        clearTimeout(@resultsPane.loadingTimeout)
-            .catch (err) =>
-                @setActiveAlias(null)
-                atom.notifications.addError(err)
-            .finally =>
+            onCompletion: (completion) =>
                 @processingBatch = false
+                @resultsPane.stopLoadIndicator()
+                clearTimeout(@resultsPane.loadingTimeout)
+        })
+        query.execute()
 
     renderQueryPlan: (queryplanrows) ->
         queryplan = (queryplanrows.map (row) -> row['QUERY PLAN1']).join('\n')

@@ -132,6 +132,7 @@ class ResultsPaneItem extends View
         @subscriptions.add atom.commands.add 'body', 'core:cancel': => @clear()
 
     updateNotComplete: (newBatch, result, queryNumber, bufferRange) ->
+        console.log 'updateNotComplete'
         if newBatch
             query.marker.destroy() for query in @processedQueries?
             @processedQueries = []
@@ -154,6 +155,7 @@ class ResultsPaneItem extends View
             atom.workspace.getActiveTextEditor().scanInBufferRange(new RegExp(@escapeRegExp(result.query)), bufferRange, (hit) => @queryHit(hit, queryInfo) )
         catch
     updateRendering: (result) ->
+        console.log 'updateRendering', result
         for query in @processedQueries
             if query.queryId == result.queryid
                 setTimeout( () =>
@@ -165,13 +167,16 @@ class ResultsPaneItem extends View
                 , 300)
 
     updateCompleted: (result) ->
+        console.log 'updateCompleted', result
         for query in @processedQueries
+            console.log '@processedQueries', @processedQueries
             if query.queryId == result.queryid
                 setTimeout( () =>
                     query.marker.destroy()
                 , 300)
 
     markQueryError: (result) ->
+        console.log 'markQueryError', @processedQueries
         editor = atom.workspace.getActiveTextEditor()
         for query in @processedQueries
             if query.queryId == result.queryid
@@ -186,6 +191,7 @@ class ResultsPaneItem extends View
                 editor.decorateMarker(marker, type: 'line-number', class: classType) if marker?
 
                 @setErrorMarker(result, query)
+                @errorMarkers.push(marker)
 
                 setTimeout( () =>
                     marker.destroy()
