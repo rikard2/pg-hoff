@@ -357,7 +357,9 @@ module.exports = PgHoff =
                 console.debug err
 
     connect: ->
-        pane = atom.workspace.getActivePane()
+        alias = @getActiveAlias()
+        if alias?
+            return new Promise (fulfil) -> fulfil(alias)
 
         if @listServersViewPanel.isVisible()
             @listServersViewPanel.hide()
@@ -388,6 +390,8 @@ module.exports = PgHoff =
                 tabMarker.classList.add 'tab-marker'
                 $(tabMarker).css('border-color', "transparent #{server.color or colorizeString(server.alias)} transparent transparent")
                 tabItem.appendChild tabMarker
+
+                return server.alias
             .catch (err) =>
                 if err? and err != 'cancel'
                     atom.notifications.addError("Connect error: #{err}")
@@ -395,7 +399,6 @@ module.exports = PgHoff =
                 throw(err)
             .finally =>
                 @listServersViewPanel.hide()
-                pane.activate()
 
     renderResults: (resultset, complete) ->
         if not resultset.complete?
@@ -485,46 +488,45 @@ module.exports = PgHoff =
         getResult()
 
     newHoffEye: () ->
-        alias = @getActiveAlias() unless alias?
+        @connect()
+            .then (alias) =>
+                console.log 'got the alias', alias
+                hoffEyePane = new HoffEyePaneItem(alias)
 
-        hoffEyePane = new HoffEyePaneItem(alias)
-        atom.workspace.getRightDock().getActivePane().addItem(hoffEyePane)
-        atom.workspace.getRightDock().activate()
-        atom.workspace.getRightDock().getActivePane().activateNextItem()
+                atom.workspace.getRightDock().getActivePane().addItem(hoffEyePane)
+                atom.workspace.getRightDock().activate()
+                atom.workspace.getRightDock().getActivePane().activateNextItem()
 
-        cursor_pos = null
-        editor = atom.workspace.getActiveTextEditor()
-        pos = editor.getCursorBufferPosition()
-        cursor_pos = editor.getBuffer().characterIndexForPosition(pos)
-        cursor_pos = cursor_pos - editor.getBuffer().getText(pos).substr(0, cursor_pos).split(/\r\n|\r|\n/).length
+                cursor_pos = null
+                editor = atom.workspace.getActiveTextEditor()
+                pos = editor.getCursorBufferPosition()
+                cursor_pos = editor.getBuffer().characterIndexForPosition(pos)
+                cursor_pos = cursor_pos - editor.getBuffer().getText(pos).substr(0, cursor_pos).split(/\r\n|\r|\n/).length
 
-        selectedBufferRange = atom.workspace.getActiveTextEditor().getSelectedBufferRange()
-        if not selectedText?
-            selectedText = atom.workspace.getActiveTextEditor().getSelectedText().trim()
+                selectedBufferRange = atom.workspace.getActiveTextEditor().getSelectedBufferRange()
+                if not selectedText?
+                    selectedText = atom.workspace.getActiveTextEditor().getSelectedText().trim()
 
-        request =
-            alias: alias,
-            query: selectedText
-        if alias?
-            id = PgHoffServerRequest.Post('hoffeye_new', request)
-                .then (response) =>
-                    if response.statusCode == 500
-                        throw("/query status code 500")
-                    else if not response.success && response.errormessage
-                        throw(response.errormessage)
-                    else if not response.success
-                        throw("Lost connection. Try again!")
-                    hoffEyePane.setId(alias, response['id'])
-                    @hoffEyes[response['id']] = hoffEyePane
+                request =
+                    alias: alias,
+                    query: selectedText
 
-                    tabItem = atom.views.getView(atom.workspace).querySelector("ul.tab-bar>li.tab[data-type='HoffEyePaneItem'].active")
-                    tabMarker = document.createElement('span')
-                    $(tabMarker).attr('id', response['id'])
-                    tabItem.append tabMarker
-                    @startHoffEye()
-                    return
-        else
-            @connect()?.then => PgHoffServerRequest.Post('hoffeye_new', request)
+                id = PgHoffServerRequest.Post('hoffeye_new', request)
+                    .then (response) =>
+                        if response.statusCode == 500
+                            throw("/query status code 500")
+                        else if not response.success && response.errormessage
+                            throw(response.errormessage)
+                        else if not response.success
+                            throw("Lost connection. Try again!")
+                        hoffEyePane.setId(alias, response['id'])
+                        @hoffEyes[response['id']] = hoffEyePane
+
+                        tabItem = atom.views.getView(atom.workspace).querySelector("ul.tab-bar>li.tab[data-type='HoffEyePaneItem'].active")
+                        tabMarker = document.createElement('span')
+                        $(tabMarker).attr('id', response['id'])
+                        tabItem.append tabMarker
+                        @startHoffEye()
 
     executeQueryWithConnect: (onlyCurrentQuery) ->
         alias = @getActiveAlias()
