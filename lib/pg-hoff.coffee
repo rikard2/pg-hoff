@@ -26,7 +26,7 @@ module.exports = PgHoff =
         console.debug 'Activating the greatest plugin ever..'
         @listServersView        = new PgHoffConnection(state.pgHoffViewState)
         @hoffPanes = []
-        @hoffEyes = []
+        @hoffEyes = {}
         editor = atom.workspace.getActiveTextEditor()
         @listServersViewPanel = atom.workspace.addModalPanel(item: @listServersView.getElement(), visible: false)
 
@@ -458,22 +458,22 @@ module.exports = PgHoff =
                             , ms)
                         )
                     if response
-                        for i in [0..response.length-1]
-                            response[i]['result']['queryid'] = i
-                            if response[i]['result']['new_data']
-                                res = [
-                                     columns: response[i]['result']['columns']
-                                     rows: response[i]['result']['rows']
-                                     notices: response[i]['result']['notices']
-                                     queryid: response[i]['result']['queryid']
+                        for result in response
+                            if result['result']['new_data']
+                                r = [
+                                     columns: result['result']['columns']
+                                     rows: result['result']['rows']
+                                     notices: result['result']['notices']
+                                     queryid: result['id']
                                      complete: true
-                                     rowcount: response[i]['result']['rows'].length
-                                     statusmessage: response[i]['result']['statusmessage']
+                                     rowcount: result['result']['rows'].length
+                                     statusmessage: result['result']['statusmessage']
                                 ]
-                                for j in [0..res[0]['rows'].length-1]
-                                    res[0]['rows']['rownr'] = j
-                                console.log(i, @hoffEyes, @hoffEyes[i])
-                                @hoffEyes[i].render(res[0])
+                                for j in [0..r[0]['rows'].length-1]
+                                    r[0]['rows']['rownr'] = j
+                                if @hoffEyes[result['id']]
+                                    @hoffEyes[result['id']].render(r[0])
+                                    @hoffEyes[result['id']].new_data_flash()
                     return timeout(1000)
                         .then () =>
                             if @hoffEye == true
@@ -483,11 +483,13 @@ module.exports = PgHoff =
         getResult()
 
     newHoffEye: () ->
-        hoffEyePane = new HoffEyePaneItem()
-        @hoffEyes.push hoffEyePane
+        alias = @getActiveAlias() unless alias?
+
+        hoffEyePane = new HoffEyePaneItem(alias)
         atom.workspace.getRightDock().getActivePane().addItem(hoffEyePane)
         atom.workspace.getRightDock().activate()
-        alias = @getActiveAlias()
+        atom.workspace.getRightDock().getActivePane().activateNextItem()
+
         cursor_pos = null
         editor = atom.workspace.getActiveTextEditor()
         pos = editor.getCursorBufferPosition()
@@ -497,24 +499,30 @@ module.exports = PgHoff =
         selectedBufferRange = atom.workspace.getActiveTextEditor().getSelectedBufferRange()
         if not selectedText?
             selectedText = atom.workspace.getActiveTextEditor().getSelectedText().trim()
-        alias = @getActiveAlias() unless alias?
 
         request =
             alias: alias,
             query: selectedText
         if alias?
-            PgHoffServerRequest.Post('hoffeye_new', request)
-                .then (response) ->
+            id = PgHoffServerRequest.Post('hoffeye_new', request)
+                .then (response) =>
                     if response.statusCode == 500
                         throw("/query status code 500")
                     else if not response.success && response.errormessage
                         throw(response.errormessage)
                     else if not response.success
                         throw("Lost connection. Try again!")
-                    return response
+                    hoffEyePane.setId(alias, response['id'])
+                    @hoffEyes[response['id']] = hoffEyePane
+
+                    tabItem = atom.views.getView(atom.workspace).querySelector("ul.tab-bar>li.tab[data-type='HoffEyePaneItem'].active")
+                    tabMarker = document.createElement('span')
+                    $(tabMarker).attr('id', response['id'])
+                    tabItem.append tabMarker
+                    @startHoffEye()
+                    return
         else
             @connect()?.then => PgHoffServerRequest.Post('hoffeye_new', request)
-        @startHoffEye()
 
     executeQueryWithConnect: (onlyCurrentQuery) ->
         alias = @getActiveAlias()

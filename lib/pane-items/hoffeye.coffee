@@ -1,5 +1,6 @@
 {Point, Range, Emitter, CompositeDisposable} = require 'atom'
 {$, View}                                    = require 'space-pen'
+PgHoffServerRequest                          = require '../server-request'
 parseInterval                                = require 'postgres-interval'
 window.jQuery                                = require 'jquery'
 TableView                                    = require '../slickgrid/table-view'
@@ -9,13 +10,16 @@ class HoffEyePaneItem extends View
     table: null
     processedQueries: []
     id: null
-    getTitle: () => 'Result',
+    getTitle: () => @title,
     getId: () => @id,
     getURI: () => 'atom://my-package/result-view',
     getDefaultLocation: () => 'center'
-
     @content: ->
         @div class: 'gulp-pane', outlet: 'pane', style: 'overflow: auto !important; font-family:menlo', =>
+
+    setId: (alias, id) ->
+        @alias = alias
+        @id = id
 
     reset: () ->
         marker.destroy() for marker in @errorMarkers
@@ -50,7 +54,7 @@ class HoffEyePaneItem extends View
             r = Math.random() * 16 | 0
             v = if c == 'x' then r else r & 0x3 | 0x8
             v.toString 16
-        
+
     render: (resultset) ->
         for x in @tables when x.queryid == resultset.queryid
             x.table.setData(resultset.rows)
@@ -108,12 +112,20 @@ class HoffEyePaneItem extends View
         if resultset.onlyOne and resultset.rowcount == 1 and resultset.columns.length == 1
             @expandColumns(resultset.queryid)
 
-    initialize: ->
+    new_data_flash: () ->
+        tabMarker = atom.views.getView(atom.workspace).querySelector("ul.tab-bar>li.tab[data-type='HoffEyePaneItem'] span#" + @id)
+        tabMarker.classList.add('hoffeye-tab-flash')
+        clearTimeout(flashTimeout)
+        flashTimeout = setTimeout(() =>
+            tabMarker.classList.remove('hoffeye-tab-flash')
+        , 1000)
+
+    initialize: (title) ->
+        @title = title
         @errorMarkers = []
         @tables = []
         @querynumber = 0
         @selectedquery = 0
-        @id = @uuidv4()
         @emitter = new Emitter()
         @subscriptions = new CompositeDisposable()
 
@@ -236,6 +248,12 @@ class HoffEyePaneItem extends View
     focusFirstResult: => $(".slick-cell.l0.r0").first().click()
 
     destroy: ->
+        request =
+            alias: @alias,
+            id: @id
+        PgHoffServerRequest.Post('hoffeye_remove', request)
+            .then (response) =>
+                return response
         @subscriptions.dispose()
         @remove()
 
