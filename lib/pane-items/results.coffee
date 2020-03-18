@@ -102,7 +102,8 @@ class ResultsPaneItem extends View
         else
             height = '100%'
         autoTranspose = atom.config.get('pg-hoff.autoTranspose')
-        if autoTranspose and resultset.onlyOne and resultset.rowcount <= 2 and resultset.columns.length > 5
+
+        if autoTranspose and resultset.rowcount <= 2 and resultset.columns.length > 5
             @addClass 'transpose'
             options.transpose = true
             height = '100%'

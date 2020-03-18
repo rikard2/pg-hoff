@@ -14,10 +14,6 @@ class HoffTableView extends View
         @emitter = new Emitter()
         @normalData = @data
         @normalColumns = @columns
-        if @options.transpose and @data
-            @transposeData()
-        else
-            @deTransposeData()
 
         @columnpick = false
         @startColumn = {}
@@ -120,38 +116,41 @@ class HoffTableView extends View
         })
 
     transposeData: =>
-        @columns = @normalColumns.slice()
-        @data = @normalData.slice()
-        transpose = new TransposeSlickData @columns, @data
-        @columns = transpose.columns
-        @data = transpose.rows
+        @withRowNumberColumns = @columns.slice()
+        @withRowNumberData = @data.slice()
+
+        transpose = new TransposeSlickData @withoutRowNumberColumns, @withoutRowNumberData
+
         @options.transpose = true
+        @data = transpose.rows
+        @columns = transpose.columns
+
+        @grid.setData(@data)
+        @grid.setColumns(@columns)
+
+        @sizeIt({
+            expandWidths: true,
+            expandHeights: false
+        })
+
+        @grid.invalidate()
+        @resize()
 
     deTransposeData: =>
-        @columns = @normalColumns.slice()
+        @data = @withRowNumberData
+        @columns = @withRowNumberColumns
 
-        if @options.rowNumberColumn
-            rowNumberWidth = @options.rowcount.toString().length * 12
-            rowNumberColumn =
-                defaultSortAsc:true
-                field:"rownr"
-                headerCssClass:'row-number'
-                id:"rownr"
-                minWidth:30
-                selectable: false
-                focusable: false
-                name:""
-                rerenderOnResize :true
-                resizable:false
-                sortable:true
-                type:"bigint"
-                type_code: 20
-                width: rowNumberWidth
-            @columns.unshift(rowNumberColumn)
-            @data = @normalData.slice()
-            for d, index in @data
-                d['rownr'] = index + 1
+        @grid.setData(@data)
+        @grid.setColumns(@columns)
         @options.transpose = false
+
+        @sizeIt({
+            expandWidths: true,
+            expandHeights: false
+        })
+
+        @grid.invalidate()
+        @resize()
 
     resize: () =>
         return unless @grid
@@ -176,9 +175,36 @@ class HoffTableView extends View
                     return result
             0
 
+    addRowNumber: () ->
+        rowNumberWidth = @options.rowcount.toString().length * 12
+        rowNumberColumn =
+            defaultSortAsc:true
+            field:"rownr"
+            headerCssClass:'row-number'
+            id:"rownr"
+            minWidth:30
+            selectable: false
+            focusable: false
+            name:""
+            rerenderOnResize :true
+            resizable:false
+            sortable:true
+            type:"bigint"
+            type_code: 20
+            width: rowNumberWidth
+
+        @columns.unshift(rowNumberColumn)
+
+        for d, index in @data
+            d['rownr'] = index + 1
     attached: ->
         @data = @data ? []
         @columns = @columns ? []
+
+        @withoutRowNumberColumns = @columns.slice()
+        @withoutRowNumberData = @data.slice()
+
+        @addRowNumber() if @options.rowNumberColumn
 
         @grid = new SlickGrid @, @data, @columns, @options
 
@@ -205,13 +231,13 @@ class HoffTableView extends View
                 @deTransposeData()
             else
                 @transposeData()
-            @grid.setData(@data)
-            @grid.setColumns(@columns)
-            @grid.invalidate()
-            @resize()
 
         @selectionModel = new WinningSelectionModel @grid
         @grid.setSelectionModel(@selectionModel)
+
+        if @options.transpose and @data
+            @transposeData()
+
         @sizeIt({
             expandHeights: false,
             expandWidths: true,
