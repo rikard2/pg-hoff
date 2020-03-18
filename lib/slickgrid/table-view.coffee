@@ -90,9 +90,12 @@ class HoffTableView extends View
         span.style['background'] = 'yellow'
         @element.parentElement.appendChild(span);
         rect = span.getBoundingClientRect()
+        xplus = 5
+        yplus = 0
+        yplus = 2 if x > 1
         ret = {
-            width: parseInt(Math.ceil(rect.width) + 5),
-            height: parseInt(Math.ceil(rect.height) + 2)
+            width: parseInt(Math.ceil(rect.width) + xplus),
+            height: parseInt(Math.ceil(rect.height) + yplus)
         }
         @element.parentElement.removeChild(span)
         return ret
