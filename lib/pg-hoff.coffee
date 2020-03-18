@@ -358,8 +358,6 @@ module.exports = PgHoff =
 
     connect: ->
         alias = @getActiveAlias()
-        if alias?
-            return new Promise (fulfil) -> fulfil(alias)
 
         if @listServersViewPanel.isVisible()
             @listServersViewPanel.hide()
@@ -572,7 +570,9 @@ module.exports = PgHoff =
         @resultsPane.clear()
         query = new DBQuery(selectedText, alias, {
             verbose: true
-            onError: (error) => atom.notifications.addError(error.errorCode)
+            onError: (error) =>
+                console.error error
+                atom.notifications.addError(error.errorCode)
             onPartialQueryStatus: (result) =>
                 @resultsPane.updateNotComplete(
                     result.newBatch,
