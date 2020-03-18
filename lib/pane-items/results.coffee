@@ -96,10 +96,7 @@ class ResultsPaneItem extends View
             c["sortable"] = true
             c["rerenderOnResize"] = true
             c["id"] = c["field"]
-            c["width"] = 200
             c["formatter"] = SlickFormatting.DefaultFormatter
-            max = Math.round(Math.max(c["data_length"] * 7.8 + 10, (c["name"].length * 8.4) + 12))
-            c["width"] = if resultset.columns.length > 1 then Math.min(max, 250) else 100
         if resultset.rowcount <= 100 and not resultset.onlyOne
             height = ''.concat(resultset.rowcount * 30 + 30, 'px')
         else
@@ -115,7 +112,13 @@ class ResultsPaneItem extends View
         for table in @tables when table.pinned and table.nrrows <= 100
             $(table.table).height(''.concat(table.nrrows * 30 + 30, 'px'))
         table = new TableView options, resultset.rows, resultset.columns , height
-        @tables.push {table:table, queryid:resultset['queryid'], nrrows: resultset.rowcount, pinned:false, querynumber: @querynumber}
+        @tables.push {
+            table: table,
+            queryid: resultset['queryid'],
+            nrrows: resultset.rowcount,
+            pinned:false,
+            querynumber: @querynumber
+        }
         @append table
         if resultset.onlyOne and resultset.rowcount == 1 and resultset.columns.length == 1
             @expandColumns(resultset.queryid)
@@ -155,7 +158,6 @@ class ResultsPaneItem extends View
             atom.workspace.getActiveTextEditor().scanInBufferRange(new RegExp(@escapeRegExp(result.query)), bufferRange, (hit) => @queryHit(hit, queryInfo) )
         catch
     updateRendering: (result) ->
-        console.log 'updateRendering', result
         for query in @processedQueries
             if query.queryId == result.queryid
                 setTimeout( () =>
@@ -167,9 +169,7 @@ class ResultsPaneItem extends View
                 , 300)
 
     updateCompleted: (result) ->
-        console.log 'updateCompleted', result
         for query in @processedQueries
-            console.log '@processedQueries', @processedQueries
             if query.queryId == result.queryid
                 setTimeout( () =>
                     query.marker.destroy()

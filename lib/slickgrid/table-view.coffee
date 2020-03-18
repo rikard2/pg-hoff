@@ -8,7 +8,7 @@ JSONModal                           = require '../modals/json-modal'
 
 class HoffTableView extends View
     @content: (options, data, columns, height, selectionmodel) ->
-        @div style: 'width:  100% !important;height:'.concat(height, ';overflow: auto !important;'), ->
+        @div style: 'width:  100% !important;height:100%;overflow: auto !important;', ->
 
     initialize: (@options, @data, @columns, height, selectionModel) ->
         @emitter = new Emitter()
@@ -24,9 +24,45 @@ class HoffTableView extends View
         @selectedColumns = []
         @selectionModel = selectionModel
         resizeTimeout = null
+
         $(window).resize =>
             clearTimeout(resizeTimeout)
             resizeTimeout = setTimeout(@resize, 200)
+
+    sizeIt: (opts) =>
+        opts = Object.assign({
+            expandHeights: false,
+            expandWidths: true
+        }, opts)
+
+        cellHeight = 0
+        for c, i in @columns when c["field"] != 'rownr'
+            cellLength = 0
+            for d in @data
+                if d[c["field"]] != null
+                    rows = 0
+                    for l in d[c["field"]].toString().trim().split('\n')
+                        rows += 1
+                        cellLength = l.length if l.length > cellLength
+                    cellHeight = rows if rows > cellHeight
+            cellLength = (c['name'].length + 1) if c['name'].length > cellLength
+            if opts.expandWidths
+                w = @getElementSize(cellLength, 1).width
+                w = opts.maxWidth if opts.maxWidth? and w > opts.maxWidth
+                @columns[i]['width'] = w
+
+        if opts.expandHeights
+            rowHeight = @getElementSize(1, cellHeight).height
+            @options.rowHeight = rowHeight
+
+        @options.whitespace = 'pre'
+
+        @grid.setOptions(@options);
+        @grid.setColumns(@columns);
+
+        @grid.invalidate()
+        @grid.render()
+        @resize()
 
     appendData: (data) =>
         for i in [0...data.length]
@@ -44,34 +80,28 @@ class HoffTableView extends View
         @grid.render()
         @resize()
 
-    expandColumns: =>
-        maxrows = 1
-        for c in @columns when c["field"] != 'rownr'
-            max = 0
-            width = 200
-            for d in @data
-                if d[c["field"]] != null
-                    rows = 0
-                    for l in d[c["field"]].toString().trim().split('\n')
-                        rows += 1
-                        if l.length * 9 > max
-                            max = l.length * 7.9
-                    if rows > maxrows
-                        maxrows = rows
-                    max += 10
-                max = parseInt(Math.max(max, Math.round((c["name"].length * 9) + 10)))
-            width = max
-            c['width'] = width
-        lineHeight = 18
-        padding = 8
-        @options.rowHeight = parseInt(Math.max(maxrows * lineHeight + padding, 25))
-        @options.whitespace = 'pre'
-        @grid.setOptions(@options);
-        @grid.setColumns(@columns);
-        @grid.invalidate();
-        @grid.render();
-        @resize()
+    getElementSize: (x, y) =>
+        span = document.createElement('span')
+        span.className = 'slick-cell l1 r1';
+        span.style['white-space'] = 'pre';
+        str = 'X'.repeat(x) + '\n'
+        str = str.repeat(y).trim()
+        span.textContent = str
+        span.style['background'] = 'yellow'
+        @element.parentElement.appendChild(span);
+        rect = span.getBoundingClientRect()
+        ret = {
+            width: parseInt(Math.ceil(rect.width) + 5),
+            height: parseInt(Math.ceil(rect.height) + 2)
+        }
+        @element.parentElement.removeChild(span)
+        return ret
 
+    expandColumns: =>
+        @sizeIt({
+            expandHeights: true,
+            expandWidths: true
+        })
 
     transposeData: =>
         @columns = @normalColumns.slice()
@@ -166,7 +196,11 @@ class HoffTableView extends View
 
         @selectionModel = new WinningSelectionModel @grid
         @grid.setSelectionModel(@selectionModel)
-        @resize()
+        @sizeIt({
+            expandHeights: false,
+            expandWidths: true,
+            maxWidth: 350
+        })
         setTimeout( () =>
             @resize()
         , 250)
@@ -180,8 +214,9 @@ class HoffTableView extends View
             for d in @data
                 if d[headerid] != null and d[headerid]?.toString()?.length > max
                     max = d[headerid].toString().length
-            max = Math.max(max * 7.8 + 10, Math.round((column['name'].length * 8.4) + 12))
-            @columns[@grid.getColumnIndex(headerid)].width = max
+            max = column['name'].length if column['name'].length > max
+            @columns[@grid.getColumnIndex(headerid)].width = @getElementSize(max, 1).width
+
             @resize()
 
         @grid.onSort.subscribe (e, args) =>
