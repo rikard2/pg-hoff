@@ -29,6 +29,15 @@ class HoffTableView extends View
             clearTimeout(resizeTimeout)
             resizeTimeout = setTimeout(@resize, 200)
 
+    format: (col, val) ->
+        return '' unless val?
+
+        formatter = col['formatter']
+        if formatter? and val? and col.type in ['timestamp with time zone', 'timestamp without time zone', 'time with time zone', 'time without time zone']
+            str = formatter(null, null, val, col, null)
+        else
+            str = val.toString().trim()
+
     sizeIt: (opts) =>
         opts = Object.assign({
             expandHeights: false,
@@ -38,10 +47,14 @@ class HoffTableView extends View
         cellHeight = 0
         for c, i in @columns when c["field"] != 'rownr'
             cellLength = 0
+            formatter = c["formatter"]
             for d in @data
                 if d[c["field"]] != null
                     rows = 0
-                    for l in d[c["field"]].toString().trim().split('\n')
+                    val = d[c["field"]]
+                    str = if @data.length < 1000 then @format(c, val) else val.toString().trim()
+
+                    for l in str.split('\n')
                         rows += 1
                         cellLength = l.length if l.length > cellLength
                     cellHeight = rows if rows > cellHeight
@@ -215,9 +228,13 @@ class HoffTableView extends View
             column = @columns[@grid.getColumnIndex(headerid)]
             max = 0
             for d in @data
-                if d[headerid] != null and d[headerid]?.toString()?.length > max
-                    max = d[headerid].toString().length
-            max = column['name'].length if column['name'].length > max
+                val = d[headerid]
+                val = if @data.length < 1000 then @format(column, val) else val.toString()
+                if val?
+                    for l in val.split('\n')
+                        if l.length > max
+                            max = l.length
+            max = column['name'].length + 1 if column['name'].length > max
             @columns[@grid.getColumnIndex(headerid)].width = @getElementSize(max, 1).width
 
             @resize()

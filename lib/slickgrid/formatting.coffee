@@ -27,4 +27,9 @@ module.exports = class SlickFormatting
         escapeHtml = (string) ->
           String(string).replace /[&<>"'`=\/]/g, (s) ->
             entityMap[s]
-        return escapeHtml(value)
+        str = escapeHtml(value)
+
+        if str?
+            return str.replace(/\s+$/gm, '')
+
+        return str
