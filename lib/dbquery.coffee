@@ -156,7 +156,7 @@ class DBQuery
                         })
             .catch (err) =>
                 options.onError({
-                    errorCode: 'UNKOWN_ERROR',
+                    errorCode: err,
                     errorMessage: err
                 })
             .finally =>
