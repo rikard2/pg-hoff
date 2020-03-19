@@ -1,4 +1,5 @@
 PgHoffServerRequest = require './server-request'
+Helper              = require './helper'
 
 class DBQuery
     constructor: (@query, @alias, @options) ->
@@ -40,12 +41,6 @@ class DBQuery
                 else
                     return response
             .then (response) =>
-                timeout = (ms) ->
-                    return new Promise((fulfil) ->
-                        setTimeout(() ->
-                            fulfil()
-                        , ms)
-                    )
                 options.onQuery({
 
                 })
@@ -73,7 +68,7 @@ class DBQuery
                             })
                             if not result.complete
                                 newBatch = false
-                                return timeout(100)
+                                return Helper.Timeout(100)
                                     .then () ->
                                         return getResult(queryid)
                             else

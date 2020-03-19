@@ -15,6 +15,7 @@ HoffEyePaneItem                   = require './pane-items/hoffeye'
 OutputPaneItem                    = require './pane-items/output'
 HistoryPaneItem                   = require './pane-items/history'
 AnalyzePaneItem                   = require './pane-items/analyze'
+Helper                            = require './helper'
 
 module.exports = PgHoff =
     provider: null
@@ -454,12 +455,6 @@ module.exports = PgHoff =
                 .then (response) =>
                     return response
                 .then (response) =>
-                    timeout = (ms) ->
-                        return new Promise((fulfil) ->
-                            setTimeout(() ->
-                                fulfil()
-                            , ms)
-                        )
                     if response
                         for result in response
                             if result['result']['new_data']
@@ -477,7 +472,7 @@ module.exports = PgHoff =
                                 if @hoffEyes[result['id']]
                                     @hoffEyes[result['id']].render(r[0])
                                     @hoffEyes[result['id']].new_data_flash()
-                    return timeout(1000)
+                    return Helper.Timeout(1000)
                         .then () =>
                             if @hoffEye == true
                                 return getResult()
