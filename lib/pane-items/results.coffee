@@ -171,7 +171,6 @@ class ResultsPaneItem extends View
                 , 300)
 
     markQueryError: (result) ->
-        console.log 'markQueryError', @processedQueries
         editor = atom.workspace.getActiveTextEditor()
         for query in @processedQueries
             if query.queryId == result.queryid
@@ -251,5 +250,9 @@ class ResultsPaneItem extends View
     destroy: ->
         @subscriptions.dispose()
         @remove()
+
+    refresh: ->
+        for t in @tables
+            t.table.refresh()
 
 module.exports = ResultsPaneItem

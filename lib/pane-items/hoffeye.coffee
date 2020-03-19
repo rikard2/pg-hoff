@@ -12,7 +12,7 @@ class HoffEyePaneItem extends View
     id: null
     getTitle: () => @title,
     getId: () => @id,
-    getURI: () => 'atom://my-package/result-view',
+    getURI: () => 'atom://pg-hoff/result-view',
     getDefaultLocation: () => 'center'
     @content: ->
         @div class: 'gulp-pane', outlet: 'pane', style: 'overflow: auto !important; font-family:menlo', =>

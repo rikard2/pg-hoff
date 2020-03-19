@@ -29,6 +29,9 @@ class PaneManager
         atom.workspace.onWillDestroyPaneItem((item) =>
             @removePane(item.item)
         )
+        atom.workspace.onDidChangeActivePaneItem (pane) =>
+            if pane?.constructor?.name == 'ResultsPaneItem'
+                pane.refresh()
 
     removePane: (pane) =>
         index = @panes.indexOf pane

@@ -85,7 +85,7 @@ module.exports =
     outputAsPane:
         description: 'Display query output next to result'
         type: 'boolean'
-        default: true
+        default: false
     preferredDock:
         description: 'Preferred results dock'
         type: 'string'
