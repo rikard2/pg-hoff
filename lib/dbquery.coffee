@@ -111,8 +111,9 @@ class DBQuery
                                             options.onError({
                                                 errorCode: 'CONNECTION_ALREADY_CLOSED'
                                             })
-                                        else:
+                                        else
                                             options.onQueryError(result)
+                                            gotErrors = true
 
                                     if  result.rowcount > 0 and currentpage + pagesize < result.rowcount
                                         options.onPartialResult({

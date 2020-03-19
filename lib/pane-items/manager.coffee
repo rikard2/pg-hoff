@@ -164,8 +164,6 @@ class PaneManager
             , 50)
         obs.observe(@resultsPane.element)
 
-        @switchToResultsPane()
-
 
     findPaneDock: (p) ->
         for pane in atom.workspace.getBottomDock().getPaneItems()
@@ -190,6 +188,7 @@ class PaneManager
         outputDock.hide() if outputDock?
 
     switchToResultsPane: () ->
+        console.log 'switchToResultsPane'
         dock = @findPaneDock(@resultsPane)
         return unless dock?
         dock.activate()
@@ -198,6 +197,7 @@ class PaneManager
         dock.show()
 
     switchToOutputPane: () ->
+        console.log 'switchToOutputPane'
         dock = @findPaneDock(@outputPane)
         return unless dock?
         dock.activate()

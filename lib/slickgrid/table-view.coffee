@@ -206,6 +206,7 @@ class HoffTableView extends View
         for d, index in @data
             d['rownr'] = index + 1
     attached: ->
+        return if @grid
         @data = @data ? []
         @columns = @columns ? []
 

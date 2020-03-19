@@ -522,9 +522,10 @@ module.exports = PgHoff =
 
                 @renderResults(result.result, true)
             onAllResults: (all) =>
-                if all.gotErrors or not all.gotResults or (all.gotResults and all.gotNotices)
+                console.log 'all', all
+                if all.gotErrors or not all.gotResults
                     @changeToOutputPane()
-                else if gotResults
+                else
                     @changeToResultsPane()
                     @paneManager.getResultsPane().focusFirstResult()
             onQuery: () =>

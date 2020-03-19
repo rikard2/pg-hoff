@@ -114,6 +114,7 @@ class HoffEyePaneItem extends View
 
     new_data_flash: () ->
         tabMarker = atom.views.getView(atom.workspace).querySelector("ul.tab-bar>li.tab[data-type='HoffEyePaneItem'] span#" + @id)
+        return unless tabMarker?
         tabMarker.classList.add('hoffeye-tab-flash')
         clearTimeout(flashTimeout)
         flashTimeout = setTimeout(() =>

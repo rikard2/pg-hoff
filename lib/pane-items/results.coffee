@@ -12,7 +12,7 @@ class ResultsPaneItem extends View
     id: null
     getTitle: () => 'Result',
     getId: () => @id,
-    getURI: () => 'atom://my-package/result-view',
+    getURI: () => 'atom://pg-hoff/result-view',
     getDefaultLocation: () => 'center'
 
     @content: ->
