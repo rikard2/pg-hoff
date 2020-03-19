@@ -33,7 +33,6 @@ class OutputPaneItem extends View
             @outputView.clear()
 
     destroy: ->
-        @subscriptions.dispose()
         @remove()
 
 module.exports = OutputPaneItem

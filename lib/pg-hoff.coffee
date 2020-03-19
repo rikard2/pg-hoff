@@ -10,9 +10,8 @@ PgHoffDialog                      = require './dialog'
 PgHoffStatus                      = require './status'
 Query                             = require './query'
 DBQuery                           = require './dbquery'
-ResultsPaneItem                   = require './pane-items/results'
+PaneManager                       = require './pane-items/manager'
 HoffEyePaneItem                   = require './pane-items/hoffeye'
-OutputPaneItem                    = require './pane-items/output'
 HistoryPaneItem                   = require './pane-items/history'
 AnalyzePaneItem                   = require './pane-items/analyze'
 Helper                            = require './helper'
@@ -23,15 +22,17 @@ module.exports = PgHoff =
     listServersView: null
     listServersViewPanel: null
     resultsPane: null
+    paneManager: null
     config: Config
 
     activate: (state) ->
         console.debug 'Activating the greatest plugin ever..'
         @listServersView        = new PgHoffConnection(state.pgHoffViewState)
-        @hoffPanes = []
         @hoffEyes = {}
         editor = atom.workspace.getActiveTextEditor()
         @listServersViewPanel = atom.workspace.addModalPanel(item: @listServersView.getElement(), visible: false)
+
+        @paneManager = new PaneManager()
 
         unless @provider?
             @provider = new PgHoffAutocompleteProvider()
@@ -132,8 +133,7 @@ module.exports = PgHoff =
             return true
         return false
 
-    cycleResults: () ->
-        @resultsPane.cycleResults()
+    cycleResults: () -> @paneManager.getResultsPane().cycleResults()
 
     fetchMetadata: (editor, markerLayer) ->
         return unless @getActiveAlias()
@@ -146,12 +146,8 @@ module.exports = PgHoff =
             .finally () =>
                 editor.decorateMarkerLayer(markerLayer, type: 'highlight', class: 'definition-underline')
 
-    removeResult: (event) ->
-        queryid = $(event.target).attr('queryid')
-        @resultsPane.removeResult(queryid)
-
     cancel: () ->
-        atom.workspace.getBottomDock().hide()
+        @paneManager.hide()
 
     transpose: (event) ->
         uid = $(event.target).attr('uid')
@@ -160,19 +156,11 @@ module.exports = PgHoff =
 
     expandColumns: (event) ->
         queryid = $(event.target).attr('queryid')
-        @resultsPane.expandColumns(queryid)
+        @paneManager.getResultsPane().expandColumns(queryid)
 
-    changeToResultsPane: () ->
-        atom.workspace.getBottomDock().activate()
-        atom.workspace.getBottomDock().getActivePane().activateItemForURI('atom://pg-hoff/result-view')
-        atom.workspace.getActivePane().activate()
-        atom.workspace.getBottomDock().show()
+    changeToResultsPane: () -> @paneManager.switchToResultsPane()
 
-    changeToOutputPane: () ->
-        atom.workspace.getBottomDock().activate()
-        atom.workspace.getBottomDock().getActivePane().activateItemForURI('atom://pg-hoff/output-view')
-        atom.workspace.getActivePane().activate()
-        atom.workspace.getBottomDock().show()
+    changeToOutputPane: () -> @paneManager.switchToOutputPane()
 
     consumeStatusBar: (statusBar) ->
         @statusBarTile = statusBar.addRightTile item: new PgHoffStatus , priority: 2
@@ -224,68 +212,19 @@ module.exports = PgHoff =
                 .catch (error) ->
                     console.log 'error', error
 
-    openDock: () ->
-        atom.workspace.getBottomDock().activate()
-        addResult = true
-        addOutput = true
-        for pane in atom.workspace.getBottomDock().getPanes()
-            for item in pane.getItems()
-                if @resultsPane && item.getId() == @resultsPane.getId()
-                    addResult = false
-                if @outputPane && item.getId() == @outputPane.getId()
-                    addOutput = false
-
-        if !addResult && !addOutput
-            @resultsPane.reset()
-            return
-
-        if addResult
-            index = @hoffPanes.indexOf @resultsPane
-            @hoffPanes.splice index, 1 if index isnt -1
-
-            @resultsPane = new ResultsPaneItem()
-            @hoffPanes.push @resultsPane
-
-            if addOutput
-                atom.workspace.getBottomDock().getActivePane().addItem(@resultsPane)
-            else
-                pane = atom.workspace.getBottomDock().getActivePane().splitRight({
-                    items: [@resultsPane]
-                })
-                atom.workspace.getBottomDock().getActivePane().setFlexScale(2.5)
-        if addOutput
-            index = @hoffPanes.indexOf @outputPane
-            @hoffPanes.splice index, 1 if index isnt -1
-
-            @outputPane = new OutputPaneItem()
-            @hoffPanes.push @outputPane
-
-            pane = atom.workspace.getBottomDock().getActivePane().splitLeft({
-                items: [@outputPane]
-            })
-            atom.workspace.getBottomDock().getActivePane().setFlexScale(0.4)
-            if !addResult
-                @resultsPane.reset()
-
-        resizeTimeout = null
-        obs = new ResizeObserver (r) =>
-            clearTimeout(resizeTimeout)
-            resizeTimeout = setTimeout(() =>
-                pane.resize() for pane in @hoffPanes
-            , 50)
-        obs.observe(@resultsPane.element)
+    openDock: () -> @paneManager.openDock()
 
     add: (isInitial) ->
         return unless @bottomDock
         @historyPane = new HistoryPaneItem()
-        @hoffPanes.push @historyPane
+        @paneManager.getPanes().push @historyPane
         #pane = atom.workspace.getRightDock().getActivePane().splitDown({
         #    items: [@hoffEyePane]
         #})
 
     consumeBottomDock: (@bottomDock) ->
       @subscriptions.add @bottomDock.onDidFinishResizing =>
-        pane.resize() for pane in @hoffPanes
+        pane.resize() for pane in @paneManager.getPanes()
       @add true
 
     searchHistoryWithConnect: () ->
@@ -317,10 +256,10 @@ module.exports = PgHoff =
         queryid = $(event.target).attr('queryid')
         if $(event.target).hasClass('pinned')
             $(event.target).removeClass('pinned')
-            @resultsPane.unPinTable(queryid)
+            @paneManager.getResultsPane().unPinTable(queryid)
         else
             $(event.target).addClass('pinned')
-            @resultsPane.pinTable(queryid)
+            @paneManager.getResultsPane().pinTable(queryid)
 
     keepResultTab: (event) ->
         console.log($(event.target))
@@ -402,9 +341,9 @@ module.exports = PgHoff =
     renderResults: (resultset, complete) ->
         if not resultset.complete?
             throw 'WTF!? Resultset not complete'
-        @resultsPane.render(resultset)
+        @paneManager.getResultsPane().render(resultset)
         if complete
-            @outputPane.render(resultset)
+            @paneManager.getOutputPane().render(resultset)
 
     openScripts: (event) ->
         uid = $(event.target).attr('uid')
@@ -432,13 +371,6 @@ module.exports = PgHoff =
                     atom.notifications.addError(response.errormessage)
             .catch (err) =>
                 atom.notifications.addError(err)
-
-    removeHoffPane: (pane) ->
-        index = @hoffPanes.indexOf(pane);
-        if index >= 0
-          @hoffPanes.splice( index, 1 );
-         @bottomDock.deletePane pane.getId()
-         pane = null
 
 
 
@@ -484,11 +416,8 @@ module.exports = PgHoff =
         @connect()
             .then (alias) =>
                 console.log 'got the alias', alias
-                hoffEyePane = new HoffEyePaneItem(alias)
 
-                atom.workspace.getRightDock().getActivePane().addItem(hoffEyePane)
-                atom.workspace.getRightDock().activate()
-                atom.workspace.getRightDock().getActivePane().activateNextItem()
+                hoffEyePane = @paneManager.newHoffEyePane(alias)
 
                 cursor_pos = null
                 editor = atom.workspace.getActiveTextEditor()
@@ -549,7 +478,7 @@ module.exports = PgHoff =
 
         @openDock()
 
-        @outputPane.clear() if @outputPane and @statusBarTile.item.transactionStatus == 'IDLE'
+        @paneManager.getOutputPane().clear() if @paneManager.getOutputPane() and @statusBarTile.item.transactionStatus == 'IDLE'
 
         selectedBufferRange = atom.workspace.getActiveTextEditor().getSelectedBufferRange()
         selectedText        = atom.workspace.getActiveTextEditor().getSelectedText().trim() unless selectedText?
@@ -562,33 +491,33 @@ module.exports = PgHoff =
                 return
 
         newBatch = true
-        @resultsPane.clear()
+        @paneManager.getResultsPane().clear()
         query = new DBQuery(selectedText, alias, {
-            verbose: true
+            verbose: false
             onError: (error) =>
                 console.error error
                 atom.notifications.addError(error.errorCode)
             onPartialQueryStatus: (result) =>
-                @resultsPane.updateNotComplete(
+                @paneManager.getResultsPane().updateNotComplete(
                     result.newBatch,
                     result.result,
                     result.queryNumber,
                     selectedBufferRange
                 )
             onQueryStatus: (status) =>
-                unless status.hasQueryPlan
-                    @removeHoffPane(@analyzePane) if @analyzePane in @hoffPanes
+                #unless status.hasQueryPlan
+                    #@removeHoffPane(@analyzePane) if @analyzePane in @hoffPanes
 
-                @resultsPane.updateRendering(status.result)
+                @paneManager.getResultsPane().updateRendering(status.result)
             onPartialResult: (partial) => @renderResults(partial.result, false)
             onQueryError: (result) =>
-                @resultsPane.markQueryError(result)
+                @paneManager.getResultsPane().markQueryError(result)
             onResult: (result) =>
                 if @statusBarTile.item.transactionStatus != result.result.transaction_status
                     @statusBarTile.item.transactionStatus = result.result.transaction_status.toUpperCase()
                     @statusBarTile.item.renderText()
 
-                @resultsPane.updateCompleted(result.result)
+                @paneManager.getResultsPane().updateCompleted(result.result)
                 @renderQueryPlan(result.result.rows) if result.gotQueryplan
 
                 @renderResults(result.result, true)
@@ -597,17 +526,17 @@ module.exports = PgHoff =
                     @changeToOutputPane()
                 else if gotResults
                     @changeToResultsPane()
-                    @resultsPane.focusFirstResult()
+                    @paneManager.getResultsPane().focusFirstResult()
             onQuery: () =>
-                clearTimeout(@resultsPane.loadingTimeout) if @resultsPane.loadingTimeout?
-                @resultsPane.loadingTimeout = setTimeout(
+                clearTimeout(@paneManager.getResultsPane().loadingTimeout) if @paneManager.getResultsPane().loadingTimeout?
+                @paneManager.getResultsPane().loadingTimeout = setTimeout(
                     () =>
-                        @resultsPane.startLoadIndicator()
+                        @paneManager.getResultsPane().startLoadIndicator()
                 , 1000)
             onCompletion: (completion) =>
                 @processingBatch = false
-                @resultsPane.stopLoadIndicator()
-                clearTimeout(@resultsPane.loadingTimeout)
+                @paneManager.getResultsPane().stopLoadIndicator()
+                clearTimeout(@paneManager.getResultsPane().loadingTimeout)
         })
         query.execute()
 

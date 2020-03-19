@@ -86,3 +86,12 @@ module.exports =
         description: 'Display query output next to result'
         type: 'boolean'
         default: true
+    preferredDock:
+        description: 'Preferred results dock'
+        type: 'string'
+        enum: ['left', 'right', 'bottom']
+        default: 'bottom'
+    shouldExistInCertainDock:
+        description: 'Always display results in the preferred dock'
+        type: 'boolean'
+        default: true

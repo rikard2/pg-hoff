@@ -4,6 +4,7 @@ parseInterval                                = require 'postgres-interval'
 window.jQuery                                = require 'jquery'
 TableView                                    = require '../slickgrid/table-view'
 SlickFormatting                              = require '../slickgrid/formatting'
+Helper                                       = require '../helper'
 
 class ResultsPaneItem extends View
     table: null
@@ -59,12 +60,6 @@ class ResultsPaneItem extends View
         $('.indicator').slideUp 100, ->
             @remove()
 
-    uuidv4: () ->
-        'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace /[xy]/g, (c) ->
-            r = Math.random() * 16 | 0
-            v = if c == 'x' then r else r & 0x3 | 0x8
-            v.toString 16
-
     render: (resultset) ->
         for x in @tables when x.queryid == resultset.queryid
             x.table.appendData(resultset.rows)
@@ -89,7 +84,7 @@ class ResultsPaneItem extends View
             rowNumberColumn: true
             queryid: resultset['queryid']
             querynumber: @querynumber
-            gridid: @uuidv4()
+            gridid: Helper.GenerateUUID()
             rowcount: resultset.rowcount
             whitespace: "nowrap"
         for c in resultset.columns
@@ -129,14 +124,13 @@ class ResultsPaneItem extends View
         @tables = []
         @querynumber = 0
         @selectedquery = 0
-        @id = @uuidv4()
+        @id = Helper.GenerateUUID()
         @emitter = new Emitter()
         @subscriptions = new CompositeDisposable()
 
         @subscriptions.add atom.commands.add 'body', 'core:cancel': => @clear()
 
     updateNotComplete: (newBatch, result, queryNumber, bufferRange) ->
-        console.log 'updateNotComplete'
         if newBatch
             query.marker.destroy() for query in @processedQueries?
             @processedQueries = []

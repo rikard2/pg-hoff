@@ -1,6 +1,6 @@
-Promise = require('promise')
-PgHoffServerRequest = require './server-request'
-{CompositeDisposable} = require 'atom'
+{CompositeDisposable}   = require 'atom'
+PgHoffServerRequest     = require './server-request'
+Helper                  = require './helper'
 
 class PgHoffAutocompleteProvider
     selector: '.source.sql'
@@ -15,20 +15,13 @@ class PgHoffAutocompleteProvider
         return text
             .replace /"([A-Za-z_]+)"\(\)/, "$1()"
 
-    timeout = (ms) ->
-        return new Promise((fulfil) ->
-            setTimeout(() ->
-                fulfil()
-            , ms)
-        )
-
     getSuggestions: (options) ->
         window.lastrun = (new Date()).getTime()
         lastrun_myself = window.lastrun
         dis = @
         retries = 0
         lolz = (time, retries) ->
-            return timeout(time).then () ->
+            return Helper.Timeout(time).then () ->
                 if (retries > 100)
                     return
                 retries = retries + 1
