@@ -4,7 +4,18 @@ Helper              = require './helper'
 class DBQuery
     constructor: (@query, @alias, @options) ->
 
-    execute: () ->
+    executePromise: () ->
+        return new Promise (fulfil, reject) =>
+            @execute({
+                onResult: (result) ->
+                    fulfil(result)
+                onQueryError: (err) ->
+                    reject(err)
+                onError: (err) ->
+                    reject(err)
+            })
+
+    execute: (opts) ->
         @options = @options || {}
 
         options = Object.assign(
@@ -22,7 +33,7 @@ class DBQuery
                 onQueryPlan:          (data) => console.log 'onQueryPlan',     data if @options.verbose,
                 onCompletion:         (data) => console.log 'onCompletion',    data if @options.verbose
             },
-            @options
+            opts || @options
         )
 
         request =

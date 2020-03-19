@@ -15,6 +15,7 @@ HoffEyePaneItem                   = require './pane-items/hoffeye'
 HistoryPaneItem                   = require './pane-items/history'
 AnalyzePaneItem                   = require './pane-items/analyze'
 Helper                            = require './helper'
+QuickQuery                        = require './modals/quick-query'
 
 module.exports = PgHoff =
     provider: null
@@ -46,7 +47,7 @@ module.exports = PgHoff =
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:toggle-auto-alias': => @toggleAliases()
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:execute-query': => @executeQueryWithConnect()
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:new-hoffeye': => @newHoffEye()
-
+        @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:quick-query': => @quickQuery()
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:execute-current-query': => @executeQueryWithConnect(true)
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:results': => @changeToResultsPane()
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:output': => @changeToOutputPane()
@@ -132,6 +133,17 @@ module.exports = PgHoff =
         if $(event.target).hasClass('pinned')
             return true
         return false
+
+    quickQuery: () ->
+        alias = @getActiveAlias()
+        selectedText = atom.workspace.getActiveTextEditor().getSelectedText().trim()
+        return unless selectedText?
+
+        if alias?
+            QuickQuery.Show(selectedText, alias)
+        else
+            @connect()?.then (alias) =>
+                QuickQuery.Show(selectedText, alias)
 
     cycleResults: () -> @paneManager.getResultsPane().cycleResults()
 
