@@ -139,11 +139,18 @@ module.exports = PgHoff =
         selectedText = atom.workspace.getActiveTextEditor().getSelectedText().trim()
         return unless selectedText?
 
+        atom.clipboard.write('hello tehre')
+
         if alias?
             QuickQuery.Show(selectedText, alias)
+                .then (x) =>
+                    console.log 'copy?'
+                    atom.workspace.getActivePane().activate()
         else
             @connect()?.then (alias) =>
                 QuickQuery.Show(selectedText, alias)
+                .then (x) =>
+                    atom.workspace.getActivePane().activate()
 
     cycleResults: () -> @paneManager.getResultsPane().cycleResults()
 

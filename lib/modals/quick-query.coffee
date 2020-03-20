@@ -1,12 +1,16 @@
-TableView       = require('../slickgrid/table-view')
-SlickFormatting = require('../slickgrid/formatting')
-Helper          = require('../helper')
-DBQuery         = require('../dbquery')
-ResultsPaneItem = require('../pane-items/results')
-{View, $}       = require 'space-pen'
-module.exports = class QuickQuery
+{CompositeDisposable}   = require 'atom'
+TableView               = require('../slickgrid/table-view')
+SlickFormatting         = require('../slickgrid/formatting')
+Helper                  = require('../helper')
+DBQuery                 = require('../dbquery')
+ResultsPaneItem         = require('../pane-items/results')
+{View, $}               = require 'space-pen'
+module.exports          = class QuickQuery
+    subscriptions: null
+    modal: null
     @Show: (sql, alias) ->
         d = new DBQuery(sql, alias)
+        subscriptions = new CompositeDisposable
 
         d.executePromise()
             .then (r) ->
@@ -31,24 +35,33 @@ module.exports = class QuickQuery
                     element.wrap = 'soft'
 
                     element.classList.add 'force-select'
+
+                    q = document.createElement('input')
+                    q.type = 'text'
+
                     resultsPane.render(r.result)
+                    element.appendChild(q)
+                    q.focus()
                     element.appendChild(resultsPane.element)
+
 
                     modal = atom.workspace.addModalPanel(item: element, visible: true)
                     element.parentElement.style['min-width'] = '100em'
                     console.log 'minWidth', element.parentElement
 
-                    atom.commands.add('body', {
+                    resultsPane.focusFirstResult()
+
+                    subscriptions.add atom.commands.add 'atom-text-editor', 'core:copy', (e) ->
+                        console.log 'copy dont do it!', atom.clipboard.read()
+                        e.stopImmediatePropagation()
+
+                    subscriptions.add atom.commands.add('body', {
                         'core:cancel': (event) =>
-                            console.log 'cancel'
+                            console.log 'cancel', atom.clipboard.read()
+                            subscriptions.dispose()
                             modal.destroy()
                             event.stopPropagation()
                     })
-                    resultsPane.focusFirstResult()
-                    element.focus()
-                    element.addEventListener 'blur', () ->
-                        console.log 'blur'
-                        modal.destroy()
                 )
             .catch (x) ->
                 console.log 'catch', x

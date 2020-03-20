@@ -18,6 +18,10 @@ class WinningSelectionModel
         @grid.onDblClick.subscribe(@onDoubleClick)
         @grid.onMouseEnter.subscribe(@onMouseEnter)
         @grid.onKeyDown.subscribe(@onKeyDown)
+        #@grid.onKeyUp.subscribe((e) ->
+        #    console.log 'e', e
+        #    e.stopPropagation()
+        #)
         @grid.onMouseDown.subscribe(@onMouseDown)
         @grid.onAnimationEnd.subscribe(@onAnimationEnd)
         @grid.onContextMenu.subscribe(@onContextMenu)
@@ -27,8 +31,22 @@ class WinningSelectionModel
         @onSelectedRangesChanged = new Slick.Event
 
     onCoreCopy: () =>
-        console.log 'onCoreCopy'
-        @onCopyCommand()
+        return unless WinningSelectionModel.ActiveGrid == @grid
+        columns = @grid.getColumns()
+        console.log 'onCoreCopy', @getSelectedColumns(), columns
+        selectedColumns = CopyModel.CopyDefault(@getSelectedColumns(), columns)
+        console.log 'copy2!',atom.clipboard.read()
+        if selectedColumns
+            obj1 = {}
+            obj2 = {}
+            for cell in selectedColumns
+                obj1[columns[cell.x]["field"]] = "copyFlash"
+                obj2[cell.y] = obj1
+            @grid.setCellCssStyles("copy_Flash", obj2)
+            atom.workspace.getActivePane().activate()
+
+        atom.workspace.getActivePane().activate()
+
     onCopyCommand: () =>
         return unless WinningSelectionModel.ActiveGrid == @grid
 
@@ -158,6 +176,8 @@ class WinningSelectionModel
         if (e.metaKey or e.ctrlKey) and e.keyCode == 67
             console.log '@', @
             @.onCoreCopy()
+            console.log 'e', e
+            e.stopPropagation()
 
     getSelectedColumns: () =>
         selectedColumns = []

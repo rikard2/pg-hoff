@@ -6,6 +6,18 @@ PgHoffDialog                    = require('../../dialog')
 
 module.exports = class CopyModel
     constructor: () ->
+
+    @CopyDefault: (selectedColumns, columns) =>
+        model = new PlainTextCopyModel
+
+        copy = model.onCopy(selectedColumns, columns)
+        if copy?
+            atom.clipboard.write(copy)
+            console.log 'copy!', copy, atom.clipboard.read()
+            return selectedColumns
+
+        return null
+
     @PromptCopy: (selectedColumns, columns) =>
 
         models = []
