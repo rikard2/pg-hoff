@@ -98,14 +98,16 @@ class HoffTableView extends View
         @resize()
 
     getElementSize: (x, y) =>
-        span = document.createElement('span')
+        div = document.createElement('span')
+        div.className = 'gulp-pane'
+        span = div.appendChild document.createElement('span')
         span.className = 'slick-cell l1 r1';
         span.style['white-space'] = 'pre';
         str = 'X'.repeat(x) + '\n'
         str = str.repeat(y).trim()
         span.textContent = str
         span.style['background'] = 'yellow'
-        document.body.appendChild(span);
+        document.body.appendChild(div);
         rect = span.getBoundingClientRect()
         xplus = 5
         yplus = 0
@@ -114,7 +116,7 @@ class HoffTableView extends View
             width: parseInt(Math.ceil(rect.width) + xplus),
             height: parseInt(Math.ceil(rect.height) + yplus)
         }
-        document.body.removeChild(span)
+        document.body.removeChild(div)
         return ret
 
     expandColumns: =>

@@ -117,9 +117,7 @@ class PgHoffServerRequest
                     'content-type': 'x-www-form-urlencoded;'
                  form:
                     data
-            #console.log options
             Request(options, (error, response, body) ->
-                #console.log response
                 if error
                     console.debug 'Error POST Request', error, response, body
                     reject(error)

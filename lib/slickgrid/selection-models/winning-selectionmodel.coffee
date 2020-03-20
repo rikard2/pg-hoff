@@ -18,10 +18,6 @@ class WinningSelectionModel
         @grid.onDblClick.subscribe(@onDoubleClick)
         @grid.onMouseEnter.subscribe(@onMouseEnter)
         @grid.onKeyDown.subscribe(@onKeyDown)
-        #@grid.onKeyUp.subscribe((e) ->
-        #    console.log 'e', e
-        #    e.stopPropagation()
-        #)
         @grid.onMouseDown.subscribe(@onMouseDown)
         @grid.onAnimationEnd.subscribe(@onAnimationEnd)
         @grid.onContextMenu.subscribe(@onContextMenu)
@@ -35,7 +31,6 @@ class WinningSelectionModel
         columns = @grid.getColumns()
         console.log 'onCoreCopy', @getSelectedColumns(), columns
         selectedColumns = CopyModel.CopyDefault(@getSelectedColumns(), columns)
-        console.log 'copy2!',atom.clipboard.read()
         if selectedColumns
             obj1 = {}
             obj2 = {}
@@ -174,9 +169,7 @@ class WinningSelectionModel
             @activeRange = new Slick.Range 0, firstColumn, data.length - 1, columns.length - 1
             @onSelectedRangesChanged.notify [ @activeRange ]
         if (e.metaKey or e.ctrlKey) and e.keyCode == 67
-            console.log '@', @
             @.onCoreCopy()
-            console.log 'e', e
             e.stopPropagation()
 
     getSelectedColumns: () =>

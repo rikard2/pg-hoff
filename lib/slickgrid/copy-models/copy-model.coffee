@@ -13,7 +13,6 @@ module.exports = class CopyModel
         copy = model.onCopy(selectedColumns, columns)
         if copy?
             atom.clipboard.write(copy)
-            console.log 'copy!', copy, atom.clipboard.read()
             return selectedColumns
 
         return null
@@ -27,7 +26,7 @@ module.exports = class CopyModel
         for model in models
             model.name = model.getName()
             model.value = model
-        console.log 'prompting', models
+
         return PgHoffDialog.PromptList(null, models)
             .then (model) =>
                 if model?

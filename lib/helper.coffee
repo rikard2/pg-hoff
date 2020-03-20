@@ -11,3 +11,5 @@ module.exports = class Helper
                 fulfil()
             , ms)
         )
+
+    @CountDistinctKey: (arr, key) -> new Set(arr.flatMap (x) -> x[key]).size

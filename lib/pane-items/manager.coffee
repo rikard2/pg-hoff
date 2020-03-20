@@ -17,14 +17,9 @@ class PaneManager
     eyePanes    : []
 
     constructor: (options) ->
-        console.log 'PaneManager'
-
         @options = Object.assign(@options, options);
         atom.workspace.observePaneItems () ->
-            console.log 'observePaneItems'
-
         atom.workspace.onDidAddPane () ->
-            console.log 'onDidAddPane'
 
         atom.workspace.onWillDestroyPaneItem((item) =>
             @removePane(item.item)
@@ -190,7 +185,6 @@ class PaneManager
         outputDock.hide() if outputDock?
 
     switchToResultsPane: () ->
-        console.log 'switchToResultsPane'
         dock = @findPaneDock(@resultsPane)
         return unless dock?
         dock.activate()
@@ -199,7 +193,6 @@ class PaneManager
         dock.show()
 
     switchToOutputPane: () ->
-        console.log 'switchToOutputPane'
         dock = @findPaneDock(@outputPane)
         return unless dock?
         dock.activate()

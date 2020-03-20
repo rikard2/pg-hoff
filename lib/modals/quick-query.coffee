@@ -56,11 +56,11 @@ module.exports          = class QuickQuery
 
                     subscriptions.add atom.commands.add('body', {
                         'core:cancel': (event) =>
-                            console.log 'cancel', atom.clipboard.read()
                             subscriptions.dispose()
                             modal.destroy()
                             event.stopPropagation()
                             event.stopImmediatePropagation()
+                            atom.workspace.getActiveTextEditor().focu
                     })
                 )
             .catch (x) ->

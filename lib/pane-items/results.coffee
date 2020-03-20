@@ -250,7 +250,6 @@ class ResultsPaneItem extends View
 
     focusFirstResult: =>
         elements = @element.getElementsByClassName('r1')
-        console.log 'elements', elements
         if elements?.length > 0
             elements[0].click()
 

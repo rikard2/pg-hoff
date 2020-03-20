@@ -115,7 +115,4 @@ class PgHoffAutocompleteProvider
                 else
                     console.error 'Cannot autocomplete because', err
 
-#    onDidInsertSuggestion: ({editor, triggerPosition, suggestion}) ->
-#        # #console.log 'onDidInsertSuggestion'
-
 module.exports = PgHoffAutocompleteProvider

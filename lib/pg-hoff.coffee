@@ -281,7 +281,6 @@ module.exports = PgHoff =
             @paneManager.getResultsPane().pinTable(queryid)
 
     keepResultTab: (event) ->
-        console.log($(event.target))
 
     createDynamicTable: (event) ->
         alias = @getActiveAlias()
@@ -434,8 +433,6 @@ module.exports = PgHoff =
     newHoffEye: () ->
         @connect()
             .then (alias) =>
-                console.log 'got the alias', alias
-
                 hoffEyePane = @paneManager.newHoffEyePane(alias)
 
                 cursor_pos = null
@@ -541,7 +538,6 @@ module.exports = PgHoff =
 
                 @renderResults(result.result, true)
             onAllResults: (all) =>
-                console.log 'all', all
                 if all.gotErrors or not all.gotResults
                     @changeToOutputPane()
                 else
