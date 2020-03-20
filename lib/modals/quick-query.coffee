@@ -38,7 +38,7 @@ module.exports = class QuickQuery
                     element.parentElement.style['min-width'] = '100em'
                     console.log 'minWidth', element.parentElement
 
-                    atom.commands.add('atom-workspace', {
+                    atom.commands.add('body', {
                         'core:cancel': (event) =>
                             console.log 'cancel'
                             modal.destroy()
