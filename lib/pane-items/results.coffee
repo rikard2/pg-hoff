@@ -2,9 +2,9 @@
 {$, View}                                    = require 'space-pen'
 parseInterval                                = require 'postgres-interval'
 window.jQuery                                = require 'jquery'
-TableView                                    = require '../slickgrid/table-view'
-SlickFormatting                              = require '../slickgrid/formatting'
-Helper                                       = require '../helper'
+TableView                                    = hrequire '/slickgrid/table-view'
+SlickFormatting                              = hrequire '/slickgrid/formatting'
+Helper                                       = hrequire '/helper'
 
 class ResultsPaneItem extends View
     table: null
@@ -63,7 +63,7 @@ class ResultsPaneItem extends View
         $('.indicator').slideUp 100, ->
             @remove()
 
-    render: (resultset) ->
+    render: (resultset) =>
         for x in @tables when x.queryid == resultset.queryid
             x.table.appendData(resultset.rows)
             return
@@ -110,7 +110,8 @@ class ResultsPaneItem extends View
 
         for table in @tables when table.pinned and table.nrrows <= 100
             $(table.table).height(''.concat(table.nrrows * 30 + 30, 'px'))
-        table = new TableView options, resultset.rows, resultset.columns , height
+        t = hrequire('/slickgrid/table-view')
+        table = new t(options, resultset.rows, resultset.columns , height)
         @tables.push {
             table: table,
             queryid: resultset['queryid'],

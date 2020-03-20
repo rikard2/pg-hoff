@@ -1,4 +1,4 @@
-SlickFormatting = require './formatting'
+SlickFormatting = hrequire '/slickgrid/formatting'
 
 module.exports = class TransposeSlickData
     columns: []

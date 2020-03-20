@@ -1,9 +1,10 @@
 {Emitter, Disposable}               = require 'atom'
 {View, $}                           = require 'space-pen'
-SlickGrid                           = require '../../extlib/bd-slickgrid/grid'
-WinningSelectionModel               = require './selection-models/winning-selectionmodel'
-TransposeSlickData                  = require './transpose'
-JSONModal                           = require '../modals/json-modal'
+SlickGrid                           = hrequire '/../extlib/bd-slickgrid/grid'
+WinningSelectionModel               = hrequire '/slickgrid/selection-models/winning-selectionmodel'
+TransposeSlickData                  = hrequire '/slickgrid/transpose'
+JSONModal                           = hrequire '/modals/json-modal'
+
 {showOpenScripts, openScripts, showWriteScripts, writeScripts, showWriteAndOpenScripts, writeAndOpenScripts}      = require '../open-scripts'
 
 class HoffTableView extends View

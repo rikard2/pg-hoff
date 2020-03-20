@@ -1,5 +1,5 @@
-PgHoffServerRequest = require './server-request'
-Helper              = require './helper'
+PgHoffServerRequest = hrequire '/server-request'
+Helper              = hrequire '/helper'
 
 class DBQuery
     constructor: (@query, @alias, @options) ->

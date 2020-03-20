@@ -1,7 +1,7 @@
 Promise = require('promise')
-PgHoffDialog = require('./dialog')
-PgHoffServerRequest     = require './server-request'
-{maybeStartServer, killHoffServer}      = require './util'
+PgHoffDialog = hrequire('/dialog')
+PgHoffServerRequest     = hrequire '/server-request'
+{maybeStartServer, killHoffServer}      = hrequire '/util'
 {CompositeDisposable, Disposable} = require 'atom'
 
 class PgHoffConnection
@@ -18,6 +18,50 @@ class PgHoffConnection
     @KillHoffServer: (restart) ->
         port = 5000
         killHoffServer(restart)
+
+    @CompleteConnect: () ->
+        listServersView = @
+        selectedServer = null
+        currentAlias = atom.workspace.getActiveTextEditor()?.alias
+        PgHoffServerRequest.Get 'listservers'
+                .then (servers) =>
+                    return servers
+                .catch =>
+                    maybeStartServer()
+                    .then =>
+                        PgHoffServerRequest.Get 'listservers'
+            .then (servers) =>
+                items = []
+                for server of servers
+                    servers[server].alias = server
+                    items.push name: server, selected: server == currentAlias, value: servers[server], connected: servers[server].connected
+                return PgHoffDialog.PromptList('Choose a connection:', items, @createServerElement)
+                    .then (item) ->
+                        return item.value
+            .then (server) ->
+                selectedServer = server
+                requiresAuthKey = selectedServer.requiresauthkey == 'True' || selectedServer.requiresauthkey == '"True"'
+                if not server.connected
+                    if requiresAuthKey
+                        return PgHoffDialog.PromptPassword('Enter Password')
+
+                return ''
+            .then (password) ->
+                request =
+                    alias: selectedServer.alias,
+                    authkey: password
+
+                if not selectedServer.connected
+                    return PgHoffServerRequest.Post 'connect', request
+                else
+                    return { 'alias': selectedServer.alias, 'color': selectedServer.color }
+            .then (response) ->
+                if response.errormessage == 'Already connected to server.'
+                    response.already_connected = true
+                    return response
+                else if response.errormessage?
+                    throw(response.errormessage)
+                return response
 
     connect: (panel) ->
         listServersView = @

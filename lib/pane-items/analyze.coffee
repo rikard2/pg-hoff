@@ -1,7 +1,7 @@
 {Emitter, CompositeDisposable} = require 'atom'
 {$, View}                      = require 'space-pen'
 window.jQuery                  = require 'jquery'
-TableView                      = require '../slickgrid/table-view'
+TableView                      = hrequire '/slickgrid/table-view'
 
 class AnalyzePaneItem extends View
     @table: null

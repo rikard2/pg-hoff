@@ -1,8 +1,8 @@
 {Emitter, CompositeDisposable}      = require 'atom'
-ResultsPaneItem                     = require './results'
-OutputPaneItem                      = require './output'
-HoffEyePaneItem                     = require './hoffeye'
-Helper                              = require '../helper'
+ResultsPaneItem                     = hrequire '/pane-items/results'
+OutputPaneItem                      = hrequire '/pane-items/output'
+HoffEyePaneItem                     = hrequire '/pane-items/hoffeye'
+Helper                              = hrequire '/helper'
 
 module.exports =
 class PaneManager
@@ -165,7 +165,6 @@ class PaneManager
     findPaneDock: (p) ->
         for pane in atom.workspace.getBottomDock().getPaneItems()
             if p is pane
-                console.log 'p <> pane', p.getId(), pane.getId()
                 return atom.workspace.getBottomDock()
 
         for pane in atom.workspace.getLeftDock().getPaneItems()

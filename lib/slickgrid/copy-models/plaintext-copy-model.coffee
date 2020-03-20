@@ -1,4 +1,4 @@
-CopyModel = require './copy-model'
+CopyModel = hrequire '/slickgrid/copy-models/copy-model'
 
 module.exports = class PlainTextCopyModel extends CopyModel
     constructor: () ->

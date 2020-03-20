@@ -1,8 +1,7 @@
-ValuesCopyModel                 = require './values-copy-model'
-JsonCopyModel                   = require './json-copy-model'
-PlainTextCopyModel               = require './plaintext-copy-model'
-
-PgHoffDialog                    = require('../../dialog')
+ValuesCopyModel    = hrequire '/slickgrid/copy-models/values-copy-model'
+JsonCopyModel      = hrequire '/slickgrid/copy-models/json-copy-model'
+PlainTextCopyModel = hrequire '/slickgrid/copy-models/plaintext-copy-model'
+PgHoffDialog       = hrequire('/dialog')
 
 module.exports = class CopyModel
     constructor: () ->

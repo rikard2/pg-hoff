@@ -2,9 +2,9 @@
 {$, View}                           = require 'space-pen'
 parseInterval                       = require 'postgres-interval'
 window.jQuery                       = require 'jquery'
-PgHoffServerRequest                 = require '../server-request'
-TableView                           = require '../slickgrid/table-view'
-RowSelectionModel                   = require '../slickgrid/selection-models/row-selection-model'
+PgHoffServerRequest                 = hrequire '/server-request'
+TableView                           = hrequire '/slickgrid/table-view'
+RowSelectionModel                   = hrequire '/slickgrid/selection-models/row-selection-model'
 
 class HistoryPaneItem extends View
     @table: null

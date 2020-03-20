@@ -1,10 +1,10 @@
 {Point, Range, Emitter, CompositeDisposable} = require 'atom'
 {$, View}                                    = require 'space-pen'
-PgHoffServerRequest                          = require '../server-request'
 parseInterval                                = require 'postgres-interval'
 window.jQuery                                = require 'jquery'
-TableView                                    = require '../slickgrid/table-view'
-SlickFormatting                              = require '../slickgrid/formatting'
+PgHoffServerRequest                          = hrequire '/server-request'
+TableView                                    = hrequire '/slickgrid/table-view'
+SlickFormatting                              = hrequire '/slickgrid/formatting'
 
 class HoffEyePaneItem extends View
     table: null

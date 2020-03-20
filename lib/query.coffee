@@ -1,4 +1,4 @@
-PgHoffServerRequest = require './server-request'
+PgHoffServerRequest = hrequire '/server-request'
 
 class PgHoffQuery
     constructor: (serializedState) ->

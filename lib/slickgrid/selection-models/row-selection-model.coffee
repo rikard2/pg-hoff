@@ -1,4 +1,4 @@
-SlickGrid = require '../../../extlib/bd-slickgrid/grid'
+SlickGrid = hrequire '/../extlib/bd-slickgrid/grid'
 
 class RowSelectionModel
     onSelectedRangesChanged: null

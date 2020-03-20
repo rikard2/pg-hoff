@@ -1,6 +1,6 @@
 {CompositeDisposable}   = require 'atom'
-PgHoffServerRequest     = require './server-request'
-Helper                  = require './helper'
+PgHoffServerRequest     = hrequire '/server-request'
+Helper                  = hrequire '/helper'
 
 class PgHoffAutocompleteProvider
     selector: '.source.sql'

@@ -1,9 +1,10 @@
 {CompositeDisposable}   = require 'atom'
-TableView               = require('../slickgrid/table-view')
-SlickFormatting         = require('../slickgrid/formatting')
-Helper                  = require('../helper')
-DBQuery                 = require('../dbquery')
-ResultsPaneItem         = require('../pane-items/results')
+TableView               = hrequire '/slickgrid/table-view'
+SlickFormatting         = hrequire '/slickgrid/formatting'
+Helper                  = hrequire '/helper'
+DBQuery                 = hrequire '/dbquery'
+ResultsPaneItem         = hrequire '/pane-items/results'
+
 {View, $}               = require 'space-pen'
 module.exports          = class QuickQuery
     subscriptions: null
@@ -13,14 +14,15 @@ module.exports          = class QuickQuery
         subscriptions = new CompositeDisposable
 
         d.executePromise()
-            .then (r) ->
-                return new Promise((fulfil, reject) ->
+            .then (r) =>
+                return new Promise((fulfil, reject) =>
                     element = document.createElement('div')
                     element.classList.add('hoff-dialog')
                     element.classList.add('native-key-bindings')
                     element.classList.add('gulp-pane')
 
-                    resultsPane = new ResultsPaneItem
+                    p = hrequire('/pane-items/results')
+                    resultsPane = new p()
 
                     element.classList.add('native-key-bindings')
                     element.style['overflow'] = 'auto'
@@ -33,6 +35,7 @@ module.exports          = class QuickQuery
                     element.style['overflow-wrap'] = 'normal'
                     element.style['overflow-x'] = 'scroll'
                     element.wrap = 'soft'
+
 
                     element.classList.add 'force-select'
                     resultsPane.id = Helper.GenerateUUID()

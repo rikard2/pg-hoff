@@ -1,7 +1,9 @@
 {CompositeDisposable, Disposable}   = require 'atom'
-SlickGrid                           = require '../../../extlib/bd-slickgrid/grid'
-CopyModel                           = require '../copy-models/copy-model'
-
+SlickGrid                           = hrequire '/../extlib/bd-slickgrid/grid'
+CopyModel                           = hrequire '/slickgrid/copy-models/copy-model'
+PgHoffConnection                    = hrequire '/connection'
+QuickQuery                          = hrequire '/modals/quick-query'
+Helper                              = hrequire '/helper'
 class WinningSelectionModel
     onSelectedRangesChanged: null
     activeRange: null
@@ -23,8 +25,32 @@ class WinningSelectionModel
         @grid.onContextMenu.subscribe(@onContextMenu)
         @subscriptions = new CompositeDisposable
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:copy': => @onCopyCommand()
+        @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:local-query': => @onLocalQuery()
 
         @onSelectedRangesChanged = new Slick.Event
+
+    onLocalQuery: () =>
+        console.log 'local query'
+        return unless WinningSelectionModel.ActiveGrid == @grid
+
+        columns = @grid.getColumns()
+        selectedColumns = @getSelectedColumns()
+
+        count = Helper.CountDistinctKey(selectedColumns, 'x')
+        if count != 1
+            atom.notifications.addError('Only one column is allowed')
+            return
+
+        vals = selectedColumns.flatMap (x) -> x['value']
+        ids = vals.join(',')
+        query = 'SELECT * FROM Orders WHERE OrderID IN (' + ids + ')'
+
+        PgHoffConnection.CompleteConnect()
+            .then (r) =>
+                if r.alias?
+                    QuickQuery.Show(query, r.alias)
+
+        console.log 'onLocalQuery', query
 
     onCoreCopy: () =>
         return unless WinningSelectionModel.ActiveGrid == @grid
