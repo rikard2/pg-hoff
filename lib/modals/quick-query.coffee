@@ -40,12 +40,7 @@ module.exports          = class QuickQuery
                     element.classList.add 'force-select'
                     resultsPane.id = Helper.GenerateUUID()
 
-                    q = document.createElement('input')
-                    q.type = 'text'
-
                     resultsPane.render(r.result)
-                    element.appendChild(q)
-                    q.focus()
                     element.appendChild(resultsPane.element)
 
 
