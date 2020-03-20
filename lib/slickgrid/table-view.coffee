@@ -218,7 +218,7 @@ class HoffTableView extends View
         @grid = new SlickGrid @, @data, @columns, @options
 
         @[0].showOpenScripts = () =>
-            showOpenScripts(@data)
+            #showOpenScripts(@data)
 
         @[0].openScripts = () =>
             openScripts(@data)
