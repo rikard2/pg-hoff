@@ -10,13 +10,16 @@ class ResultsPaneItem extends View
     table: null
     processedQueries: []
     id: null
+    classId: null
     getTitle: () => 'Result',
     getId: () => @id,
     getURI: () => 'atom://pg-hoff/result-view',
     getDefaultLocation: () => 'center'
 
     @content: ->
-        @div class: 'gulp-pane', outlet: 'pane', style: 'overflow: auto !important; font-family:menlo', =>
+        @classId = Helper.GenerateUUID()
+        @div
+            class: 'gulp-pane', outlet: 'pane', style: 'overflow: auto !important; font-family:menlo', =>
 
     reset: () ->
         marker.destroy() for marker in @errorMarkers
@@ -245,7 +248,11 @@ class ResultsPaneItem extends View
         @errorMarkers.push(m)
 
 
-    focusFirstResult: => $(".slick-cell.l0.r0").first().click()
+    focusFirstResult: =>
+        elements = @element.getElementsByClassName('r1')
+        console.log 'elements', elements
+        if elements?.length > 0
+            elements[0].click()
 
     destroy: ->
         @subscriptions.dispose()

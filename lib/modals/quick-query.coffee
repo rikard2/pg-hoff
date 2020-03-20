@@ -35,6 +35,7 @@ module.exports          = class QuickQuery
                     element.wrap = 'soft'
 
                     element.classList.add 'force-select'
+                    resultsPane.id = Helper.GenerateUUID()
 
                     q = document.createElement('input')
                     q.type = 'text'
@@ -47,12 +48,10 @@ module.exports          = class QuickQuery
 
                     modal = atom.workspace.addModalPanel(item: element, visible: true)
                     element.parentElement.style['min-width'] = '100em'
-                    console.log 'minWidth', element.parentElement
 
                     resultsPane.focusFirstResult()
 
                     subscriptions.add atom.commands.add 'atom-text-editor', 'core:copy', (e) ->
-                        console.log 'copy dont do it!', atom.clipboard.read()
                         e.stopImmediatePropagation()
 
                     subscriptions.add atom.commands.add('body', {
@@ -61,6 +60,7 @@ module.exports          = class QuickQuery
                             subscriptions.dispose()
                             modal.destroy()
                             event.stopPropagation()
+                            event.stopImmediatePropagation()
                     })
                 )
             .catch (x) ->

@@ -71,8 +71,9 @@ class PaneManager
 
         if atom.config.get('pg-hoff.shouldExistInCertainDock')
             for paneItem in dock.getPaneItems()
-                if @resultsPane && paneItem.getId() == @resultsPane.getId()
-                    return false
+                if paneItem.constructor.name == 'ResultsPaneItem'
+                    if @resultsPane && paneItem.getId() == @resultsPane.getId()
+                        return false
         else
             if @resultsPane?
                 return false
@@ -86,8 +87,9 @@ class PaneManager
 
         if atom.config.get('pg-hoff.shouldExistInCertainDock')
             for paneItem in dock.getPaneItems()
-                if @outputPane && paneItem.getId() == @outputPane.getId()
-                    return false
+                if paneItem.constructor.name == 'OutputPaneItem'
+                    if @outputPane && paneItem.getId() == @outputPane.getId()
+                        return false
         else
             if @outputPane?
                 return false
