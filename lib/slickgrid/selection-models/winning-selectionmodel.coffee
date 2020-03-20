@@ -26,8 +26,12 @@ class WinningSelectionModel
 
         @onSelectedRangesChanged = new Slick.Event
 
+    onCoreCopy: () =>
+        console.log 'onCoreCopy'
+        @onCopyCommand()
     onCopyCommand: () =>
         return unless WinningSelectionModel.ActiveGrid == @grid
+
         columns = @grid.getColumns()
         CopyModel.PromptCopy(@getSelectedColumns(), columns)
             .then (selectedColumns) =>
@@ -152,43 +156,8 @@ class WinningSelectionModel
             @activeRange = new Slick.Range 0, firstColumn, data.length - 1, columns.length - 1
             @onSelectedRangesChanged.notify [ @activeRange ]
         if (e.metaKey or e.ctrlKey) and e.keyCode == 67
-            unless @lastCell and @startCell and @activeRange and @ranges
-                return
-            selectedColumns = []
-            output = []
-            clipboard = []
-            data = @grid.getData()
-            columns = @grid.getColumns()
-            for range in @ranges.concat( [ @activeRange ] )
-                if range.fromCell == range.toCell
-                    copyRows = false
-                    for x in [range.fromCell..range.toCell]
-                        for y in [range.fromRow..range.toRow]
-                            selectedColumns.push({x: x, y:y})
-                else
-                    copyRows = true
-                    for y in [range.fromRow..range.toRow]
-                        for x in [range.fromCell..range.toCell]
-                            if x == range.toCell and y != range.toRow
-                                selectedColumns.push({x: x, y:y, newLine:true})
-                            else
-                                selectedColumns.push({x: x, y:y, newLine:false})
-            obj1 = {}
-            obj2 = {}
-            for cell in selectedColumns
-                output.push(@formatCell(columns[cell.x]["type"], data[cell.y][columns[cell.x]["field"]]))
-                obj1[columns[cell.x]["field"]] = "copyFlash"
-                obj2[cell.y] = obj1
-                if cell.newLine
-                    clipboard.push(output.join(", ") + '\n')
-                    output = []
-            if copyRows
-                clipboard.push(output.join(", "))
-                atom.clipboard.write(clipboard.join("").toString())
-            else
-                atom.clipboard.write(output.join(", ").toString())
-            @grid.setCellCssStyles("copy_Flash", obj2)
-            atom.workspace.getActivePane().activate()
+            console.log '@', @
+            @.onCoreCopy()
 
     getSelectedColumns: () =>
         selectedColumns = []

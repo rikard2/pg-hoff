@@ -7,6 +7,7 @@ PgHoffDialog                    = require('../../dialog')
 module.exports = class CopyModel
     constructor: () ->
     @PromptCopy: (selectedColumns, columns) =>
+
         models = []
         models.push new ValuesCopyModel
         models.push new JsonCopyModel
@@ -14,7 +15,7 @@ module.exports = class CopyModel
         for model in models
             model.name = model.getName()
             model.value = model
-
+        console.log 'prompting', models
         return PgHoffDialog.PromptList(null, models)
             .then (model) =>
                 if model?
