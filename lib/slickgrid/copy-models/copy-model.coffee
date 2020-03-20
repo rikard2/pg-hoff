@@ -1,13 +1,14 @@
 ValuesCopyModel    = hrequire '/slickgrid/copy-models/values-copy-model'
 JsonCopyModel      = hrequire '/slickgrid/copy-models/json-copy-model'
 PlainTextCopyModel = hrequire '/slickgrid/copy-models/plaintext-copy-model'
+SimpleCopyModel    = hrequire '/slickgrid/copy-models/simple-copy-model'
 PgHoffDialog       = hrequire('/dialog')
 
 module.exports = class CopyModel
     constructor: () ->
 
     @CopyDefault: (selectedColumns, columns) =>
-        model = new PlainTextCopyModel
+        model = new SimpleCopyModel
 
         copy = model.onCopy(selectedColumns, columns)
         if copy?

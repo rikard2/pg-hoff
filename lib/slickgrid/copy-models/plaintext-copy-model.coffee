@@ -63,7 +63,7 @@ module.exports = class PlainTextCopyModel extends CopyModel
         return output
 
 
-    getName: () -> 'PlainText'
+    getName: () -> 'Plain Text'
 
     formatCell: (columnType, cellValue) ->
         if cellValue == null
