@@ -44,13 +44,14 @@ class WinningSelectionModel
         vals = selectedColumns.flatMap (x) -> x['value']
         ids = vals.join(',')
         query = 'SELECT * FROM Orders WHERE OrderID IN (' + ids + ')'
-
-        PgHoffConnection.CompleteConnect()
-            .then (r) =>
-                if r.alias?
-                    QuickQuery.Show(query, r.alias)
-
-        console.log 'onLocalQuery', query
+        alias = atom.workspace.getActiveTextEditor()?.alias
+        if alias?
+            QuickQuery.Show(query, alias)
+        else
+            PgHoffConnection.CompleteConnect()
+                .then (r) =>
+                    if r.alias?
+                        QuickQuery.Show(query, r.alias)
 
     onCoreCopy: () =>
         return unless WinningSelectionModel.ActiveGrid == @grid
