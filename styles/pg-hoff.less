@@ -277,3 +277,26 @@ autocomplete-suggestion-list {
     max-width: 725px !important; // 500px by default
   }
 }
+
+.results-overlay-decoration {
+    &:hover {
+        text-decoration: underline;
+        cursor: pointer;
+    }
+    left: auto !important;
+    right: 0px !important;
+
+    .results-overlay-parent {
+        transform: translate(0, -100%);
+        position: relative;
+        background: #282c34;
+        right: 0px;
+        top: 0px;
+    }
+
+    .results-overlay-child {
+        position: absolute;
+        background: #282c34;
+        color: #abb2bf;
+    }
+}
