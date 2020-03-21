@@ -39,6 +39,8 @@ spawnHoffServer = (command, args) ->
         host = host.substr(0, host.lastIndexOf(':'))
         hoffpath = atom.config.get('pg-hoff.hoffServerPath')
         hoffServerPythonCommand = atom.config.get('pg-hoff.hoffServerPythonCommand')
+        StartGunicornDirectly = atom.config.get('pg-hoff.hoffServerStartGunicornDirectly')
+
         s = null
 
         if fs.existsSync(path.join hoffpath, 'pghoffserver.py')
@@ -60,8 +62,10 @@ spawnHoffServer = (command, args) ->
             else
                 atom.notifications.addError('Could not find the hoff :(')
                 return
-
-        s = spawn(hoffServerPythonCommand, ['gunicorn_python.py', 'pghoffserver:app', '--bind', host], { env: process.env, detached: true, cwd: (path.join hoffpath, 'pghoffserver') })
+        if StartGunicornDirectly
+            s = spawn('gunicorn', ['pghoffserver:app', '--bind', host], { env: process.env, detached: true, cwd: (path.join hoffpath, 'pghoffserver') })
+        else
+            s = spawn(hoffServerPythonCommand, ['gunicorn_python.py', 'pghoffserver:app', '--bind', host], { env: process.env, detached: true, cwd: (path.join hoffpath, 'pghoffserver') })
         s.stdout.on 'data', (data)      -> fulfil(data.toString()) if not resolved
         s.stderr.on 'data', (data)      -> fulfil('stderr ' + data.toString()) if not resolved
         s.on 'close', (code)            -> reject('close ' + code) if not resolved

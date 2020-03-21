@@ -78,6 +78,11 @@ module.exports =
         type: 'string'
         default: 'python'
         order: 1
+    StartGunicornDirectly:
+        description: 'Start Gunicorn directly (enable if you have gunicorn executable in your $PATH)'
+        type: 'boolean'
+        default: 'false'
+        order: 1
     quoteValues:
         description: 'Quote non-numerics when copying'
         type: 'boolean'
