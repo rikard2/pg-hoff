@@ -39,7 +39,7 @@ spawnHoffServer = (command, args) ->
         host = host.substr(0, host.lastIndexOf(':'))
         hoffpath = atom.config.get('pg-hoff.hoffServerPath')
         hoffServerPythonCommand = atom.config.get('pg-hoff.hoffServerPythonCommand')
-        StartGunicornDirectly = atom.config.get('pg-hoff.hoffServerStartGunicornDirectly')
+        StartGunicornDirectly = atom.config.get('pg-hoff.StartGunicornDirectly')
 
         s = null
 
