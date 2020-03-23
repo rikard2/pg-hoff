@@ -5,13 +5,10 @@ window.jQuery                                = require 'jquery'
 TableView                                    = hrequire '/slickgrid/table-view'
 SlickFormatting                              = hrequire '/slickgrid/formatting'
 Helper                                       = hrequire '/helper'
-ResultDecoration                             = hrequire '/result-decoration'
 
 class ResultsPaneItem extends View
     table: null
     processedQueries: []
-    resultMarkers: []
-    resultItems: []
     id: null
     classId: null
     getTitle: () => 'Result',
@@ -170,10 +167,7 @@ class ResultsPaneItem extends View
                             console.error 'Could not decorate marker', query.marker
                 , 300)
 
-    updateCompleted: (result) =>
-        for ri in @resultItems
-            ri.completed() if ri.queryid == result.queryid
-
+    updateCompleted: (result) ->
         for query in @processedQueries
             if query.queryId == result.queryid
                 setTimeout( () =>
@@ -213,22 +207,6 @@ class ResultsPaneItem extends View
         @processedQueries.push queryInfo
 
         editor.decorateMarker(marker, type: 'line-number', class: 'query-loading') if marker?
-        marker2 = editor.markBufferRange(hit.range, invalidate: 'inside', reversed: true)
-
-        item = new ResultDecoration()
-        item.queryid = queryInfo.queryId
-        item.marker = marker2
-        decor = {
-            type: 'overlay'
-            class: 'results-overlay-decoration'
-            item: item
-            position: 'head'
-        }
-        editor.decorateMarker(marker2, decor)
-
-        @resultMarkers.push(marker2)
-        @resultItems.push(item)
-
     escapeRegExp: (str) ->
         str = str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
         return str.replace(/(?:\r\n|\r|\n)/g, '[\\r?\\n]');
