@@ -308,10 +308,11 @@ module.exports = PgHoff =
                 req =
                     queryid: $(event.target).attr('queryid')
                     path: path
+                atom.notifications.addWarning('Exporting...')
                 return PgHoffServerRequest.Post('write_csv_file', req)
             .then (response) ->
                 if response.success
-                    atom.notifications.addInfo('Exporting to CSV.')
+                    atom.notifications.addInfo('Exported to CSV!')
                 else
                     atom.notifications.addWarning('There was a problem exporting to CSV')
             .catch (err) ->
