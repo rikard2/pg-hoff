@@ -677,6 +677,7 @@ var Slick = require('./core');
         containment: "parent",
         distance: 3,
         axis: "x",
+        cancel: ".hamburgler",
         cursor: "default",
         tolerance: "intersection",
         helper: "clone",
