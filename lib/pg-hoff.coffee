@@ -19,6 +19,7 @@ HistoryPaneItem                   = hrequire '/pane-items/history'
 AnalyzePaneItem                   = hrequire '/pane-items/analyze'
 Helper                            = hrequire '/helper'
 QuickQuery                        = hrequire '/modals/quick-query'
+SnippetModal                      = hrequire '/modals/snippet-modal'
 
 module.exports = PgHoff =
     provider: null

@@ -3,9 +3,6 @@ CopyModel = hrequire '/slickgrid/copy-models/copy-model'
 module.exports = class SimpleCopyModel extends CopyModel
     constructor: () ->
     onCopy: (selection, columns) ->
-        console.log 'yeah boy', selection, columns
-
-
         cols = {}
         rows = {}
         for n in selection

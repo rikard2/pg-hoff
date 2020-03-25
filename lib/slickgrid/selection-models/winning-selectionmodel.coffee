@@ -4,6 +4,10 @@ CopyModel                           = hrequire '/slickgrid/copy-models/copy-mode
 PgHoffConnection                    = hrequire '/connection'
 QuickQuery                          = hrequire '/modals/quick-query'
 Helper                              = hrequire '/helper'
+PgHoffServerRequest                 = hrequire '/server-request'
+SnippetModal                        = hrequire '/modals/snippet-modal'
+PgHoffDialog                        = hrequire '/dialog'
+
 class WinningSelectionModel
     onSelectedRangesChanged: null
     activeRange: null
@@ -26,12 +30,99 @@ class WinningSelectionModel
         @subscriptions = new CompositeDisposable
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:copy': => @onCopyCommand()
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:local-query': => @onLocalQuery()
+        @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:new-snippet': => @newSnippet()
+        @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:edit-snippet': => @editSnippet()
+        @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:snippet-query': => @snippetQuery()
 
         @onSelectedRangesChanged = new Slick.Event
 
-    onLocalQuery: () =>
-        console.log 'local query'
+    chooseSnippet: (column) =>
+        PgHoffServerRequest.Post('list_snippets', {})
+            .then (r) ->
+                snippets = r.snippets
+                presentSnippets = []
+                cols = Object.keys(snippets)
+                for col in cols
+                    sn = Object.keys(snippets[col])
+                    for s in sn
+                        if (column? and snippets[col][s]['column'] == column.toLowerCase()) or not column?
+                            presentSnippets.push({
+                                name: snippets[col][s]['name'],
+                                value: snippets[col][s]
+                            })
+                return PgHoffDialog.PromptList(null, presentSnippets)
+            .catch (err) ->
+                console.log 'err', err
+
+    editSnippet: () =>
         return unless WinningSelectionModel.ActiveGrid == @grid
+        column = @getSelectedColumn().name?.toLowerCase()
+        @chooseSnippet(column)
+            .then (chosen) =>
+                return unless chosen.value
+                chosen.value.replace = @getIds()
+
+                SnippetModal.Edit(chosen.value)
+                    .then (snippet) ->
+                        return PgHoffServerRequest.Post('set_snippet', snippet)
+                    .then () ->
+                        atom.notifications.addSuccess('Snippet added for column ' + column)
+                    .catch (err) ->
+                        console.error(err)
+                        atom.notifications.addError('Failed to add snippet')
+
+    getSelectedColumn: () =>
+        columns = @grid.getColumns()
+        selectedColumns = @getSelectedColumns()
+        console.log 'getSelectedColumn', columns, selectedColumns
+        count = Helper.CountDistinctKey(selectedColumns, 'x')
+        if count != 1
+            atom.notifications.addError('Only one column is allowed')
+            return
+
+        return columns[selectedColumns[0].x]
+
+    getIds: () =>
+        return unless WinningSelectionModel.ActiveGrid == @grid
+
+        column = @getSelectedColumn().name.toLowerCase()
+
+        columns = @grid.getColumns()
+        selectedColumns = @getSelectedColumns()
+
+        vals = selectedColumns.flatMap (x) -> x['value']
+        return {} unless vals? and vals.length > 0
+
+        ids = vals.join(',')
+
+        return {
+            ids: ids,
+            id: vals[0]
+        }
+
+    newSnippet: () =>
+        return unless WinningSelectionModel.ActiveGrid == @grid
+        column = @getSelectedColumn().name.toLowerCase()
+
+        SnippetModal.Edit({ name: '#Snippet name#', column: column, sql: 'SELECT 1', replace: @getIds()})
+            .then (done) ->
+                newSnippet = {
+                    id: Helper.GenerateUUID(),
+                    column: column,
+                    name: done.name,
+                    sql: done.sql
+                }
+                return PgHoffServerRequest.Post('set_snippet', newSnippet)
+            .then () ->
+                atom.notifications.addSuccess('Snippet added for column ' + column)
+            .catch (err) ->
+                console.error(err)
+                atom.notifications.addError('Failed to add snippet')
+
+    snippetQuery: () =>
+        return unless WinningSelectionModel.ActiveGrid == @grid
+
+        column = @getSelectedColumn().name.toLowerCase()
 
         columns = @grid.getColumns()
         selectedColumns = @getSelectedColumns()
@@ -41,22 +132,28 @@ class WinningSelectionModel
             atom.notifications.addError('Only one column is allowed')
             return
 
-        vals = selectedColumns.flatMap (x) -> x['value']
-        ids = vals.join(',')
-        query = 'SELECT * FROM Orders WHERE OrderID IN (' + ids + ')'
-        alias = atom.workspace.getActiveTextEditor()?.alias
-        if alias?
-            QuickQuery.Show(query, alias)
-        else
-            PgHoffConnection.CompleteConnect()
-                .then (r) =>
-                    if r.alias?
-                        QuickQuery.Show(query, r.alias)
+        @chooseSnippet(column)
+            .then (snippet) ->
+                vals = selectedColumns.flatMap (x) -> x['value']
+                ids = vals.join(',')
+
+                query = snippet.value.sql
+                query = query.replace('$IDS$', vals)
+                if vals.length > 0
+                    query = query.replace('$ID$', vals[0])
+
+                alias = atom.workspace.getActiveTextEditor()?.alias
+                if alias?
+                    QuickQuery.Show(query, alias)
+                else
+                    PgHoffConnection.CompleteConnect()
+                        .then (r) =>
+                            if r.alias?
+                                QuickQuery.Show(query, r.alias)
 
     onCoreCopy: () =>
         return unless WinningSelectionModel.ActiveGrid == @grid
         columns = @grid.getColumns()
-        console.log 'onCoreCopy', @getSelectedColumns(), columns
         selectedColumns = CopyModel.CopyDefault(@getSelectedColumns(), columns)
         if selectedColumns
             obj1 = {}
@@ -83,7 +180,6 @@ class WinningSelectionModel
                 @grid.setCellCssStyles("copy_Flash", obj2)
                 atom.workspace.getActivePane().activate()
             .catch (reason) ->
-                #console.log 'cancel'
     onMouseDown: (e, args, local) =>
         cell = @grid.getCellFromEvent(e)
         return unless cell? and @grid.canCellBeSelected(cell.row, cell.cell)
