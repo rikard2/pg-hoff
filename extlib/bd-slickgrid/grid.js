@@ -2284,6 +2284,9 @@ var Slick = require('./core');
       }
     }
     function handleMouseDown(e) {
+      if (e.which == 3) {
+          return;
+      }
       var cell = getCellFromEvent(e);
       if (!cell || (currentEditor !== null && activeRow == cell.row && activeCell == cell.cell)) {
         return;

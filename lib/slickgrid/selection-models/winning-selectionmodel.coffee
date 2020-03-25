@@ -17,7 +17,6 @@ class WinningSelectionModel
     lastCell: {}
     startCell: {}
     subscriptions: null
-
     init: (grid) =>
         @grid = grid
         @grid.onClick.subscribe(@handleGridClick)
@@ -34,6 +33,8 @@ class WinningSelectionModel
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:edit-snippet': => @editSnippet()
         @subscriptions.add atom.commands.add 'atom-workspace', 'pg-hoff:snippet-query': => @snippetQuery()
 
+        @contextMenuCommands = []
+        @contextMenuItems = []
         @onSelectedRangesChanged = new Slick.Event
 
     chooseSnippet: (column) =>
@@ -74,10 +75,9 @@ class WinningSelectionModel
     getSelectedColumn: () =>
         columns = @grid.getColumns()
         selectedColumns = @getSelectedColumns()
-        console.log 'getSelectedColumn', columns, selectedColumns
         count = Helper.CountDistinctKey(selectedColumns, 'x')
         if count != 1
-            atom.notifications.addError('Only one column is allowed')
+            #atom.notifications.addError('Only one column is allowed')
             return
 
         return columns[selectedColumns[0].x]
@@ -348,26 +348,71 @@ class WinningSelectionModel
         @onSelectedRangesChanged.notify @ranges.concat( [ @activeRange ] )
 
     onContextMenu: (e) =>
-      e.preventDefault()
-      cell = @grid.getCellFromEvent(e)
-      columns = @grid.getColumns()
-      columnname = columns[cell.cell]['name']
-      target = '.' + e.target.classList[0] + '.' + e.target.classList[1]
-      value = @grid.getData()[cell.row][columns[cell.cell]["field"]]
-      commandparams = {}
-      commandparams['pg-hoff:executecellops' + cell.cell.toString() + cell.row.toString()] = (event) => @performCellOps(command, columnname, value)
-      command = atom.commands.add 'atom-workspace', commandparams
-      if columnname.toLowerCase() == 'orderid'
-          menu = {}
-          menu[target] = [{
-               'label': 'Do awesome stuff with ' + columnname,
-               'command':'pg-hoff:executecellops' + cell.cell.toString() + cell.row.toString()
-            }]
-          menuitem = atom.contextMenu.add menu
+        e.preventDefault()
+        cell = @grid.getCellFromEvent(e)
+        columns = @grid.getColumns()
+        columnname = columns[cell.cell]['name']
+        target = '.' + e.target.classList[0] + '.' + e.target.classList[1]
+        value = @grid.getData()[cell.row][columns[cell.cell]["field"]]
+        column = @getSelectedColumn()?.name?.toLowerCase()
+        columns = @grid.getColumns()
+        selectedColumns = @getSelectedColumns()
+        count = Helper.CountDistinctKey(selectedColumns, 'x')
+        if count != 1
+            return
 
-    performCellOps: (command, columnname, value) ->
-        command.dispose()
-        atom.notifications.addInfo('Awestome stuff happening with ' + columnname + ' ' + value)
+        menu = {}
+        PgHoffServerRequest.Post('list_snippets', {})
+        .then (r) =>
+              snippets = r.snippets
+              presentSnippets = []
+              cols = Object.keys(snippets)
+              for col in cols
+                  sn = Object.keys(snippets[col])
+                  for s in sn
+                      if (column? and snippets[col][s]['column'] == column.toLowerCase()) or not column?
+                          presentSnippets.push({
+                              name: snippets[col][s]['name'],
+                              value: snippets[col][s]
+                          })
+              command.dispose() for command in @contextMenuCommands
+              item.dispose() for item in @contextMenuItems
+              @contextMenuCommands = []
+              @contextMenuItems = []
+              for snippet in presentSnippets
+                  commandparams = {}
+                  commandparams['pg-hoff:snippet-query-table-' + snippet.name] = (event) => @snippetQueryInline(snippet, selectedColumns)
+                  command = atom.commands.add 'atom-workspace', commandparams
+                  @contextMenuCommands.push(command)
+                  menu[target] = [{
+                      'label': 'Get ' + snippet.name + ' for ' + columnname + (if /\$IDS\$/.test(snippet.value.sql) then 's' else ''),
+                      'command':'pg-hoff:snippet-query-table-' + snippet.name
+                      }]
+                  menuitem = atom.contextMenu.add menu
+                  @contextMenuItems.push(menuitem)
+              return
+        .catch (err) ->
+            console.log 'err', err
+
+    snippetQueryInline: (snippet, selectedColumns) ->
+        vals = selectedColumns.flatMap (x) -> x['value']
+        ids = vals.join(',')
+
+        query = snippet.value.sql
+        query = query.replace('$IDS$', vals)
+        if vals.length > 0
+            query = query.replace('$ID$', vals[0])
+
+        alias = atom.workspace.getActiveTextEditor()?.alias
+        if alias?
+            QuickQuery.Show(query, alias)
+        else
+            PgHoffConnection.CompleteConnect()
+                .then (r) =>
+                    if r.alias?
+                        QuickQuery.Show(query, r.alias)
+        command.dispose() for command in @contextMenuCommands
+        item.dispose() for item in @contextMenuItems
 
     destroy: =>
 
