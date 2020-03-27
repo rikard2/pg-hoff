@@ -1,3 +1,5 @@
+HoffWindow = hrequire '/windows/window'
+
 module.exports = class JSONModal
     @Show: (json) ->
         unless typeof(json) == 'object'
@@ -7,10 +9,10 @@ module.exports = class JSONModal
                 json = json
 
         return new Promise((fulfil, reject) ->
-            element = document.createElement('div')
-            element.classList.add('hoff-dialog')
-            element.classList.add('native-key-bindings')
-            jsonElement = element.appendChild document.createElement('textarea')
+            w = new HoffWindow({
+                title: 'JSON content'
+            })
+            jsonElement = document.createElement('textarea')
             jsonElement.classList.add('native-key-bindings')
             jsonElement.style['overflow'] = 'auto'
             jsonElement.style['width'] = '100%'
@@ -24,14 +26,6 @@ module.exports = class JSONModal
             jsonElement.wrap = 'soft'
             jsonElement.classList.add 'force-select'
             jsonElement.value = json
-            modal = atom.workspace.addModalPanel(item: element, visible: true)
 
-            atom.commands.add(jsonElement, {
-                'core:cancel': (event) =>
-                    modal.destroy()
-                    event.stopPropagation()
-            })
-            jsonElement.focus()
-            jsonElement.addEventListener 'blur', () ->
-                modal.destroy()
+            w.show(jsonElement)
         )
