@@ -14,7 +14,7 @@ module.exports          = class QuickQuery
     @Show: (sql, alias) ->
         d = new DBQuery(sql, alias)
         subscriptions = new CompositeDisposable
-
+        currentZ = 0
         d.executePromise()
             .then (r) =>
                 return new Promise((fulfil, reject) =>
@@ -115,6 +115,7 @@ module.exports          = class QuickQuery
                     resizer.style['cursor'] = 'nwse-resize'
 
                     maxZ = 10
+                    currentZ = 11
                     for q in @QuickQuerys
                         if Number(q.element.style['z-index']) > maxZ
                             maxZ = Number(q.element.style['z-index'])
@@ -135,6 +136,7 @@ module.exports          = class QuickQuery
                                 q.element.style['border'] = '1px solid #101010'
                         if maxZ > 0
                             element.style['z-index'] = maxZ
+                            currentZ = maxZ
                         header.style['background'] = 'rgb(65, 65, 65)'
                         element.style['border'] = '1px solid #151515'
 
@@ -143,8 +145,6 @@ module.exports          = class QuickQuery
                         if Number(element.style['height'].substring(0, element.style['height'].length - 2)) > 14
                             oldSize = Number(element.style['height'].substring(0, element.style['height'].length - 2))
                             element.style['height'] = '0px'
-                            #$(element).css({opacity: 0.0, visibility: "hidden"}).animate({opacity: 1.0}, 200));
-
                         else
                             element.style['height'] = oldSize + 'px'
 
@@ -166,19 +166,19 @@ module.exports          = class QuickQuery
 
                     subscriptions.add atom.commands.add('body', {
                         'core:cancel': (event) =>
-                            subscriptions.dispose()
                             maxZ = 0
                             for q in @QuickQuerys
                                 if Number(q.element.style['z-index']) > maxZ
                                     maxZ = Number(q.element.style['z-index'])
+                            if currentZ != maxZ
+                                return
                             q.element.remove() for q in @QuickQuerys when Number(q.element.style['z-index']) == maxZ
                             @QuickQuerys = (q for q in @QuickQuerys when Number(q.element.style['z-index']) != maxZ)
                             for q in @QuickQuerys when Number(q.element.style['z-index']) == maxZ-1
                                 q.header.style['background'] = 'rgb(65, 65, 65)'
                                 q.element.style['border'] = '1px solid #151515'
-                            event.stopPropagation()
-                            event.stopImmediatePropagation()
                             atom.workspace.getActiveTextEditor().focus
+                            subscriptions.dispose()
                     })
                 )
             .catch (x) ->
