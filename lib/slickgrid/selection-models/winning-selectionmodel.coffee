@@ -7,6 +7,7 @@ Helper                              = hrequire '/helper'
 PgHoffServerRequest                 = hrequire '/server-request'
 SnippetModal                        = hrequire '/modals/snippet-modal'
 PgHoffDialog                        = hrequire '/dialog'
+PgHoffSnippets                      = hrequire '/snippets'
 
 class WinningSelectionModel
     onSelectedRangesChanged: null
@@ -360,45 +361,41 @@ class WinningSelectionModel
         count = Helper.CountDistinctKey(selectedColumns, 'x')
         if count != 1
             return
-
+        snippets = PgHoffSnippets.Get()
+        command.dispose() for command in @contextMenuCommands
+        item.dispose() for item in @contextMenuItems
+        @contextMenuCommands = []
+        @contextMenuItems = []
+        presentSnippets = []
         menu = {}
-        PgHoffServerRequest.Post('list_snippets', {})
-        .then (r) =>
-              snippets = r.snippets
-              presentSnippets = []
-              cols = Object.keys(snippets)
-              for col in cols
-                  sn = Object.keys(snippets[col])
-                  for s in sn
-                      if (column? and snippets[col][s]['column'] == column.toLowerCase()) or not column?
-                          presentSnippets.push({
-                              name: snippets[col][s]['name'],
-                              value: snippets[col][s]
-                          })
-              command.dispose() for command in @contextMenuCommands
-              item.dispose() for item in @contextMenuItems
-              @contextMenuCommands = []
-              @contextMenuItems = []
-              for snippet in presentSnippets
-                  commandparams = {}
-                  commandparams['pg-hoff:snippet-query-table-' + snippet.name] = (event) => @snippetQueryInline(snippet, selectedColumns)
-                  command = atom.commands.add 'atom-workspace', commandparams
-                  @contextMenuCommands.push(command)
-                  menu[target] = [{
-                      'label': 'Get ' + snippet.name + ' for ' + columnname + (if /\$IDS\$/.test(snippet.value.sql) then 's' else ''),
-                      'command':'pg-hoff:snippet-query-table-' + snippet.name
-                      }]
-                  menuitem = atom.contextMenu.add menu
-                  @contextMenuItems.push(menuitem)
-              return
-        .catch (err) ->
-            console.log 'err', err
+        cols = Object.keys(snippets)
+        for col in cols
+            sn = Object.keys(snippets[col])
+            for s in sn
+                if (column? and snippets[col][s]['column'] == column.toLowerCase()) or not column?
+                    presentSnippets.push({
+                        name: snippets[col][s]['name'],
+                        value: snippets[col][s]
+                    })
+                    snippet = snippets[col][s]
+                    commandparams = {}
+                    commandparams['pg-hoff:snippet-query-table-' + snippet.name] = (event) => @snippetQueryInline(snippet, selectedColumns)
+                    command = atom.commands.add 'atom-workspace', commandparams
+                    @contextMenuCommands.push(command)
+                    menu[target] = [{
+                        'label': 'Get ' + snippet.name + ' for ' + columnname + (if /\$IDS\$/.test(snippet.sql) then 's' else ''),
+                        'command':'pg-hoff:snippet-query-table-' + snippet.name
+                        }]
+                    menuitem = atom.contextMenu.add menu
+                    @contextMenuItems.push(menuitem)
+        return
+
 
     snippetQueryInline: (snippet, selectedColumns) ->
         vals = selectedColumns.flatMap (x) -> x['value']
         ids = vals.join(',')
 
-        query = snippet.value.sql
+        query = snippet.sql
         query = query.replace('$IDS$', vals)
         if vals.length > 0
             query = query.replace('$ID$', vals[0])

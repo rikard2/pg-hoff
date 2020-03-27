@@ -20,6 +20,7 @@ AnalyzePaneItem                   = hrequire '/pane-items/analyze'
 Helper                            = hrequire '/helper'
 QuickQuery                        = hrequire '/modals/quick-query'
 SnippetModal                      = hrequire '/modals/snippet-modal'
+PgHoffSnippets                    = hrequire '/snippets'
 
 module.exports = PgHoff =
     provider: null
@@ -351,7 +352,7 @@ module.exports = PgHoff =
                 tabMarker.classList.add 'tab-marker'
                 $(tabMarker).css('border-color', "transparent #{server.color or colorizeString(server.alias)} transparent transparent")
                 tabItem.appendChild tabMarker
-
+                PgHoffSnippets.Fetch()
                 return server.alias
             .catch (err) =>
                 if err? and err != 'cancel'

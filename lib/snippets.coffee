@@ -4,16 +4,16 @@ module.exports = class Snippets
     @CachedSnippets: {}
 
 
-    @List = () ->
+    @Fetch = () ->
         return PgHoffServerRequest.Post('list_snippets', {})
             .then (snippets) ->
-                Snippets.CachedSnippets = snippets
+                Snippets.CachedSnippets = snippets.snippets
 
                 return snippets
 
-    @GetCached = () -> return Snippets.CachedSnippets
+    @Get = () -> return Snippets.CachedSnippets
 
     @Set = (snippet) ->
         return PgHoffServerRequest.Post('set_snippet', snippet)
             .then () ->
-                return Snippets.List()
+                return Snippets.Fetch()
