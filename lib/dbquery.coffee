@@ -132,6 +132,7 @@ class DBQuery
                                             rowCount: result.rowcount,
                                             result: result
                                         })
+                                        currentpage += pagesize
                                         return fetchPartialResult()
                                     else
                                         #if gotQueryplan
