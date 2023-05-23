@@ -36,6 +36,7 @@ class HoffTableView extends View
             str = val.toString().trim()
 
     refresh: () =>
+        @attached() unless @grid;
         @grid.setOptions(@options);
         @grid.setColumns(@columns);
 

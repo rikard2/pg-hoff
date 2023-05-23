@@ -307,13 +307,14 @@ module.exports = PgHoff =
         PgHoffDialog
             .SaveAs()
             .then (path) ->
+                console.log($(event.target).attr('queryid'))
                 req =
                     queryid: $(event.target).attr('queryid')
-                    path: path
+                    path: path.filePath
                 atom.notifications.addWarning('Exporting...')
                 return PgHoffServerRequest.Post('write_csv_file', req)
             .then (response) ->
-                if response.success
+                if response?.success
                     atom.notifications.addInfo('Exported to CSV!')
                 else
                     atom.notifications.addWarning('There was a problem exporting to CSV')
@@ -351,6 +352,8 @@ module.exports = PgHoff =
                 $(tabMarker).attr('alias', server.alias)
                 tabMarker.classList.add 'tab-marker'
                 $(tabMarker).css('border-color', "transparent #{server.color or colorizeString(server.alias)} transparent transparent")
+                $(tabMarker).css('background-color', "#{server.color or colorizeString(server.alias)}")
+
                 tabItem.appendChild tabMarker
                 PgHoffSnippets.Fetch()
                 return server.alias
